@@ -19,3 +19,6 @@
 # OS junk
 .DS_Store
 Thumbs.db
+Assets/Settings/UniversalRenderPipelineGlobalSettings.asset
+Packages/packages-lock.json
+Assets/Settings/UniversalRenderPipelineGlobalSettings.asset
