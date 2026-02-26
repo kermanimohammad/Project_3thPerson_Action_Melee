@@ -55,11 +55,11 @@ public class PlayerCombatController : MonoBehaviour
         Vector3 center = transform.position + transform.forward * boxForwardOffset;
 
         AreaOfEffectService.Instance.CreateBoxAOE(
-            center,
-            boxSize,
-            transform.rotation,
-            boxLifetime,
-            DamageService.Instance.DealDamage
+        center,
+        boxSize,
+        transform.rotation,
+        boxLifetime,
+        (target) => DamageService.Instance.DealDamage(gameObject, target, 25)
         );
     }
 
@@ -69,10 +69,10 @@ public class PlayerCombatController : MonoBehaviour
         Vector3 center = transform.position + transform.forward * sphereForwardOffset;
 
         AreaOfEffectService.Instance.CreateSphereAOE(
-            center,
-            sphereRadius,
-            sphereLifetime,
-            DamageService.Instance.DealDamage
+        center,
+        sphereRadius,
+        sphereLifetime,
+        (target) => DamageService.Instance.DealDamage(gameObject, target, 40)
         );
     }
 

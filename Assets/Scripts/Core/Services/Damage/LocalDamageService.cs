@@ -4,14 +4,24 @@ public class LocalDamageService : MonoBehaviour, IDamageService
 {
     private void Awake()
     {
+        if (DamageService.Instance != null)
+        {
+            Debug.LogWarning("Multiple DamageService instances detected.");
+        }
+
         DamageService.Register(this);
     }
 
-    public void DealDamage(GameObject target)
+    public void DealDamage(GameObject source, GameObject target, int amount)
     {
+        if (target == null)
+            return;
+
         if (target.TryGetComponent<IDamageable>(out var damageable))
         {
-            damageable.TakeDamage(25);
+            damageable.TakeDamage(amount);
+
+            Debug.Log($"{source.name} dealt {amount} damage to {target.name}");
         }
     }
 }

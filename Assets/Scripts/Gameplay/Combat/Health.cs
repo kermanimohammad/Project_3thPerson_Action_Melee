@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Health : MonoBehaviour, IDamageable
@@ -5,15 +6,21 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
 
+    public event Action<int, int> OnHealthChanged;
+    // (currentHealth, maxHealth)
+
     private void Awake()
     {
         currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
-        Debug.Log($"{gameObject.name} took {amount} damage. Remaining: {currentHealth}");
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (currentHealth <= 0)
         {
@@ -23,7 +30,6 @@ public class Health : MonoBehaviour, IDamageable
 
     private void Die()
     {
-        Debug.Log($"{gameObject.name} died.");
         Destroy(gameObject);
     }
 }
