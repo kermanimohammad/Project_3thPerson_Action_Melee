@@ -12,7 +12,7 @@ public class LocalDamageService : MonoBehaviour, IDamageService
         DamageService.Register(this);
     }
 
-    public void DealDamage(GameObject source, GameObject target, int amount)
+    public void DealDamage(GameObject source, GameObject target, float amount)
     {
         if (target == null)
             return;

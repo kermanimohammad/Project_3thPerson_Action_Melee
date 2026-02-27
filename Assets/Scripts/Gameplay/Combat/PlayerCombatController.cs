@@ -59,7 +59,7 @@ public class PlayerCombatController : MonoBehaviour
         boxSize,
         transform.rotation,
         boxLifetime,
-        (target) => DamageService.Instance.DealDamage(gameObject, target, 25)
+        (target) => DamageService.Instance.DealDamage(gameObject, target, 0.25f)
         );
     }
 
@@ -72,7 +72,7 @@ public class PlayerCombatController : MonoBehaviour
         center,
         sphereRadius,
         sphereLifetime,
-        (target) => DamageService.Instance.DealDamage(gameObject, target, 40)
+        (target) => DamageService.Instance.DealDamage(gameObject, target, 0.40f)
         );
     }
 

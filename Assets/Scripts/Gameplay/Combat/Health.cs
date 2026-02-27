@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class Health : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int maxHealth = 100;
-    private int currentHealth;
+    [SerializeField] private int maxHealth = 1;
+    private float currentHealth;
 
-    public event Action<int, int> OnHealthChanged;
+    public event Action<float, float> OnHealthChanged;
     // (currentHealth, maxHealth)
 
     private void Awake()
@@ -15,7 +15,7 @@ public class Health : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(float amount)
     {
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);

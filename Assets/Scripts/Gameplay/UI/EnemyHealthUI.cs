@@ -24,7 +24,7 @@ public class EnemyHealthUI : MonoBehaviour
             health.OnHealthChanged -= UpdateHealthBar;
     }
 
-    private void UpdateHealthBar(int current, int max)
+    private void UpdateHealthBar(float current, float max)
     {
         healthSlider.maxValue = max;
         healthSlider.value = current;
