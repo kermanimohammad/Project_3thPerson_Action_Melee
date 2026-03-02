@@ -1,49 +1,9 @@
 fileFormatVersion: 2
-guid: cd519867f88110d46b7f33abf9f2584f
+guid: 108a535758da4584b86f6b1fce8c28a4
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: BrickOldSharp0184_1_S_1
-    second: {fileID: 2100000, guid: c1df577f4d8b87d42a0bf0730154ff54, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Fencing_Lattice_Natural
-    second: {fileID: 2100000, guid: c0c1949c9e5524843b951dde7d92a47b, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: LoamWalls0012_2_S_1_1
-    second: {fileID: 2100000, guid: c56dfba0e603e554e8a2fd01cde95a73, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: LoamWalls0014_S_1
-    second: {fileID: 2100000, guid: 0465eeec849e0eb41a72d1c0f8de6f97, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: LoamWalls0029_S_1
-    second: {fileID: 2100000, guid: 34524e6962fb795498f836d1e8fc6d60, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: LoamWalls0045_4_S_1
-    second: {fileID: 2100000, guid: bcbff751c49c87e489e54ce647b71ab7, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: PlanksNew0037_17_S_1
-    second: {fileID: 2100000, guid: 3897d245234690346a40c5ef523ab273, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: PlanksOld0002_5_S_1
-    second: {fileID: 2100000, guid: ed7ef12c1657fbf429dcd192e7dfad12, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -73,9 +33,9 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 0.045
+    globalScale: 0.05
     meshCompression: 0
-    addColliders: 0
+    addColliders: 1
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
     importPhysicalCameras: 1
@@ -86,9 +46,9 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
-    keepQuads: 0
+    keepQuads: 1
     weldVertices: 1
     bakeAxisConversion: 0
     preserveHierarchy: 0
@@ -131,7 +91,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.045
+    globalScale: 0.05
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
