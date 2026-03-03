@@ -3,7 +3,42 @@ guid: 2db9ccdabf1473b479270b1726ec6588
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fencing_Lattice_Natural
+    second: {fileID: 2100000, guid: a1e35be44d616fa44b8ce22286d6922b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LoamWalls0012_2_S_1_1
+    second: {fileID: 2100000, guid: e7f3c1d0180edce469d30c34120e6e3a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LoamWalls0014_S_1
+    second: {fileID: 2100000, guid: 975bee086b329f54480b779c71634a55, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LoamWalls0029_S_1
+    second: {fileID: 2100000, guid: dfd09420baaf03f4c8ec898a831fb409, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LoamWalls0045_4_S_1
+    second: {fileID: 2100000, guid: 47478ead93bf066489dd97962222acd1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PlanksNew0037_17_S_1
+    second: {fileID: 2100000, guid: 25ec46fc563e09b40b0551d1e116cf36, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PlanksOld0002_5_S_1
+    second: {fileID: 2100000, guid: 9093fb3dc75198f46a2ae4a51fa9806e, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
