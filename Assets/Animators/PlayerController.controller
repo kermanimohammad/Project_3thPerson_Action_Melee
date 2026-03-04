@@ -547,7 +547,6 @@ AnimatorStateMachine:
   - {fileID: 4868212875317625441}
   - {fileID: 3361622419485574425}
   - {fileID: -1298003924664351796}
-  - {fileID: -5375232435099646961}
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []

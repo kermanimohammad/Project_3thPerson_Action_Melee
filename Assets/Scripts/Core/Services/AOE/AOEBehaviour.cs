@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class AOEBehaviour : MonoBehaviour
 {
+    private GameObject owner;
     private Action<GameObject> onEnterAction;
     private float lifetime;
     private float spawnTime;
@@ -14,8 +15,9 @@ public class AOEBehaviour : MonoBehaviour
 
     private HashSet<GameObject> affectedObjects = new HashSet<GameObject>();
 
-    public void Initialize(Action<GameObject> action, float timeToDestroy, AOEType type)
+    public void Initialize(GameObject owner, Action<GameObject> action, float timeToDestroy, AOEType type)
     {
+        this.owner = owner;
         onEnterAction = action;
         lifetime = timeToDestroy;
         aoeType = type;
@@ -28,7 +30,7 @@ public class AOEBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (affectedObjects.Contains(other.gameObject))
+        if (affectedObjects.Contains(other.gameObject) || owner == other.gameObject)
             return;
 
         affectedObjects.Add(other.gameObject);

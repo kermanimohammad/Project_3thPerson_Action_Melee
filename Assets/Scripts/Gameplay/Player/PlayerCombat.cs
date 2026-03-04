@@ -8,9 +8,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private AttackManager attackManager;
 
     public bool IsDefending { get; private set; }
-    public bool IsAttacking { get; private set; }
-
-    private static readonly int AttackStateTag = AnimParams.AttackTag;
+    public bool InAttackState => attackManager.InAttackState();
 
     private void OnEnable()
     {
@@ -32,13 +30,6 @@ public class PlayerCombat : MonoBehaviour
         bool canDefend = input != null && motor != null && motor.IsGrounded && !motor.MovementLocked;
         IsDefending = canDefend && input.DefendHeld;
         animator.SetBool(AnimParams.IsDefending, IsDefending);
-
-        int attackTag = AttackStateTag;
-
-        var current = animator.GetCurrentAnimatorStateInfo(0);
-        var next = animator.GetNextAnimatorStateInfo(0);
-
-        IsAttacking = current.tagHash == attackTag || next.tagHash == attackTag;
     }
 
     private void TryAttack()
@@ -49,6 +40,6 @@ public class PlayerCombat : MonoBehaviour
         if (attackManager == null)
             return;
 
-        attackManager.Attack();
+        attackManager.TryAttack();
     }
 }

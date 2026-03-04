@@ -60,14 +60,14 @@ ModelImporter:
       curves: []
       events:
       - time: 0.4923077
-        functionName: PerformNormalHit
+        functionName: CreateAOE
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.85641026
-        functionName: ResetAttack
+      - time: 0.672136
+        functionName: OpenComboWindow
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

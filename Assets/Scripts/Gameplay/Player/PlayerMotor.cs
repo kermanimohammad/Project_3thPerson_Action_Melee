@@ -21,7 +21,6 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private PlayerInputRouter input;
     [SerializeField] private PlayerCombat combat;
-    [SerializeField] private AttackManager attackManager;
 
     [Header("Combat Movement")]
     [SerializeField] private float attackMoveSpeedMultiplier = 0.35f;
@@ -58,7 +57,7 @@ public class PlayerMotor : MonoBehaviour
     {
         bool defending = combat != null && combat.IsDefending;
 
-        Vector3 planar = Vector3.zero;
+        Vector3 planar;
 
         if (!MovementLocked && !defending)
         {
@@ -80,7 +79,7 @@ public class PlayerMotor : MonoBehaviour
         if (animator != null)
             animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
 
-        Debug.Log($"Defending? {(combat != null && combat.IsDefending)}");
+       // Debug.Log($"Defending? {(combat != null && combat.IsDefending)}");
     }
 
     private Vector3 ComputePlanarVelocity()
@@ -98,10 +97,9 @@ public class PlayerMotor : MonoBehaviour
 
         Vector3 direction = new Vector3(move.x, 0f, move.y).normalized;
 
-        bool attacking = combat != null && combat.IsAttacking;
+        bool attacking = combat != null && combat.InAttackState;
 
-        bool inAttack = attackManager != null && attackManager.InAttackState;
-        bool canRotate = !inAttack || (attackManager != null && attackManager.InComboWindow);
+        bool canRotate = !attacking;
 
         float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
 

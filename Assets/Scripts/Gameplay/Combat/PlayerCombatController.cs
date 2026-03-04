@@ -41,7 +41,8 @@ public class PlayerCombatController : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        animator.SetBool("Attack", true);
+        animator.ResetTrigger("Attack1");
+        animator.SetTrigger("Attack1");
     }
 
     private void OnSAttack(InputAction.CallbackContext context)
@@ -55,6 +56,7 @@ public class PlayerCombatController : MonoBehaviour
         Vector3 center = transform.position + transform.forward * boxForwardOffset;
 
         AreaOfEffectService.Instance.CreateBoxAOE(
+        gameObject,
         center,
         boxSize,
         transform.rotation,
@@ -69,6 +71,7 @@ public class PlayerCombatController : MonoBehaviour
         Vector3 center = transform.position + transform.forward * sphereForwardOffset;
 
         AreaOfEffectService.Instance.CreateSphereAOE(
+        gameObject,
         center,
         sphereRadius,
         sphereLifetime,
