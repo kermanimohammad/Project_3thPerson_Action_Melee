@@ -10,6 +10,8 @@ public class PlayerCombat : MonoBehaviour
     public bool IsDefending { get; private set; }
     public bool InAttackState => attackManager.InAttackState();
 
+    private const string _EnemyTag = "Enemy";
+
     private void OnEnable()
     {
         if (input != null)
@@ -40,6 +42,28 @@ public class PlayerCombat : MonoBehaviour
         if (attackManager == null)
             return;
 
+        LayerMask enemyLayer = LayerMask.GetMask(_EnemyTag);
+        Transform aimTarget = transform.GetClosestNearbyEnemy(enemyLayer);
+        TryRotateTowardsAimTarget(aimTarget);
+
         attackManager.TryAttack();
     }
+
+    private void TryRotateTowardsAimTarget(Transform aimTarget)
+	{
+        if (aimTarget == null)
+		{
+            return;
+		}
+
+        Vector3 direction = aimTarget.position - transform.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = targetRotation;
+        }
+    }
+
 }
