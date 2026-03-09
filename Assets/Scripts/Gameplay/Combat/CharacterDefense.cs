@@ -8,10 +8,10 @@ public class CharacterDefense : MonoBehaviour
     public bool IsDefending { get; private set; }
 
     public void StartDefend()
-	{
+    {
         IsDefending = true;
         animator.SetBool(AnimParams.IsDefending, IsDefending);
-	}
+    }
 
     public void StopDefend()
     {

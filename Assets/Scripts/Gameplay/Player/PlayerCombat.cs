@@ -32,20 +32,20 @@ public class PlayerCombat : MonoBehaviour
     }
 
     private void UpdateDefense()
-	{
+    {
         if (input == null || motor == null)
-		{
+        {
             return;
-		}
+        }
 
         bool shouldDefend = input.DefendHeld && motor.IsGrounded && !motor.MovementLocked;
 
         if (shouldDefend)
-		{
+        {
             characterDefense.StartDefend();
         }
         else if (IsDefending)
-		{
+        {
             characterDefense.StopDefend();
         }
     }
