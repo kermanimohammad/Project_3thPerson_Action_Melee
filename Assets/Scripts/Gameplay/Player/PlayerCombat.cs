@@ -6,8 +6,9 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private PlayerMotor motor;
     [SerializeField] private AttackManager attackManager;
+    [SerializeField] private CharacterDefense characterDefense;
 
-    public bool IsDefending { get; private set; }
+    public bool IsDefending => characterDefense.IsDefending;
     public bool InAttackState => attackManager.InAttackState();
 
     private void OnEnable()
@@ -27,9 +28,26 @@ public class PlayerCombat : MonoBehaviour
         if (animator == null)
             return;
 
-        bool canDefend = input != null && motor != null && motor.IsGrounded && !motor.MovementLocked;
-        IsDefending = canDefend && input.DefendHeld;
-        animator.SetBool(AnimParams.IsDefending, IsDefending);
+        UpdateDefense();
+    }
+
+    private void UpdateDefense()
+	{
+        if (input == null || motor == null)
+		{
+            return;
+		}
+
+        bool shouldDefend = input.DefendHeld && motor.IsGrounded && !motor.MovementLocked;
+
+        if (shouldDefend)
+		{
+            characterDefense.StartDefend();
+        }
+        else if (IsDefending)
+		{
+            characterDefense.StopDefend();
+        }
     }
 
     private void TryAttack()
