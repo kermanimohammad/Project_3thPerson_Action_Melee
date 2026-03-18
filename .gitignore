@@ -30,3 +30,9 @@ Assets/Settings/Mobile_RPAsset.asset
 Assets/Settings/PC_RPAsset.asset
 Packages/manifest.json
 Packages/packages-lock.json
+Assets/Settings/UniversalRenderPipelineGlobalSettings.asset
+Assets/StarterAssets/Environment/RenderPipelineProfiles/StarterAssetsURPAsset.asset
+Packages/manifest.json
+Packages/packages-lock.json
+ProjectSettings/EditorBuildSettings.asset
+ProjectSettings/ProjectVersion.txt
