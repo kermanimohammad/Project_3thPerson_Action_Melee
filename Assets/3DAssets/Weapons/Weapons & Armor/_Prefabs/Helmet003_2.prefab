@@ -1,0 +1,293 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &110202
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 409632}
+  - 33: {fileID: 3377876}
+  - 23: {fileID: 2369508}
+  m_Layer: 0
+  m_Name: helmet_3_horns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &146986
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 410628}
+  - 33: {fileID: 3398112}
+  - 23: {fileID: 2346800}
+  m_Layer: 0
+  m_Name: helmet_3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &191790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 435764}
+  - 114: {fileID: 11428056}
+  m_Layer: 0
+  m_Name: Helmet003_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &409632
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 110202}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 435764}
+  m_RootOrder: 1
+--- !u!4 &410628
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 146986}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 435764}
+  m_RootOrder: 0
+--- !u!4 &435764
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 191790}
+  m_LocalRotation: {x: 0, y: 0.70710665, z: 0, w: 0.70710695}
+  m_LocalPosition: {x: 0, y: 1.64, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 410628}
+  - {fileID: 409632}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!23 &2346800
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 146986}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 9bbc00fb864424f378523d8f75823a57, type: 2}
+  m_SubsetIndices: 
+  m_StaticBatchRoot: {fileID: 0}
+  m_UseLightProbes: 1
+  m_ReflectionProbeUsage: 1
+  m_ProbeAnchor: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+--- !u!23 &2369508
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 110202}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 9bbc00fb864424f378523d8f75823a57, type: 2}
+  m_SubsetIndices: 
+  m_StaticBatchRoot: {fileID: 0}
+  m_UseLightProbes: 1
+  m_ReflectionProbeUsage: 1
+  m_ProbeAnchor: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+--- !u!33 &3377876
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 110202}
+  m_Mesh: {fileID: 4300000, guid: 10142fe6ab30a40e4a2c3b1250078c16, type: 2}
+--- !u!33 &3398112
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 146986}
+  m_Mesh: {fileID: 4300000, guid: 66b3948594c0a4d2bb3f4a573b95ec59, type: 2}
+--- !u!114 &11428056
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 191790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bfaf1597b76048bea58100f2805dca0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blendShapeObjects:
+  - name: helmet_3
+    object: {fileID: 4300000, guid: a515f272a60c0de40b350534d6ae9869, type: 3}
+    renderer: {fileID: 0}
+    blendShapes:
+    - name: Length
+      fullName: SFB_BS_Length
+      isMinus: 0
+      isPlus: 0
+      inspectorID: 0
+      id: 0
+      minValue: 0
+      maxValue: 0
+      value: 1
+      sliderValue: 1
+      changeDuration: 0
+      isVisible: 1
+      blendMatches: []
+      presetExport: 1
+    - name: EyeSocketMinus
+      fullName: SFB_BS_EyeSocketMinus
+      isMinus: 1
+      isPlus: 0
+      inspectorID: 0
+      id: 1
+      minValue: 0
+      maxValue: 0
+      value: 100
+      sliderValue: 100
+      changeDuration: 0
+      isVisible: 0
+      blendMatches: []
+      presetExport: 1
+    - name: EyeSocketPlus
+      fullName: SFB_BS_EyeSocketPlus
+      isMinus: 0
+      isPlus: 1
+      inspectorID: 1
+      id: 2
+      minValue: 0
+      maxValue: 0
+      value: -100
+      sliderValue: -100
+      changeDuration: 0
+      isVisible: 1
+      blendMatches: []
+      presetExport: 1
+    primaryShapes: 3
+    expandedInspector: 1
+  - name: helmet_3_horns
+    object: {fileID: 4300002, guid: a515f272a60c0de40b350534d6ae9869, type: 3}
+    renderer: {fileID: 0}
+    blendShapes:
+    - name: HornLength
+      fullName: SFB_BS_HornLength
+      isMinus: 0
+      isPlus: 0
+      inspectorID: 2
+      id: 0
+      minValue: 0
+      maxValue: 0
+      value: 24.2
+      sliderValue: 24.2
+      changeDuration: 0
+      isVisible: 1
+      blendMatches: []
+      presetExport: 1
+    - name: HornThicknessMinus
+      fullName: SFB_BS_HornThicknessMinus
+      isMinus: 1
+      isPlus: 0
+      inspectorID: 0
+      id: 1
+      minValue: 0
+      maxValue: 0
+      value: 30.3
+      sliderValue: 30.3
+      changeDuration: 0
+      isVisible: 0
+      blendMatches: []
+      presetExport: 1
+    - name: HornThicknessPlus
+      fullName: SFB_BS_HornThicknessPlus
+      isMinus: 0
+      isPlus: 1
+      inspectorID: 3
+      id: 2
+      minValue: 0
+      maxValue: 0
+      value: -30.3
+      sliderValue: -30.3
+      changeDuration: 0
+      isVisible: 1
+      blendMatches: []
+      presetExport: 1
+    primaryShapes: 3
+    expandedInspector: 1
+  inspectorObjects:
+  - objectID: 0
+    shapeID: 0
+    blendShapeID: 0
+  - objectID: 0
+    shapeID: 2
+    blendShapeID: 2
+  - objectID: 1
+    shapeID: 0
+    blendShapeID: 0
+  - objectID: 1
+    shapeID: 2
+    blendShapeID: 2
+  presetObjects:
+  - {fileID: 4900000, guid: e2682aceca64e4ccabd4d388a1a5d30a, type: 3}
+  demoSliders: []
+  wireframeHidden: 1
+  presetName: 'Helmet003 '
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 191790}
+  m_IsPrefabParent: 1
