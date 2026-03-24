@@ -17,11 +17,24 @@ public class LocalDamageService : MonoBehaviour, IDamageService
         if (target == null)
             return;
 
-        if (target.TryGetComponent<IDamageable>(out var damageable))
+        if (!target.TryGetComponent<IDamageable>(out var damageable))
         {
-            damageable.TakeDamage(amount);
-
-            Debug.Log($"{source.name} dealt {amount} damage to {target.name}");
+            return;
         }
+
+        if (!target.TryGetComponent(out CharacterDefense targetDefense))
+        {
+            throw new System.InvalidOperationException($"{target.name} is damageable but has no CharacterDefense component.");
+        }
+
+        if (targetDefense.IsDefending)
+        {
+            amount *= (1 - targetDefense.DamageReductionPercentage);
+        }
+
+        damageable.TakeDamage(amount);
+
+        Debug.Log($"{source.name} dealt {amount} damage to {target.name}");
+
     }
 }

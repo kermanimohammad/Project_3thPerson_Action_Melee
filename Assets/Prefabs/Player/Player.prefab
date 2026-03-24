@@ -605,6 +605,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 44d526f82369ebe4f802440bcf3eb97a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2252808078334008012}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 44d526f82369ebe4f802440bcf3eb97a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1035875439536276028}
     - targetCorrespondingSourceObject: {fileID: 1051571768989249988, guid: 44d526f82369ebe4f802440bcf3eb97a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 692557630136732648}
@@ -753,6 +756,7 @@ MonoBehaviour:
   animator: {fileID: 8829420853843630785}
   motor: {fileID: 8941603824104892687}
   attackManager: {fileID: 4815154270926145058}
+  characterDefense: {fileID: 1035875439536276028}
 --- !u!114 &420613909075921032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -863,6 +867,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 1
+--- !u!114 &1035875439536276028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7430739708438917562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ab9fb796dea474abc5a9a0ff934bd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefense
+  animator: {fileID: 8829420853843630785}
+  <DamageReductionPercentage>k__BackingField: 0.3
 --- !u!4 &7806034245328333568 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 44d526f82369ebe4f802440bcf3eb97a, type: 3}
