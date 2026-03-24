@@ -569,6 +569,10 @@ PrefabInstance:
       value: Ch05_nonPBR
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 36f6d39bd244c234fa28a4c0346c2530, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 36f6d39bd244c234fa28a4c0346c2530, type: 3}
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
