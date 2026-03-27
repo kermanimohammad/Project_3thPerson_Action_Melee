@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f2a9c1e4b8d4e6f90a1b2c3d4e5f607, type: 3}
+  m_Name: GamepadIconLibrary_MainMenu
+  m_EditorClassIdentifier: Assembly-CSharp::GamepadIconLibrary
+  slotIcons:
+  - slot: 8
+    icon: {fileID: -448537521, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 9
+    icon: {fileID: -467733035, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 2
+    icon: {fileID: -1695792455, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 3
+    icon: {fileID: -1695792455, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 4
+    icon: {fileID: 1613546603, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 5
+    icon: {fileID: 467834454, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 6
+    icon: {fileID: -1570493548, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 7
+    icon: {fileID: -1825234309, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 10
+    icon: {fileID: 149895048, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 11
+    icon: {fileID: 599201894, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 12
+    icon: {fileID: 924940389, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 13
+    icon: {fileID: 587695833, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 14
+    icon: {fileID: 1124202482, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 15
+    icon: {fileID: 705386701, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - slot: 16
+    icon: {fileID: -596641756, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  entries:
+  - pathSubstring: /leftStick
+    icon: {fileID: -1695792455, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /rightStick
+    icon: {fileID: -1695792455, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /leftTrigger
+    icon: {fileID: 149895048, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /rightTrigger
+    icon: {fileID: 599201894, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /buttonSouth
+    icon: {fileID: 924940389, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /buttonWest
+    icon: {fileID: 705386701, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /buttonNorth
+    icon: {fileID: 1124202482, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}
+  - pathSubstring: /buttonEast
+    icon: {fileID: 587695833, guid: 400e0e4c1cfbc834aa954618dd7a1e9f, type: 3}

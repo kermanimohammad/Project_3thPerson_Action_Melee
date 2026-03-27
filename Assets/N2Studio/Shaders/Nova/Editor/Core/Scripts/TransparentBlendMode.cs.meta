@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b167fc2235bbe4ed885a96ea1a4b0700
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Editor/Core/Scripts/TransparentBlendMode.cs
+  uploadId: 783724

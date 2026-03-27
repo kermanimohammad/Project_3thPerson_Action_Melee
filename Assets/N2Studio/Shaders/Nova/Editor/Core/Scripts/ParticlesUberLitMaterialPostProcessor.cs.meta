@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 8ddd2d7d48034f0f871071468499a0e9
+timeCreated: 1658193704
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Editor/Core/Scripts/ParticlesUberLitMaterialPostProcessor.cs
+  uploadId: 783724

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6b0df027a6e67407a832958c9e268a7f
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Runtime/Core/Shaders/ParticlesInstancing.hlsl
+  uploadId: 783724
