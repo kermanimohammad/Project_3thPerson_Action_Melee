@@ -6,8 +6,11 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField] private int maxHealth = 1;
     private float currentHealth;
 
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
+    public float HealthPercent => maxHealth <= 0 ? 0f : currentHealth / maxHealth;
+
     public event Action<float, float> OnHealthChanged;
-    // (currentHealth, maxHealth)
 
     private void Awake()
     {
@@ -23,9 +26,7 @@ public class Health : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (currentHealth <= 0)
-        {
             Die();
-        }
     }
 
     private void Die()
