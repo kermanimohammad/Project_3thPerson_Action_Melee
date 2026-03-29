@@ -1,7 +1,6 @@
-﻿ using UnityEngine;
+﻿using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 #endif
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
@@ -115,7 +114,7 @@ namespace StarterAssets
         {
             get
             {
-                return _playerInput.currentControlScheme == "keyboardMouse";
+                return _playerInput.currentControlScheme == "KeyboardMouse";
             }
         }
 
@@ -132,11 +131,11 @@ namespace StarterAssets
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
-            
+
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
-            _playerInput = GetComponent<PlayerInput>();
             _input = GetComponent<StarterAssetsInputs>();
+            _playerInput = GetComponent<PlayerInput>();
 
             AssignAnimationIDs();
 
