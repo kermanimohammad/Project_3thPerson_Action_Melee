@@ -26,6 +26,8 @@ public class ResetAllBindingsButton : MonoBehaviour
         foreach (var asset in uniqueAssets)
             InputRebindPersistence.Clear(asset);
 
+        InputBindingRuntimeSync.ApplySavedBindingsToAllRegistered();
+
         // 2) Reset Look sensitivity sliders (Mouse + Gamepad) to defaults.
         PlayerPrefs.SetFloat(MainMenuSettingsKeys.MouseSensitivity, MainMenuSettingsKeys.DefaultLinearVolume);
         PlayerPrefs.SetFloat(MainMenuSettingsKeys.GamepadSensitivity, MainMenuSettingsKeys.DefaultLinearVolume);

@@ -15,6 +15,18 @@ public class FloatSettingSlider : MonoBehaviour
     private void Awake()
     {
         _slider = GetComponent<Slider>();
+        _slider.onValueChanged.AddListener(OnSliderValueChanged);
+    }
+
+    private void OnDestroy()
+    {
+        if (_slider != null)
+            _slider.onValueChanged.RemoveListener(OnSliderValueChanged);
+    }
+
+    private void OnSliderValueChanged(float value)
+    {
+        PlayerPrefs.SetFloat(playerPrefsKey, value);
     }
 
     private void OnEnable()

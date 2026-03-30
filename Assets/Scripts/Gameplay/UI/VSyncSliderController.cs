@@ -71,6 +71,22 @@ public class VSyncSliderController : MonoBehaviour
             SetupPointerCatcher();
     }
 
+    /// <summary>Syncs slider + label from PlayerPrefs (engine already applied).</summary>
+    public void RefreshFromPlayerPrefs()
+    {
+        if (vsyncSlider == null)
+            vsyncSlider = GetComponent<Slider>();
+        if (vsyncSlider == null)
+            return;
+
+        int stored = saveToPlayerPrefs ? PlayerPrefs.GetInt(PlayerPrefsKey, -1) : -1;
+        int uiIndex = stored == 0 || stored == 1 ? stored : GetCurrentUiIndex();
+
+        _lastUiIndex = uiIndex;
+        vsyncSlider.SetValueWithoutNotify(uiIndex);
+        UpdateText(uiIndex);
+    }
+
     private void OnDisable()
     {
         if (vsyncSlider != null)

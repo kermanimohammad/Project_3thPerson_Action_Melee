@@ -14,6 +14,7 @@ public class MenuItemsVolumeSlider : MonoBehaviour
     [SerializeField] private float minDb = -80f;
     [SerializeField] private float maxDb = 0f;
     [SerializeField] private float defaultSliderValue = MainMenuSettingsKeys.DefaultMenuItemsVolume;
+    [SerializeField] private bool loadFromPlayerPrefsOnEnable = true;
 
     private Slider _slider;
     private bool _isApplyingFromMixer;
@@ -22,11 +23,18 @@ public class MenuItemsVolumeSlider : MonoBehaviour
     {
         _slider = GetComponent<Slider>();
         _slider.onValueChanged.AddListener(OnSliderChanged);
+        if (mixer != null)
+            GameAudioSettings.RegisterMixer(mixer);
     }
+
+    private AudioMixer Mx => GameAudioSettings.ResolveMixer(mixer);
 
     private void OnEnable()
     {
-        ApplyMixerToSlider();
+        if (loadFromPlayerPrefsOnEnable)
+            ApplyPlayerPrefsToMixerAndSlider();
+        else
+            ApplyMixerToSlider();
     }
 
     private void OnDestroy()
@@ -37,15 +45,16 @@ public class MenuItemsVolumeSlider : MonoBehaviour
 
     private void ApplyMixerToSlider()
     {
-        if (_slider == null || mixer == null || string.IsNullOrEmpty(exposedParameter)) return;
+        var mx = Mx;
+        if (_slider == null || mx == null || string.IsNullOrEmpty(exposedParameter)) return;
 
-        if (!mixer.GetFloat(exposedParameter, out float db))
+        if (!mx.GetFloat(exposedParameter, out float db))
         {
             float safeDefault = Mathf.Clamp(defaultSliderValue, _slider.minValue, _slider.maxValue);
             _isApplyingFromMixer = true;
             _slider.SetValueWithoutNotify(safeDefault);
             _isApplyingFromMixer = false;
-            mixer.SetFloat(exposedParameter, SliderValueToDb(safeDefault));
+            mx.SetFloat(exposedParameter, SliderValueToDb(safeDefault));
             return;
         }
 
@@ -56,17 +65,43 @@ public class MenuItemsVolumeSlider : MonoBehaviour
         _isApplyingFromMixer = false;
     }
 
+    private void ApplyPlayerPrefsToMixerAndSlider()
+    {
+        var mx = Mx;
+        if (_slider == null || mx == null || string.IsNullOrEmpty(exposedParameter)) return;
+
+        float v = PlayerPrefs.GetFloat(MainMenuSettingsKeys.MenuItemsVolume, defaultSliderValue);
+        v = Mathf.Clamp(v, _slider.minValue, _slider.maxValue);
+
+        _isApplyingFromMixer = true;
+        _slider.SetValueWithoutNotify(v);
+        _isApplyingFromMixer = false;
+
+        mx.SetFloat(exposedParameter, SliderValueToDb(v));
+    }
+
     private void OnSliderChanged(float sliderValue)
     {
-        if (_isApplyingFromMixer || mixer == null || string.IsNullOrEmpty(exposedParameter)) return;
+        var mx = Mx;
+        if (_isApplyingFromMixer || mx == null || string.IsNullOrEmpty(exposedParameter)) return;
 
-        mixer.SetFloat(exposedParameter, SliderValueToDb(sliderValue));
+        mx.SetFloat(exposedParameter, SliderValueToDb(sliderValue));
     }
 
     public void SaveToPlayerPrefs()
     {
         if (_slider == null) _slider = GetComponent<Slider>();
         PlayerPrefs.SetFloat(MainMenuSettingsKeys.MenuItemsVolume, _slider.value);
+    }
+
+    /// <summary>Re-reads PlayerPrefs into the mixer and slider (e.g. after engine apply in BattleArea).</summary>
+    public void RefreshFromPlayerPrefs()
+    {
+        if (_slider == null) _slider = GetComponent<Slider>();
+        if (loadFromPlayerPrefsOnEnable)
+            ApplyPlayerPrefsToMixerAndSlider();
+        else
+            ApplyMixerToSlider();
     }
 
     private float SliderValueToDb(float sliderValue)

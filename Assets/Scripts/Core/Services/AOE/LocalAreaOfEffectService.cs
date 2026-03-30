@@ -9,6 +9,7 @@ public class LocalAreaOfEffectService : MonoBehaviour, IAreaOfEffectService
     }
 
     public void CreateSphereAOE(
+        GameObject owner,
         Vector3 center,
         float radius,
         float timeToDestroy,
@@ -26,10 +27,11 @@ public class LocalAreaOfEffectService : MonoBehaviour, IAreaOfEffectService
         rb.isKinematic = true;
 
         AOEBehaviour behaviour = aoeObject.AddComponent<AOEBehaviour>();
-        behaviour.Initialize(onEnterAction, timeToDestroy, AOEType.Special);
+        behaviour.Initialize(owner, onEnterAction, timeToDestroy, AOEType.Special);
     }
 
     public void CreateBoxAOE(
+        GameObject owner,
         Vector3 center,
         Vector3 size,
         Quaternion rotation,
@@ -49,6 +51,6 @@ public class LocalAreaOfEffectService : MonoBehaviour, IAreaOfEffectService
         rb.isKinematic = true;
 
         AOEBehaviour behaviour = aoeObject.AddComponent<AOEBehaviour>();
-        behaviour.Initialize(onEnterAction, timeToDestroy, AOEType.Normal);
+        behaviour.Initialize(owner, onEnterAction, timeToDestroy, AOEType.Normal);
     }
 }

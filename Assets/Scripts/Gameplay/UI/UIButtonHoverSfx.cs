@@ -10,6 +10,10 @@ using UnityEngine.Audio;
 /// Plays a UI hover/select SFX for any Selectable across active panels (including Slider).
 /// - Mouse hover: when pointer moves onto a different Selectable.
 /// - Keyboard/Gamepad: when EventSystem selection changes to a different Selectable because the user navigated.
+/// - When the user moves the mouse (or scrolls / clicks), EventSystem selection follows the hovered Selectable
+///   so a keyboard/gamepad-selected control does not stay visually selected while another is under the cursor.
+/// - When selection moves via keyboard/gamepad while the mouse is idle, a <c>pointerExit</c> is sent to the
+///   Selectable still under the cursor so mouse hover highlight does not remain on the wrong control.
 /// Programmatic default selection (panel open) must call <see cref="PrepareProgrammaticSelect"/> right before
 /// <c>SetSelectedGameObject</c> so hover SFX does not play until the user actually moves over the control.
 /// </summary>
@@ -76,7 +80,26 @@ public class UIButtonHoverSfx : MonoBehaviour
 
     private void Awake()
     {
+        LoadDefaultClipsFromResourcesIfNeeded();
+
+        // MainMenu (or any scene) can Awake before PauseMenuController's RuntimeInitialize bootstrap.
+        // The first UIButtonHoverSfx wins _instance; bootstrap then Destroy(this) and we lose the DDOL copy.
+        // Later, unloading MainMenu destroys the only instance and _instance becomes null — no UI SFX in BattleArea.
+        // Prefer the persistent PauseMenuController GameObject when both exist.
+        if (_instance != null && _instance != this)
+        {
+            bool thisIsPauseBootstrap = GetComponent<PauseMenuController>() != null;
+            if (thisIsPauseBootstrap)
+                Destroy(_instance);
+            else
+            {
+                Destroy(this);
+                return;
+            }
+        }
+
         _instance = this;
+
         _uiSfxSource = gameObject.GetComponent<AudioSource>();
         if (_uiSfxSource == null)
             _uiSfxSource = gameObject.AddComponent<AudioSource>();
@@ -84,7 +107,19 @@ public class UIButtonHoverSfx : MonoBehaviour
         _uiSfxSource.playOnAwake = false;
         _uiSfxSource.loop = false;
         _uiSfxSource.spatialBlend = 0f;
+        _uiSfxSource.ignoreListenerPause = true;
+        if (outputGroup == null)
+            outputGroup = GameAudioSettings.FindMixerGroup("MenuItems");
         _uiSfxSource.outputAudioMixerGroup = outputGroup;
+    }
+
+    /// <summary>Loads <c>Assets/Resources/Audio/SFX/Hover</c> and <c>Click</c> when clips are not assigned in the Inspector.</summary>
+    private void LoadDefaultClipsFromResourcesIfNeeded()
+    {
+        if (hoverClip == null)
+            hoverClip = Resources.Load<AudioClip>("Audio/SFX/Hover");
+        if (clickClip == null)
+            clickClip = Resources.Load<AudioClip>("Audio/SFX/Click");
     }
 
     private void Update()
@@ -103,11 +138,9 @@ public class UIButtonHoverSfx : MonoBehaviour
 
         float curStickSq = GetMaxLeftStickSq();
 
-        if (hoverClip != null)
-        {
-            TrackPointerHover(es);
-            TrackSelection(es, curStickSq);
-        }
+        // Pointer → selection sync runs even when hover SFX clip is unset (Resources load may be empty).
+        TrackPointerHover(es);
+        TrackSelection(es, curStickSq);
 
         _prevStickMaxSq = curStickSq;
     }
@@ -147,10 +180,47 @@ public class UIButtonHoverSfx : MonoBehaviour
             }
         }
 
-        if (hoveredSelectable != null && hoveredSelectable != _lastHoveredButton)
+        // When the user moves the mouse (or scrolls / clicks), make that control the EventSystem
+        // selection so keyboard/gamepad "selected" highlight does not stay on another button.
+        // Only run on real pointer activity so pure keyboard navigation is not overwritten while
+        // the cursor happens to sit over a different widget.
+        if (hoveredSelectable != null && IsMouseDrivingUiThisFrame())
+        {
+            GameObject selectedRoot = null;
+            var cur = es.currentSelectedGameObject;
+            if (cur != null)
+            {
+                var sel = cur.GetComponentInParent<Selectable>();
+                if (sel != null && sel.IsActive() && sel.interactable)
+                    selectedRoot = sel.gameObject;
+            }
+
+            if (selectedRoot != hoveredSelectable)
+            {
+                es.SetSelectedGameObject(hoveredSelectable);
+                _lastSelectedButton = hoveredSelectable;
+            }
+        }
+
+        if (hoverClip != null && hoveredSelectable != null && hoveredSelectable != _lastHoveredButton)
             PlayHover(hoveredSelectable);
 
         _lastHoveredButton = hoveredSelectable;
+    }
+
+    private static bool IsMouseDrivingUiThisFrame()
+    {
+        if (Mouse.current == null)
+            return false;
+
+        if (Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame ||
+            Mouse.current.middleButton.wasPressedThisFrame)
+            return true;
+
+        if (Mouse.current.scroll.ReadValue().sqrMagnitude > 0.0001f)
+            return true;
+
+        return Mouse.current.delta.ReadValue().sqrMagnitude > 0.25f;
     }
 
     private void TrackSelection(EventSystem es, float curLeftStickSq)
@@ -167,9 +237,51 @@ public class UIButtonHoverSfx : MonoBehaviour
 
         if (selectedSelectable != _lastSelectedButton)
         {
+            // Mouse did not drive UI this frame: selection changed via keyboard/gamepad (or code). Clear
+            // pointer-over state on whatever is still under the cursor so it does not stay "highlighted".
+            if (!IsMouseDrivingUiThisFrame())
+                SendPointerExitToSelectableUnderCursorIfDifferentFromSelection(es, selectedSelectable);
+
             if (selectedSelectable != null && ShouldPlayHoverForSelectionChange(curLeftStickSq))
                 PlayHover(selectedSelectable);
             _lastSelectedButton = selectedSelectable;
+        }
+    }
+
+    private static void SendPointerExitToSelectableUnderCursorIfDifferentFromSelection(
+        EventSystem es,
+        GameObject newSelectedRoot)
+    {
+        if (es == null)
+            return;
+
+        Vector2 pointerPos;
+        if (Mouse.current != null)
+            pointerPos = Mouse.current.position.ReadValue();
+        else
+            pointerPos = Input.mousePosition;
+
+        // Synthetic event; -1 matches legacy UI modules when kFakePointerId is not exposed.
+        var data = new PointerEventData(es) { pointerId = -1, position = pointerPos };
+
+        var results = new List<RaycastResult>(16);
+        es.RaycastAll(data, results);
+
+        for (int i = 0; i < results.Count; i++)
+        {
+            var go = results[i].gameObject;
+            if (go == null)
+                continue;
+
+            var selectable = go.GetComponentInParent<Selectable>();
+            if (selectable == null || !selectable.IsActive() || !selectable.interactable)
+                continue;
+
+            if (newSelectedRoot != null && selectable.gameObject == newSelectedRoot)
+                return;
+
+            ExecuteEvents.Execute(selectable.gameObject, data, ExecuteEvents.pointerExitHandler);
+            return;
         }
     }
 

@@ -176,6 +176,8 @@ public class SettingsTabController : MonoBehaviour
         if (graphicsPanel != null) graphicsPanel.SetActive(index == 0);
         if (audioPanel != null) audioPanel.SetActive(index == 1);
         if (controlsPanel != null) controlsPanel.SetActive(index == 2);
+
+        PauseMenuController.RefreshUiAnimatorsAfterSettingsTabChange();
     }
 
     private bool IsAnyTabSelected()

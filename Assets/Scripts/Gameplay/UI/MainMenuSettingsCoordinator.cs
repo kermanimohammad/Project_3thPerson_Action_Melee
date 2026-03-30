@@ -16,36 +16,24 @@ public class MainMenuSettingsCoordinator : MonoBehaviour
 
     private AudioSource _menuMusicSource;
 
+    private void Awake()
+    {
+        if (mixer != null)
+            GameAudioSettings.RegisterMixer(mixer);
+    }
+
     private void Start()
     {
-        MainMenuSettingsKeys.EnsureDefaultsWritten();
-        ApplyAllAudioFromPrefs();
+        GameAudioSettings.ApplyAllVolumesFromPlayerPrefs();
 
         if (playMenuMusicOnStart)
             EnsureMenuMusicPlaying();
     }
 
-    /// <summary>Wire Apply button OnClick to this.</summary>
+    /// <summary>Wire Apply button OnClick to this (same as BattleArea runtime wiring to <see cref="GameSettingsPersistence.SaveAllSettingsToPlayerPrefs"/>).</summary>
     public void SaveAllSettings()
     {
-        foreach (var s in FindObjectsByType<MenuItemsVolumeSlider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            s.SaveToPlayerPrefs();
-        foreach (var s in FindObjectsByType<MixerVolumeSlider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            s.SaveToPlayerPrefs();
-        foreach (var s in FindObjectsByType<FloatSettingSlider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            s.SaveToPlayerPrefs();
-        PlayerPrefs.Save();
-    }
-
-    private void ApplyAllAudioFromPrefs()
-    {
-        if (mixer == null) return;
-
-        SetMixerFromLinearKey("MenuItemsVolume", MainMenuSettingsKeys.MenuItemsVolume, MainMenuSettingsKeys.DefaultMenuItemsVolume, 0f, 0.14f);
-        SetMixerFromLinearKey("MasterVolume", MainMenuSettingsKeys.MasterVolume, MainMenuSettingsKeys.DefaultLinearVolume, 0f, 1f);
-        SetMixerFromLinearKey("MusicVolume", MainMenuSettingsKeys.MusicVolume, MainMenuSettingsKeys.DefaultLinearVolume, 0f, 1f);
-        SetMixerFromLinearKey("SFXVolume", MainMenuSettingsKeys.SfxVolume, MainMenuSettingsKeys.DefaultLinearVolume, 0f, 1f);
-        SetMixerFromLinearKey("DialogueVolume", MainMenuSettingsKeys.DialogueVolume, MainMenuSettingsKeys.DefaultLinearVolume, 0f, 1f);
+        GameSettingsPersistence.SaveAllSettingsToPlayerPrefs();
     }
 
     private void EnsureMenuMusicPlaying()
@@ -62,6 +50,9 @@ public class MainMenuSettingsCoordinator : MonoBehaviour
             if (_menuMusicSource == null)
                 _menuMusicSource = gameObject.AddComponent<AudioSource>();
         }
+
+        if (menuMusicOutputGroup == null)
+            menuMusicOutputGroup = GameAudioSettings.FindMixerGroup("Music");
 
         _menuMusicSource.clip = menuMusicClip;
         _menuMusicSource.loop = loopMenuMusic;
@@ -112,13 +103,4 @@ public class MainMenuSettingsCoordinator : MonoBehaviour
             _menuMusicSource.Play();
     }
 
-    private void SetMixerFromLinearKey(string exposedName, string key, float defaultLinear, float minSlider, float maxSlider)
-    {
-        float v = PlayerPrefs.GetFloat(key, defaultLinear);
-        v = Mathf.Clamp(v, minSlider, maxSlider);
-        v = Mathf.Max(v, 1e-6f);
-        float db = 20f * Mathf.Log10(v);
-        db = Mathf.Clamp(db, -80f, 0f);
-        mixer.SetFloat(exposedName, db);
-    }
 }

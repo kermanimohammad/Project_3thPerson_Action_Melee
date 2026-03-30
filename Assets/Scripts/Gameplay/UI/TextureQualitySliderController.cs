@@ -82,6 +82,22 @@ public class TextureQualitySliderController : MonoBehaviour
             SetupPointerCatcher();
     }
 
+    /// <summary>Syncs slider + label from PlayerPrefs (engine already applied).</summary>
+    public void RefreshFromPlayerPrefs()
+    {
+        if (textureSlider == null)
+            textureSlider = GetComponent<Slider>();
+        if (textureSlider == null)
+            return;
+
+        int stored = saveToPlayerPrefs ? PlayerPrefs.GetInt(PlayerPrefsKey, -1) : -1;
+        int uiIndex = stored >= 0 && stored <= 3 ? stored : GetCurrentUiIndexFromQualitySettings();
+
+        _lastUiIndex = uiIndex;
+        textureSlider.SetValueWithoutNotify(uiIndex);
+        UpdateText(uiIndex);
+    }
+
     private void OnDisable()
     {
         if (textureSlider != null)

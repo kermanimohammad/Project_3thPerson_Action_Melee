@@ -160,6 +160,7 @@ public class InputRebindButton : MonoBehaviour, IPointerClickHandler, ISubmitHan
 
             // Persist overrides (paths are English/control-path based).
             InputRebindPersistence.Save(actions);
+            InputBindingRuntimeSync.ApplySavedBindingsToAllRegistered();
             PopRebindUiIsolation();
             RefreshLabel();
             RefreshBindingIcon();

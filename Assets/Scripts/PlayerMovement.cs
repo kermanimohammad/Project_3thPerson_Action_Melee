@@ -27,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
     {
         inputActions = new PlayerInputActions();
         InputRebindPersistence.LoadAndApply(inputActions.asset);
+        InputBindingRuntimeSync.Register(inputActions.asset);
+    }
+
+    private void OnDestroy()
+    {
+        if (inputActions != null)
+            InputBindingRuntimeSync.Unregister(inputActions.asset);
     }
 
     private void OnEnable()

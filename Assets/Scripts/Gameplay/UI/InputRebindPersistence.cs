@@ -21,10 +21,19 @@ public static class InputRebindPersistence
     {
         if (asset == null) return;
         string key = KeyPrefix + asset.name;
-        if (!PlayerPrefs.HasKey(key)) return;
+        if (!PlayerPrefs.HasKey(key))
+        {
+            asset.RemoveAllBindingOverrides();
+            return;
+        }
 
         string json = PlayerPrefs.GetString(key, string.Empty);
-        if (string.IsNullOrWhiteSpace(json)) return;
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            asset.RemoveAllBindingOverrides();
+            return;
+        }
+
         asset.LoadBindingOverridesFromJson(json);
     }
 

@@ -52,6 +52,8 @@ public class MainMenuBattleStartController : MonoBehaviour
         _loadingSfxSource.playOnAwake = false;
         _loadingSfxSource.loop = false;
         _loadingSfxSource.spatialBlend = 0f;
+        if (loadingSfxOutputGroup == null)
+            loadingSfxOutputGroup = GameAudioSettings.FindMixerGroup("SFX");
         _loadingSfxSource.outputAudioMixerGroup = loadingSfxOutputGroup;
     }
 
@@ -99,6 +101,8 @@ public class MainMenuBattleStartController : MonoBehaviour
         {
             if (_loadingSfxSource != null)
             {
+                if (loadingSfxOutputGroup == null)
+                    loadingSfxOutputGroup = GameAudioSettings.FindMixerGroup("SFX");
                 _loadingSfxSource.outputAudioMixerGroup = loadingSfxOutputGroup;
                 _loadingSfxSource.mute = false;
                 _loadingSfxSource.volume = 1f;

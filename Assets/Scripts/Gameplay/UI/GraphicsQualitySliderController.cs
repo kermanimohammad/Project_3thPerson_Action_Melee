@@ -54,20 +54,7 @@ public class GraphicsQualitySliderController : MonoBehaviour
             return;
         }
 
-        _levelIndicesByQualityIndex = new int[4];
-        _levelIndicesByQualityIndex[0] = FindQualityLevelIndex(lowName);
-        _levelIndicesByQualityIndex[1] = FindQualityLevelIndex(mediumName);
-        _levelIndicesByQualityIndex[2] = FindQualityLevelIndex(highName);
-        _levelIndicesByQualityIndex[3] = FindQualityLevelIndex(ultraName);
-
-        // Fallback: if any name isn't found, use indices 0..3 as-is (clamped to available levels).
-        int available = QualitySettings.names != null ? QualitySettings.names.Length : 0;
-        for (int i = 0; i < 4; i++)
-        {
-            int idx = _levelIndicesByQualityIndex[i];
-            if (idx < 0 || idx >= available)
-                _levelIndicesByQualityIndex[i] = Mathf.Clamp(i, 0, Mathf.Max(0, available - 1));
-        }
+        BuildLevelIndicesMap();
 
         qualitySlider.wholeNumbers = true;
         qualitySlider.minValue = 0;
@@ -92,6 +79,41 @@ public class GraphicsQualitySliderController : MonoBehaviour
 
         if (stepByHalfClick)
             SetupPointerCatcher();
+    }
+
+    /// <summary>Syncs slider + label from PlayerPrefs without re-applying quality (engine already matches).</summary>
+    public void RefreshFromPlayerPrefs()
+    {
+        if (qualitySlider == null)
+            qualitySlider = GetComponent<Slider>();
+        if (qualitySlider == null)
+            return;
+
+        BuildLevelIndicesMap();
+
+        int stored = saveToPlayerPrefs ? PlayerPrefs.GetInt(PlayerPrefsKey, -1) : -1;
+        int uiIndex = stored >= 0 && stored <= 3 ? stored : GetCurrentQualityUiIndex();
+
+        _lastUiIndex = uiIndex;
+        qualitySlider.SetValueWithoutNotify(uiIndex);
+        UpdateText(uiIndex);
+    }
+
+    private void BuildLevelIndicesMap()
+    {
+        _levelIndicesByQualityIndex = new int[4];
+        _levelIndicesByQualityIndex[0] = FindQualityLevelIndex(lowName);
+        _levelIndicesByQualityIndex[1] = FindQualityLevelIndex(mediumName);
+        _levelIndicesByQualityIndex[2] = FindQualityLevelIndex(highName);
+        _levelIndicesByQualityIndex[3] = FindQualityLevelIndex(ultraName);
+
+        int available = QualitySettings.names != null ? QualitySettings.names.Length : 0;
+        for (int i = 0; i < 4; i++)
+        {
+            int idx = _levelIndicesByQualityIndex[i];
+            if (idx < 0 || idx >= available)
+                _levelIndicesByQualityIndex[i] = Mathf.Clamp(i, 0, Mathf.Max(0, available - 1));
+        }
     }
 
     private void OnDisable()

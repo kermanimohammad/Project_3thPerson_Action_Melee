@@ -10,4 +10,11 @@ public static class GameSettings
 
     public static float GamepadSensitivity01 =>
         PlayerPrefs.GetFloat(MainMenuSettingsKeys.GamepadSensitivity, MainMenuSettingsKeys.DefaultLinearVolume);
+
+    /// <summary>Maps 0–1 slider to a look multiplier (camera look uses this each frame).</summary>
+    public static float LookSensitivityMultiplier(bool forMouse)
+    {
+        float t = forMouse ? MouseSensitivity01 : GamepadSensitivity01;
+        return Mathf.Lerp(0.2f, 2.8f, t);
+    }
 }

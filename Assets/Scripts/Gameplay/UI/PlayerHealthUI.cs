@@ -5,19 +5,146 @@ public class PlayerHealthUI : MonoBehaviour
 {
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Health playerHealth;
+    [SerializeField] private string playerTag = "Player";
+    [SerializeField] private float autoBindRetrySeconds = 1.0f;
+
+    private Coroutine bindRoutine;
 
     private void OnEnable()
     {
-        playerHealth.OnHealthChanged += UpdateHealthBar;
+        // If another system already assigned the active player (e.g., loadout applier), keep it.
+        if (playerHealth != null && playerHealth.isActiveAndEnabled)
+        {
+            playerHealth.OnHealthChanged += UpdateHealthBar;
+            RefreshNow();
+        }
+        else
+        {
+            BindToActivePlayerHealth();
+        }
     }
 
     private void OnDisable()
     {
-        playerHealth.OnHealthChanged -= UpdateHealthBar;
+        Unbind();
+
+        if (bindRoutine != null)
+        {
+            StopCoroutine(bindRoutine);
+            bindRoutine = null;
+        }
     }
 
     private void UpdateHealthBar(float current, float max)
     {
+        if (healthSlider == null)
+            return;
         healthSlider.value = (float)current / max;
     }
+
+    /// <summary>Call this after enabling the chosen character, if needed.</summary>
+    public void BindToActivePlayerHealth()
+    {
+        Unbind();
+
+        if (TryResolveActivePlayerHealth(out var h))
+        {
+            playerHealth = h;
+            playerHealth.OnHealthChanged += UpdateHealthBar;
+            RefreshNow();
+            return;
+        }
+
+        if (autoBindRetrySeconds > 0f && bindRoutine == null)
+            bindRoutine = StartCoroutine(BindRetryRoutine());
+    }
+
+    /// <summary>Explicitly bind to a known Health component (recommended for multi-hero scenes).</summary>
+    public void SetTargetHealth(Health health)
+    {
+        Unbind();
+        playerHealth = health;
+        if (playerHealth != null)
+        {
+            playerHealth.OnHealthChanged += UpdateHealthBar;
+            RefreshNow();
+        }
+    }
+
+    private void RefreshNow()
+    {
+        if (playerHealth == null)
+            return;
+        UpdateHealthBar(playerHealth.CurrentHealth, playerHealth.MaxHealth);
+    }
+
+    private void Unbind()
+    {
+        if (playerHealth != null)
+            playerHealth.OnHealthChanged -= UpdateHealthBar;
+    }
+
+    private System.Collections.IEnumerator BindRetryRoutine()
+    {
+        float t = 0f;
+        while (t < autoBindRetrySeconds)
+        {
+            if (TryResolveActivePlayerHealth(out var h))
+            {
+                playerHealth = h;
+                playerHealth.OnHealthChanged += UpdateHealthBar;
+                bindRoutine = null;
+                yield break;
+            }
+
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        bindRoutine = null;
+    }
+
+    private bool TryResolveActivePlayerHealth(out Health health)
+    {
+        health = null;
+
+        // Prefer objects tagged Player (including parent chain), and only those active in hierarchy.
+        Health[] all = Object.FindObjectsByType<Health>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            var h = all[i];
+            if (h == null || !h.isActiveAndEnabled)
+                continue;
+
+            if (IsTaggedInParentChain(h.transform, playerTag))
+            {
+                health = h;
+                return true;
+            }
+        }
+
+        // Fallback: first active Health in scene (useful if tag isn't set correctly yet).
+        for (int i = 0; i < all.Length; i++)
+        {
+            var h = all[i];
+            if (h == null || !h.isActiveAndEnabled)
+                continue;
+            health = h;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsTaggedInParentChain(Transform t, string tag)
+    {
+        while (t != null)
+        {
+            if (t.CompareTag(tag))
+                return true;
+            t = t.parent;
+        }
+        return false;
+    }
+
 }
