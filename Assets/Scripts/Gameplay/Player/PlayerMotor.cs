@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Windows;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMotor : MonoBehaviour
@@ -25,6 +26,16 @@ public class PlayerMotor : MonoBehaviour
     [Header("Combat Movement")]
     [SerializeField] private float attackMoveSpeedMultiplier = 0.35f;
 
+    private const float _threshold = 0.01f;
+    public GameObject CinemachineCameraTarget;
+    [Tooltip("How far in degrees can you move the camera up")]
+    public float TopClamp = 70.0f;
+
+    [Tooltip("How far in degrees can you move the camera down")]
+    public float BottomClamp = -30.0f;
+    private float _cinemachineTargetYaw;
+    private float _cinemachineTargetPitch;
+
     private CharacterController controller;
 
     private Vector3 verticalVelocity;
@@ -39,6 +50,11 @@ public class PlayerMotor : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+    }
+
+    private void Start()
+    {
+        _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
     }
 
     private void OnEnable()
@@ -79,8 +95,42 @@ public class PlayerMotor : MonoBehaviour
         if (animator != null)
             animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
 
-       // Debug.Log($"Defending? {(combat != null && combat.IsDefending)}");
+        // Debug.Log($"Defending? {(combat != null && combat.IsDefending)}");
     }
+
+    private void LateUpdate()
+    {
+        CameraRotation();
+    }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
+    }
+
+    private void CameraRotation()
+    {
+        // if there is an input and camera position is not fixed
+        if (input.Look.sqrMagnitude >= _threshold)
+        {
+            //Don't multiply mouse input by Time.deltaTime;
+            float deltaTimeMultiplier = input.UsingMouseKeyboard ? 1.0f : Time.deltaTime;
+
+            _cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
+            _cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
+        }
+
+        // clamp our rotations so our values are limited 360 degrees
+        _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+        _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+        // Cinemachine will follow this target
+        CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch,
+            _cinemachineTargetYaw, 0.0f);
+    }
+
 
     private Vector3 ComputePlanarVelocity()
     {

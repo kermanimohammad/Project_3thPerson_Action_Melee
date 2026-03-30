@@ -7,9 +7,29 @@ public class PlayerInputRouter : MonoBehaviour
 {
     [SerializeField] private bool logInputDebug = false;
 
-    private PlayerInputActions input;
+    private PlayerInput playerInput;
+
+    private InputAction moveAction;
+    private InputAction lookAction;
+    private InputAction sprintAction;
+    private InputAction defendAction;
+    private InputAction jumpAction;
+    private InputAction attackAction;
+    private InputAction dodgeAction;
+
+    private const string _MoveActionName = "Move";
+    private const string _LookActionName = "Look";
+    private const string _SprintActionName = "Sprint";
+    private const string _DefendActionName = "Defend";
+    private const string _JumpActionName = "Jump";
+    private const string _AttackActionName = "Attack";
+    private const string _DodgeActionName = "Dodge";
+
+    private const string _KeyboardScheme = "KeyboardMouse";
+    private const string _GamepadScheme = "Gamepad";
 
     public Vector2 Move { get; private set; }
+    public Vector2 Look { get; private set; }
     public bool SprintHeld { get; private set; }
     public bool DefendHeld { get; private set; }
     public bool JumpHeld { get; private set; }
@@ -20,55 +40,74 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void Awake()
     {
-        input = new PlayerInputActions();
+        playerInput = GetComponent<PlayerInput>();
+
+        moveAction = playerInput.actions[_MoveActionName];
+        lookAction = playerInput.actions[_LookActionName];
+        sprintAction = playerInput.actions[_SprintActionName];
+        defendAction = playerInput.actions[_DefendActionName];
+        jumpAction = playerInput.actions[_JumpActionName];
+        attackAction = playerInput.actions[_AttackActionName];
+        dodgeAction = playerInput.actions[_DodgeActionName];
     }
 
     private void OnEnable()
     {
-        input.Player.Enable();
+        moveAction.performed += OnMove;
+        moveAction.canceled += OnMove;
 
-        input.Player.Move.performed += OnMove;
-        input.Player.Move.canceled += OnMove;
+        lookAction.performed += OnLook;
+        lookAction.canceled += OnLook;
 
-        input.Player.Sprint.performed += OnSprint;
-        input.Player.Sprint.canceled += OnSprint;
+        sprintAction.performed += OnSprint;
+        sprintAction.canceled += OnSprint;
 
-        input.Player.Defend.performed += OnDefend;
-        input.Player.Defend.canceled += OnDefend;
+        defendAction.performed += OnDefend;
+        defendAction.canceled += OnDefend;
 
-        input.Player.Jump.performed += OnJumpHeld;
-        input.Player.Jump.canceled += OnJumpHeld;
+        jumpAction.performed += OnJumpHeld;
+        jumpAction.canceled += OnJumpHeld;
 
-        input.Player.Jump.started += OnJumpPressed;
-        input.Player.Attack.started += OnAttack;
-        input.Player.Dodge.started += OnDodge;
+        jumpAction.started += OnJumpPressed;
+        attackAction.started += OnAttack;
+        dodgeAction.started += OnDodge;
     }
 
     private void OnDisable()
     {
-        input.Player.Move.performed -= OnMove;
-        input.Player.Move.canceled -= OnMove;
+        moveAction.performed -= OnMove;
+        moveAction.canceled -= OnMove;
 
-        input.Player.Sprint.performed -= OnSprint;
-        input.Player.Sprint.canceled -= OnSprint;
+        lookAction.performed -= OnLook;
+        lookAction.canceled -= OnLook;
 
-        input.Player.Defend.performed -= OnDefend;
-        input.Player.Defend.canceled -= OnDefend;
+        sprintAction.performed -= OnSprint;
+        sprintAction.canceled -= OnSprint;
 
-        input.Player.Jump.performed -= OnJumpHeld;
-        input.Player.Jump.canceled -= OnJumpHeld;
+        defendAction.performed -= OnDefend;
+        defendAction.canceled -= OnDefend;
 
-        input.Player.Jump.started -= OnJumpPressed;
-        input.Player.Attack.started -= OnAttack;
-        input.Player.Dodge.started -= OnDodge;
+        jumpAction.performed -= OnJumpHeld;
+        jumpAction.canceled -= OnJumpHeld;
 
-        input.Player.Disable();
+        jumpAction.started -= OnJumpPressed;
+        attackAction.started -= OnAttack;
+        dodgeAction.started -= OnDodge;
     }
+
+    public bool UsingGamepad => playerInput != null && playerInput.currentControlScheme == _GamepadScheme;
+    public bool UsingMouseKeyboard => playerInput != null && playerInput.currentControlScheme == _KeyboardScheme;
 
     private void OnMove(InputAction.CallbackContext ctx)
     {
         Move = ctx.ReadValue<Vector2>();
         if (logInputDebug) Debug.Log($"Move={Move} ({ctx.phase})");
+    }
+
+    private void OnLook(InputAction.CallbackContext ctx)
+    {
+        Look = ctx.ReadValue<Vector2>();
+        if (logInputDebug) Debug.Log($"Look={Look} ({ctx.phase})");
     }
 
     private void OnSprint(InputAction.CallbackContext ctx)
