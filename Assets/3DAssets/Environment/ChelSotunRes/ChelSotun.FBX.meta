@@ -1,0 +1,908 @@
+fileFormatVersion: 2
+guid: 9b1606a31d2b63e479e611d1743bcc2c
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: A1
+  - first:
+      1: 100002
+    second: ayneha
+  - first:
+      1: 100004
+    second: //RootNode
+  - first:
+      1: 100006
+    second: darb coorodi
+  - first:
+      1: 100008
+    second: darb coorodi01
+  - first:
+      1: 100010
+    second: darb_daftar
+  - first:
+      1: 100012
+    second: defal_posht
+  - first:
+      1: 100014
+    second: divar chap posht 2
+  - first:
+      1: 100016
+    second: divar chap posht 2 rast
+  - first:
+      1: 100018
+    second: divar posht sotun1
+  - first:
+      1: 100020
+    second: divar posht sotun2
+  - first:
+      1: 100022
+    second: divar_chap 1
+  - first:
+      1: 100024
+    second: divar_chap posht1
+  - first:
+      1: 100026
+    second: divar_rast1
+  - first:
+      1: 100028
+    second: divar_rast2
+  - first:
+      1: 100030
+    second: divar_rast2.2
+  - first:
+      1: 100032
+    second: HDRI_Poshti
+  - first:
+      1: 100034
+    second: hovz
+  - first:
+      1: 100036
+    second: jelooy_emarat
+  - first:
+      1: 100038
+    second: jelooy_emarat 1
+  - first:
+      1: 100040
+    second: kafzir ayneha
+  - first:
+      1: 100042
+    second: namay_jeloo_taghtala
+  - first:
+      1: 100044
+    second: namay_jeloo_taghtala 1
+  - first:
+      1: 100046
+    second: namay_jeloo_taghtala 2
+  - first:
+      1: 100048
+    second: namay_jeloo_taghtala 3
+  - first:
+      1: 100050
+    second: namay_jeloo_taghtala3_paye
+  - first:
+      1: 100052
+    second: narde_divar_rast
+  - first:
+      1: 100054
+    second: narde_jelo_kuchik
+  - first:
+      1: 100056
+    second: nardeh jeloo
+  - first:
+      1: 100058
+    second: Object001
+  - first:
+      1: 100060
+    second: Object003
+  - first:
+      1: 100062
+    second: Object02
+  - first:
+      1: 100064
+    second: otagh_chap1
+  - first:
+      1: 100066
+    second: otagh_chap2
+  - first:
+      1: 100068
+    second: otagh_rast2
+  - first:
+      1: 100070
+    second: otagh_samtrast1
+  - first:
+      1: 100072
+    second: panjereh posti
+  - first:
+      1: 100074
+    second: peleh jeloo
+  - first:
+      1: 100076
+    second: postbammsaloon
+  - first:
+      1: 100078
+    second: ramp
+  - first:
+      1: 100080
+    second: rastam
+  - first:
+      1: 100082
+    second: sagf asli ayneii
+  - first:
+      1: 100084
+    second: sagf_post_emarat
+  - first:
+      1: 100086
+    second: saghf bala dar
+  - first:
+      1: 100088
+    second: sgf_balay_ivan_doyom
+  - first:
+      1: 100090
+    second: soton ba shir 1
+  - first:
+      1: 100092
+    second: soton11
+  - first:
+      1: 100094
+    second: tagh_dakel_saloon_asli
+  - first:
+      1: 100096
+    second: tagh_dakel_saloon_asli2
+  - first:
+      1: 100098
+    second: zamin
+  - first:
+      1: 100100
+    second: Panjere IvanSide
+  - first:
+      1: 100102
+    second: PanjereOtagheJonoobi
+  - first:
+      1: 100104
+    second: PanjereTaki
+  - first:
+      1: 100106
+    second: PanjereZireTala
+  - first:
+      4: 400000
+    second: A1
+  - first:
+      4: 400002
+    second: ayneha
+  - first:
+      4: 400004
+    second: //RootNode
+  - first:
+      4: 400006
+    second: darb coorodi
+  - first:
+      4: 400008
+    second: darb coorodi01
+  - first:
+      4: 400010
+    second: darb_daftar
+  - first:
+      4: 400012
+    second: defal_posht
+  - first:
+      4: 400014
+    second: divar chap posht 2
+  - first:
+      4: 400016
+    second: divar chap posht 2 rast
+  - first:
+      4: 400018
+    second: divar posht sotun1
+  - first:
+      4: 400020
+    second: divar posht sotun2
+  - first:
+      4: 400022
+    second: divar_chap 1
+  - first:
+      4: 400024
+    second: divar_chap posht1
+  - first:
+      4: 400026
+    second: divar_rast1
+  - first:
+      4: 400028
+    second: divar_rast2
+  - first:
+      4: 400030
+    second: divar_rast2.2
+  - first:
+      4: 400032
+    second: HDRI_Poshti
+  - first:
+      4: 400034
+    second: hovz
+  - first:
+      4: 400036
+    second: jelooy_emarat
+  - first:
+      4: 400038
+    second: jelooy_emarat 1
+  - first:
+      4: 400040
+    second: kafzir ayneha
+  - first:
+      4: 400042
+    second: namay_jeloo_taghtala
+  - first:
+      4: 400044
+    second: namay_jeloo_taghtala 1
+  - first:
+      4: 400046
+    second: namay_jeloo_taghtala 2
+  - first:
+      4: 400048
+    second: namay_jeloo_taghtala 3
+  - first:
+      4: 400050
+    second: namay_jeloo_taghtala3_paye
+  - first:
+      4: 400052
+    second: narde_divar_rast
+  - first:
+      4: 400054
+    second: narde_jelo_kuchik
+  - first:
+      4: 400056
+    second: nardeh jeloo
+  - first:
+      4: 400058
+    second: Object001
+  - first:
+      4: 400060
+    second: Object003
+  - first:
+      4: 400062
+    second: Object02
+  - first:
+      4: 400064
+    second: otagh_chap1
+  - first:
+      4: 400066
+    second: otagh_chap2
+  - first:
+      4: 400068
+    second: otagh_rast2
+  - first:
+      4: 400070
+    second: otagh_samtrast1
+  - first:
+      4: 400072
+    second: panjereh posti
+  - first:
+      4: 400074
+    second: peleh jeloo
+  - first:
+      4: 400076
+    second: postbammsaloon
+  - first:
+      4: 400078
+    second: ramp
+  - first:
+      4: 400080
+    second: rastam
+  - first:
+      4: 400082
+    second: sagf asli ayneii
+  - first:
+      4: 400084
+    second: sagf_post_emarat
+  - first:
+      4: 400086
+    second: saghf bala dar
+  - first:
+      4: 400088
+    second: sgf_balay_ivan_doyom
+  - first:
+      4: 400090
+    second: soton ba shir 1
+  - first:
+      4: 400092
+    second: soton11
+  - first:
+      4: 400094
+    second: tagh_dakel_saloon_asli
+  - first:
+      4: 400096
+    second: tagh_dakel_saloon_asli2
+  - first:
+      4: 400098
+    second: zamin
+  - first:
+      4: 400100
+    second: Panjere IvanSide
+  - first:
+      4: 400102
+    second: PanjereOtagheJonoobi
+  - first:
+      4: 400104
+    second: PanjereTaki
+  - first:
+      4: 400106
+    second: PanjereZireTala
+  - first:
+      23: 2300000
+    second: A1
+  - first:
+      23: 2300002
+    second: ayneha
+  - first:
+      23: 2300004
+    second: darb coorodi
+  - first:
+      23: 2300006
+    second: darb coorodi01
+  - first:
+      23: 2300008
+    second: darb_daftar
+  - first:
+      23: 2300010
+    second: defal_posht
+  - first:
+      23: 2300012
+    second: divar chap posht 2
+  - first:
+      23: 2300014
+    second: divar chap posht 2 rast
+  - first:
+      23: 2300016
+    second: divar posht sotun1
+  - first:
+      23: 2300018
+    second: divar posht sotun2
+  - first:
+      23: 2300020
+    second: divar_chap 1
+  - first:
+      23: 2300022
+    second: divar_chap posht1
+  - first:
+      23: 2300024
+    second: divar_rast1
+  - first:
+      23: 2300026
+    second: divar_rast2
+  - first:
+      23: 2300028
+    second: divar_rast2.2
+  - first:
+      23: 2300030
+    second: HDRI_Poshti
+  - first:
+      23: 2300032
+    second: hovz
+  - first:
+      23: 2300034
+    second: jelooy_emarat
+  - first:
+      23: 2300036
+    second: jelooy_emarat 1
+  - first:
+      23: 2300038
+    second: kafzir ayneha
+  - first:
+      23: 2300040
+    second: namay_jeloo_taghtala
+  - first:
+      23: 2300042
+    second: namay_jeloo_taghtala 1
+  - first:
+      23: 2300044
+    second: namay_jeloo_taghtala 2
+  - first:
+      23: 2300046
+    second: namay_jeloo_taghtala 3
+  - first:
+      23: 2300048
+    second: namay_jeloo_taghtala3_paye
+  - first:
+      23: 2300050
+    second: narde_divar_rast
+  - first:
+      23: 2300052
+    second: narde_jelo_kuchik
+  - first:
+      23: 2300054
+    second: nardeh jeloo
+  - first:
+      23: 2300056
+    second: Object001
+  - first:
+      23: 2300058
+    second: Object02
+  - first:
+      23: 2300060
+    second: otagh_chap1
+  - first:
+      23: 2300062
+    second: otagh_chap2
+  - first:
+      23: 2300064
+    second: otagh_rast2
+  - first:
+      23: 2300066
+    second: otagh_samtrast1
+  - first:
+      23: 2300068
+    second: panjereh posti
+  - first:
+      23: 2300070
+    second: peleh jeloo
+  - first:
+      23: 2300072
+    second: postbammsaloon
+  - first:
+      23: 2300074
+    second: ramp
+  - first:
+      23: 2300076
+    second: rastam
+  - first:
+      23: 2300078
+    second: sagf asli ayneii
+  - first:
+      23: 2300080
+    second: sagf_post_emarat
+  - first:
+      23: 2300082
+    second: saghf bala dar
+  - first:
+      23: 2300084
+    second: sgf_balay_ivan_doyom
+  - first:
+      23: 2300086
+    second: soton ba shir 1
+  - first:
+      23: 2300088
+    second: soton11
+  - first:
+      23: 2300090
+    second: tagh_dakel_saloon_asli
+  - first:
+      23: 2300092
+    second: tagh_dakel_saloon_asli2
+  - first:
+      23: 2300094
+    second: zamin
+  - first:
+      23: 2300096
+    second: Panjere IvanSide
+  - first:
+      23: 2300098
+    second: PanjereOtagheJonoobi
+  - first:
+      23: 2300100
+    second: PanjereTaki
+  - first:
+      23: 2300102
+    second: PanjereZireTala
+  - first:
+      33: 3300000
+    second: A1
+  - first:
+      33: 3300002
+    second: ayneha
+  - first:
+      33: 3300004
+    second: darb coorodi
+  - first:
+      33: 3300006
+    second: darb coorodi01
+  - first:
+      33: 3300008
+    second: darb_daftar
+  - first:
+      33: 3300010
+    second: defal_posht
+  - first:
+      33: 3300012
+    second: divar chap posht 2
+  - first:
+      33: 3300014
+    second: divar chap posht 2 rast
+  - first:
+      33: 3300016
+    second: divar posht sotun1
+  - first:
+      33: 3300018
+    second: divar posht sotun2
+  - first:
+      33: 3300020
+    second: divar_chap 1
+  - first:
+      33: 3300022
+    second: divar_chap posht1
+  - first:
+      33: 3300024
+    second: divar_rast1
+  - first:
+      33: 3300026
+    second: divar_rast2
+  - first:
+      33: 3300028
+    second: divar_rast2.2
+  - first:
+      33: 3300030
+    second: HDRI_Poshti
+  - first:
+      33: 3300032
+    second: hovz
+  - first:
+      33: 3300034
+    second: jelooy_emarat
+  - first:
+      33: 3300036
+    second: jelooy_emarat 1
+  - first:
+      33: 3300038
+    second: kafzir ayneha
+  - first:
+      33: 3300040
+    second: namay_jeloo_taghtala
+  - first:
+      33: 3300042
+    second: namay_jeloo_taghtala 1
+  - first:
+      33: 3300044
+    second: namay_jeloo_taghtala 2
+  - first:
+      33: 3300046
+    second: namay_jeloo_taghtala 3
+  - first:
+      33: 3300048
+    second: namay_jeloo_taghtala3_paye
+  - first:
+      33: 3300050
+    second: narde_divar_rast
+  - first:
+      33: 3300052
+    second: narde_jelo_kuchik
+  - first:
+      33: 3300054
+    second: nardeh jeloo
+  - first:
+      33: 3300056
+    second: Object001
+  - first:
+      33: 3300058
+    second: Object02
+  - first:
+      33: 3300060
+    second: otagh_chap1
+  - first:
+      33: 3300062
+    second: otagh_chap2
+  - first:
+      33: 3300064
+    second: otagh_rast2
+  - first:
+      33: 3300066
+    second: otagh_samtrast1
+  - first:
+      33: 3300068
+    second: panjereh posti
+  - first:
+      33: 3300070
+    second: peleh jeloo
+  - first:
+      33: 3300072
+    second: postbammsaloon
+  - first:
+      33: 3300074
+    second: ramp
+  - first:
+      33: 3300076
+    second: rastam
+  - first:
+      33: 3300078
+    second: sagf asli ayneii
+  - first:
+      33: 3300080
+    second: sagf_post_emarat
+  - first:
+      33: 3300082
+    second: saghf bala dar
+  - first:
+      33: 3300084
+    second: sgf_balay_ivan_doyom
+  - first:
+      33: 3300086
+    second: soton ba shir 1
+  - first:
+      33: 3300088
+    second: soton11
+  - first:
+      33: 3300090
+    second: tagh_dakel_saloon_asli
+  - first:
+      33: 3300092
+    second: tagh_dakel_saloon_asli2
+  - first:
+      33: 3300094
+    second: zamin
+  - first:
+      33: 3300096
+    second: Panjere IvanSide
+  - first:
+      33: 3300098
+    second: PanjereOtagheJonoobi
+  - first:
+      33: 3300100
+    second: PanjereTaki
+  - first:
+      33: 3300102
+    second: PanjereZireTala
+  - first:
+      43: 4300000
+    second: otagh_samtrast1
+  - first:
+      43: 4300002
+    second: jelooy_emarat
+  - first:
+      43: 4300004
+    second: nardeh jeloo
+  - first:
+      43: 4300006
+    second: peleh jeloo
+  - first:
+      43: 4300008
+    second: postbammsaloon
+  - first:
+      43: 4300010
+    second: ramp
+  - first:
+      43: 4300012
+    second: A1
+  - first:
+      43: 4300014
+    second: soton11
+  - first:
+      43: 4300016
+    second: soton ba shir 1
+  - first:
+      43: 4300018
+    second: otagh_chap1
+  - first:
+      43: 4300020
+    second: panjereh posti
+  - first:
+      43: 4300022
+    second: darb coorodi
+  - first:
+      43: 4300024
+    second: darb coorodi01
+  - first:
+      43: 4300026
+    second: jelooy_emarat 1
+  - first:
+      43: 4300028
+    second: namay_jeloo_taghtala
+  - first:
+      43: 4300030
+    second: namay_jeloo_taghtala 1
+  - first:
+      43: 4300032
+    second: namay_jeloo_taghtala 2
+  - first:
+      43: 4300034
+    second: ayneha
+  - first:
+      43: 4300036
+    second: defal_posht
+  - first:
+      43: 4300038
+    second: divar chap posht 2
+  - first:
+      43: 4300040
+    second: divar_rast1
+  - first:
+      43: 4300042
+    second: divar_rast2
+  - first:
+      43: 4300044
+    second: otagh_chap2
+  - first:
+      43: 4300046
+    second: otagh_rast2
+  - first:
+      43: 4300048
+    second: sagf asli ayneii
+  - first:
+      43: 4300050
+    second: sagf_post_emarat
+  - first:
+      43: 4300052
+    second: sgf_balay_ivan_doyom
+  - first:
+      43: 4300054
+    second: tagh_dakel_saloon_asli
+  - first:
+      43: 4300056
+    second: namay_jeloo_taghtala 3
+  - first:
+      43: 4300058
+    second: divar_chap posht1
+  - first:
+      43: 4300060
+    second: tagh_dakel_saloon_asli2
+  - first:
+      43: 4300062
+    second: divar_rast2.2
+  - first:
+      43: 4300064
+    second: saghf bala dar
+  - first:
+      43: 4300066
+    second: darb_daftar
+  - first:
+      43: 4300068
+    second: divar_chap 1
+  - first:
+      43: 4300070
+    second: kafzir ayneha
+  - first:
+      43: 4300072
+    second: divar chap posht 2 rast
+  - first:
+      43: 4300074
+    second: narde_divar_rast
+  - first:
+      43: 4300076
+    second: namay_jeloo_taghtala3_paye
+  - first:
+      43: 4300078
+    second: narde_jelo_kuchik
+  - first:
+      43: 4300080
+    second: Object001
+  - first:
+      43: 4300082
+    second: rastam
+  - first:
+      43: 4300084
+    second: Object02
+  - first:
+      43: 4300086
+    second: zamin
+  - first:
+      43: 4300088
+    second: hovz
+  - first:
+      43: 4300090
+    second: HDRI_Poshti
+  - first:
+      43: 4300092
+    second: divar posht sotun1
+  - first:
+      43: 4300094
+    second: divar posht sotun2
+  - first:
+      43: 4300096
+    second: Panjere IvanSide
+  - first:
+      43: 4300098
+    second: PanjereZireTala
+  - first:
+      43: 4300100
+    second: PanjereOtagheJonoobi
+  - first:
+      43: 4300102
+    second: PanjereTaki
+  - first:
+      74: 7400000
+    second: Take 001
+  - first:
+      95: 9500000
+    second: //RootNode
+  externalObjects: {}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 0
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1.4
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 0
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 1
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    meshOptimizationFlags: -1
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 1
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1.4
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
