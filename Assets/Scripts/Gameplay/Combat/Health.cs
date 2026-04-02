@@ -14,7 +14,6 @@ public class Health : MonoBehaviour, IDamageable
     [Tooltip("Minimum seconds between hit reactions.")]
     [SerializeField] private float hitReactCooldownSeconds = 0.1f;
     private float nextHitReactTime;
-
     public event Action<float, float> OnHealthChanged;
     // (currentHealth, maxHealth)
 

@@ -112,7 +112,7 @@ public class EnemyAI : MonoBehaviour
         if (IsTestMode)
             return debugLowHealth;
 
-        return health != null && health.HealthPercent <= fleeHealthThreshold;
+        return health != null && health.Normalized01 <= fleeHealthThreshold;
     }
 
     public bool ShouldEnterCombat()
@@ -131,7 +131,7 @@ public class EnemyAI : MonoBehaviour
         if (IsTestMode)
             return debugShouldDefend;
 
-        bool lowHealthInMelee = health != null && health.HealthPercent <= defendHealthThreshold && InAttackRange(0.75f);
+        bool lowHealthInMelee = health != null && health.Normalized01 <= defendHealthThreshold && InAttackRange(0.75f);
 
         bool recoveringInMelee = !CanAttackNow && InAttackRange(0.75f);
 
