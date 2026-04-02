@@ -17,7 +17,7 @@ Material:
   m_InvalidKeywords: []
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: Opaque
@@ -127,7 +127,7 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _Cull: 2
+    - _Cull: 0
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -139,7 +139,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _METALNESS: 0
-    - _Metallic: 0.263
+    - _Metallic: 0.5
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -149,7 +149,7 @@ Material:
     - _REFLECTIONS_ROUGHNESS: 0.5678072
     - _REFLECTIONS_WEIGHT: 1
     - _ReceiveShadows: 1
-    - _Smoothness: 0.533
+    - _Smoothness: 0.361
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

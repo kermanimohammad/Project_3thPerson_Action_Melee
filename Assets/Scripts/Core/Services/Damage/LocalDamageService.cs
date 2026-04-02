@@ -22,17 +22,18 @@ public class LocalDamageService : MonoBehaviour, IDamageService
             return;
         }
 
-        if (!target.TryGetComponent(out CharacterDefense targetDefense))
-        {
-            throw new System.InvalidOperationException($"{target.name} is damageable but has no CharacterDefense component.");
-        }
-
-        if (targetDefense.IsDefending)
-        {
+        // Defense is optional (e.g., breakable props like doors).
+        if (target.TryGetComponent(out CharacterDefense targetDefense) && targetDefense.IsDefending)
             amount *= (1 - targetDefense.DamageReductionPercentage);
-        }
 
-        damageable.TakeDamage(amount);
+        if (damageable is IDamageableWithSource damageableWithSource)
+        {
+            damageableWithSource.TakeDamage(source, amount);
+        }
+        else
+        {
+            damageable.TakeDamage(amount);
+        }
 
         Debug.Log($"{source.name} dealt {amount} damage to {target.name}");
 

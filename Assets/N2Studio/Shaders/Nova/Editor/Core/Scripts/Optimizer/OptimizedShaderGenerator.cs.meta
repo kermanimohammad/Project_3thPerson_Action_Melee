@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e8a3bde3109d42049aba632a3d8eeee1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Editor/Core/Scripts/Optimizer/OptimizedShaderGenerator.cs
+  uploadId: 783724

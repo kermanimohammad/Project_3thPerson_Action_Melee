@@ -9,6 +9,8 @@ public class AttackManager : MonoBehaviour
     [Header("Buffering")]
     [SerializeField] private bool allowBuffering = true;
     [SerializeField] private float inputBufferTime = 0.2f;
+    [Tooltip("If no new attack input occurs for this many seconds, clear any buffered/queued combo so the character returns to locomotion after the current attack ends.")]
+    [SerializeField] private float cancelBufferedComboAfterSeconds = 1.0f;
 
     private static readonly int AttackTagHash = AnimParams.AttackTag;
 
@@ -21,6 +23,22 @@ public class AttackManager : MonoBehaviour
     private float queuedTime;
 
     private float lastAttackTime = -999f;
+    private float lastAttackInputTime = -999f;
+
+    private void Update()
+    {
+        if (!allowBuffering)
+            return;
+
+        if (!queuedNextAttack)
+            return;
+
+        // If the player stopped attacking, drop the queued combo continuation.
+        if (Time.time - lastAttackInputTime >= cancelBufferedComboAfterSeconds)
+        {
+            ClearBufferedCombo();
+        }
+    }
 
     public bool InAttackState()
     {
@@ -33,6 +51,8 @@ public class AttackManager : MonoBehaviour
 
     public int TryAttack()
     {
+        lastAttackInputTime = Time.time;
+
         if (!CanAttack())
             return -1;
 
@@ -51,6 +71,13 @@ public class AttackManager : MonoBehaviour
 
         if (allowBuffering && queuedNextAttack)
         {
+            // If the queued input got stale, drop it instead of auto-continuing the chain.
+            if (Time.time - lastAttackInputTime >= cancelBufferedComboAfterSeconds)
+            {
+                ClearBufferedCombo();
+                return;
+            }
+
             if (Time.time - queuedTime <= inputBufferTime)
             {
                 queuedNextAttack = false;
@@ -83,6 +110,7 @@ public class AttackManager : MonoBehaviour
             {
                 if (allowBuffering)
                 {
+                    lastAttackInputTime = Time.time;
                     queuedNextAttack = true;
                     queuedTime = Time.time;
                 }
@@ -128,6 +156,23 @@ public class AttackManager : MonoBehaviour
         activeAttackIndex = -1;
         queuedNextAttack = false;
         comboWindowOpen = false;
+    }
+
+    private void ClearBufferedCombo()
+    {
+        queuedNextAttack = false;
+        comboWindowOpen = false;
+        nextAttackIndex = 0;
+        activeAttackIndex = -1;
+
+        // Defensive: clear any leftover triggers so we don't chain unexpectedly.
+        if (animator != null && attacks != null)
+        {
+            for (int i = 0; i < attacks.Length; i++)
+            {
+                animator.ResetTrigger(attacks[i].AnimationTrigger);
+            }
+        }
     }
 
     private bool IsValidActiveAttack() => activeAttackIndex >= 0 && activeAttackIndex < attacks.Length;

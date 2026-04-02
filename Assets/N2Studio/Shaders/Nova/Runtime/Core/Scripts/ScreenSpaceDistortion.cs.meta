@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 0f2c1c759f67e47d8ae1bdab3b5816e7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _applyDistortionShader: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Runtime/Core/Scripts/ScreenSpaceDistortion.cs
+  uploadId: 783724

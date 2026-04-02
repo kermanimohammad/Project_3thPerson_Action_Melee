@@ -30,12 +30,32 @@ public class AOEBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (affectedObjects.Contains(other.gameObject) || owner == other.gameObject)
+        GameObject receiver = ResolveDamageReceiver(other);
+        if (receiver == null)
+            receiver = other.gameObject;
+
+        if (affectedObjects.Contains(receiver) || owner == receiver)
             return;
 
-        affectedObjects.Add(other.gameObject);
+        affectedObjects.Add(receiver);
 
-        onEnterAction?.Invoke(other.gameObject);
+        onEnterAction?.Invoke(receiver);
+    }
+
+    private static GameObject ResolveDamageReceiver(Collider other)
+    {
+        if (other == null)
+            return null;
+
+        // Interfaces can't be fetched with GetComponentInParent<T>(), so we scan behaviours.
+        var behaviours = other.GetComponentsInParent<MonoBehaviour>(includeInactive: true);
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is IDamageable)
+                return behaviours[i].gameObject;
+        }
+
+        return null;
     }
 
     private void OnDrawGizmos()

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2bede4a95ff814740a7e4f43dfabf2af
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Runtime/Core/Shaders/ParticlesUberShadowCaster.hlsl
+  uploadId: 783724

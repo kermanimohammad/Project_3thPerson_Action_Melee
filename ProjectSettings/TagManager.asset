@@ -5,7 +5,6 @@ TagManager:
   serializedVersion: 3
   tags:
   - CinemachineTarget
-  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -13,7 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - Enemy
+  - LightRoom
+  - Fire
   - 
   - 
   - 
@@ -37,8 +37,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Characters
   m_SortingLayers:
   - name: Default
     uniqueID: 0

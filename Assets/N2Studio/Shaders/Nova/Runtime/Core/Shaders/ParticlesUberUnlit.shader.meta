@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1bc5c6a70411243779ce486a98012125
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Runtime/Core/Shaders/ParticlesUberUnlit.shader
+  uploadId: 783724

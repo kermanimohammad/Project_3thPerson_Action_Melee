@@ -16,11 +16,20 @@ public class PlayerInputRouter : MonoBehaviour
 
     public event Action JumpPressed;
     public event Action AttackPressed;
+    public event Action SpecialAttackPressed;
     public event Action DodgePressed;
 
     private void Awake()
     {
         input = new PlayerInputActions();
+        InputRebindPersistence.LoadAndApply(input.asset);
+        InputBindingRuntimeSync.Register(input.asset);
+    }
+
+    private void OnDestroy()
+    {
+        if (input != null)
+            InputBindingRuntimeSync.Unregister(input.asset);
     }
 
     private void OnEnable()
@@ -41,6 +50,7 @@ public class PlayerInputRouter : MonoBehaviour
 
         input.Player.Jump.started += OnJumpPressed;
         input.Player.Attack.started += OnAttack;
+        input.Player.S_Attack.started += OnSpecialAttack;
         input.Player.Dodge.started += OnDodge;
     }
 
@@ -60,6 +70,7 @@ public class PlayerInputRouter : MonoBehaviour
 
         input.Player.Jump.started -= OnJumpPressed;
         input.Player.Attack.started -= OnAttack;
+        input.Player.S_Attack.started -= OnSpecialAttack;
         input.Player.Dodge.started -= OnDodge;
 
         input.Player.Disable();
@@ -101,5 +112,6 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnJumpPressed(InputAction.CallbackContext ctx) => JumpPressed?.Invoke();
     private void OnAttack(InputAction.CallbackContext ctx) => AttackPressed?.Invoke();
+    private void OnSpecialAttack(InputAction.CallbackContext ctx) => SpecialAttackPressed?.Invoke();
     private void OnDodge(InputAction.CallbackContext ctx) => DodgePressed?.Invoke();
 }

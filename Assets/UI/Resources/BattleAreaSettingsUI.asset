@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8085f9c4ae786964ea970c784fd80104, type: 3}
+  m_Name: BattleAreaSettingsUI
+  m_EditorClassIdentifier: Assembly-CSharp::BattleAreaSettingsUIConfig
+  settingsPanelPrefab: {fileID: 6880480998762230698, guid: d5d9e1a28993d024f9c5123bc002b673, type: 3}
+  battleGameplayMusicClip: {fileID: 8300000, guid: f380759d8c5580240855f13cc89858af, type: 3}
+  loopBattleGameplayMusic: 1
+  pauseMenuMusicClip: {fileID: 8300000, guid: 8be6e05630bc3e64491f108dc0104b15, type: 3}
+  loopPauseMenuMusic: 1

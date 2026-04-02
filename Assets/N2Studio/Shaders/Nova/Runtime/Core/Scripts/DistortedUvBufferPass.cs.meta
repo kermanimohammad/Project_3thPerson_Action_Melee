@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0e61871c5bfa54165a8946feb52519c6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 326856
+  packageName: Fire 001
+  packageVersion: 1.0
+  assetPath: Assets/N2Studio/Shaders/Nova/Runtime/Core/Scripts/DistortedUvBufferPass.cs
+  uploadId: 783724
