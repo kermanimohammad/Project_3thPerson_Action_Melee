@@ -432,4 +432,23 @@ public class EnemyAI : MonoBehaviour
         float speed = mover != null ? mover.CurrentSpeed : 0f;
         animator.SetFloat(SpeedHash, speed);
     }
+
+    public void InitializeGroup(EnemyGroupAI newGroup)
+    {
+        if (groupAI == newGroup)
+            return;
+
+        if (groupAI != null)
+            groupAI.Unregister(this);
+
+        groupAI = newGroup;
+
+        if (groupAI != null)
+        {
+            groupAI.Register(this);
+
+            if (player == null)
+                player = groupAI.Player;
+        }
+    }
 }
