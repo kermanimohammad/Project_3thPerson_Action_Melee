@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class FlankState : AbstractState<EnemyAI, CombatStateID>
+public class FlankState : AbstractState<EnemyAIBase>
 {
-    public FlankState(EnemyAI owner, StateMachine<EnemyAI, CombatStateID> stateMachine) : base(CombatStateID.Flank, owner, stateMachine)
+    public FlankState(EnemyAIBase owner, StateMachine<EnemyAIBase> stateMachine) : base(StateID.Flank, owner, stateMachine)
     {
     }
 
@@ -20,35 +20,35 @@ public class FlankState : AbstractState<EnemyAI, CombatStateID>
 
     public override void Tick()
     {
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} TICK -> Flank");
+        //if (owner.VerboseLogs)
+        //    Debug.Log($"{owner.name} TICK -> Flank");
 
-        if (owner.Player == null)
-        {
-            if (owner.VerboseLogs)
-                Debug.Log($"{owner.name} Flank aborted: Player is null");
-            return;
-        }
+        //if (owner.Player == null)
+        //{
+        //    if (owner.VerboseLogs)
+        //        Debug.Log($"{owner.name} Flank aborted: Player is null");
+        //    return;
+        //}
 
-        if (owner.Player == null)
-            return;
+        //if (owner.Player == null)
+        //    return;
 
-        owner.FaceTarget(owner.Player.position);
+        //owner.FaceTarget(owner.Player.position);
 
-        Vector3 flankPoint = owner.GetFlankDestination();
+        //Vector3 flankPoint = owner.GetFlankDestination();
 
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} Flank -> moving to flank point {flankPoint}");
+        //if (owner.VerboseLogs)
+        //    Debug.Log($"{owner.name} Flank -> moving to flank point {flankPoint}");
 
 
-        owner.MoveTo(flankPoint, 1.05f);
+        //owner.MoveTo(flankPoint, 1.05f);
 
-        if (owner.IsNear(flankPoint, 0.9f) && owner.InAttackRange(1f))
-        {
-            if (owner.VerboseLogs)
-                Debug.Log($"{owner.name} Flank -> Attack");
+        //if (owner.IsNear(flankPoint, 0.9f) && owner.InAttackRange(1f))
+        //{
+        //    if (owner.VerboseLogs)
+        //        Debug.Log($"{owner.name} Flank -> Attack");
 
-            stateMachine.SetState(CombatStateID.Attack);
-        }
+        //    stateMachine.SetState(StateID.Attack);
+        //}
     }
 }

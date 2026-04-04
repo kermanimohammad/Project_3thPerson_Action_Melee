@@ -1,62 +1,41 @@
 using UnityEngine;
 
-public class DefendState : AbstractState<EnemyAI, CombatStateID>
+public class DefendState : AbstractState<EnemyAIBase>
 {
-    private float defendUntil;
-
-    public DefendState(EnemyAI owner, StateMachine<EnemyAI, CombatStateID> stateMachine) : base(CombatStateID.Defend, owner, stateMachine)
+    public DefendState(EnemyAIBase owner, StateMachine<EnemyAIBase> stateMachine) : base(StateID.Defend, owner, stateMachine)
     {
     }
 
     public override void Enter()
     {
-        defendUntil = Time.time + owner.DefendDuration;
-        owner.SetDefending(true);
-
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} ENTER -> Defend (until {defendUntil:F2})");
-
+        owner.GetDefense().StartDefend();
     }
 
     public override void Exit()
     {
-        owner.SetDefending(false);
-
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} EXIT -> Defend");
+        owner.GetDefense().StopDefend();
     }
 
     public override void Tick()
     {
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} TICK -> Defend");
+        TryRotateTowardsAimTarget(owner.CurrentTarget);
+    }
 
-        if (owner.Player == null)
+    private void TryRotateTowardsAimTarget(Transform aimTarget)
+    {
+        if (aimTarget == null)
         {
-            if (owner.VerboseLogs)
-                Debug.Log($"{owner.name} Defend aborted: Player is null");
             return;
         }
 
-        if (owner.Player == null)
-            return;
+        Vector3 direction = aimTarget.position - owner.transform.position;
+        direction.y = 0f;
 
-        owner.FaceTarget(owner.Player.position);
-
-        Vector3 away = (owner.transform.position - owner.Player.position).normalized;
-        Vector3 fallback = owner.transform.position + away * 1.5f;
-
-        if (owner.VerboseLogs)
-            Debug.Log($"{owner.name} Defend -> moving to fallback position {fallback}");
-
-        owner.MoveTo(fallback, 0.85f);
-
-        if (Time.time >= defendUntil)
+        if (direction.sqrMagnitude > 0.001f)
         {
-            if (owner.VerboseLogs)
-                Debug.Log($"{owner.name} Defend -> Attack");
-
-            stateMachine.SetState(CombatStateID.Attack);
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            owner.transform.rotation = targetRotation;
         }
     }
+
 }

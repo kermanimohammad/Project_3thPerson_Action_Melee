@@ -18,7 +18,7 @@ public class EnemyGroupAI : MonoBehaviour
     [SerializeField] private bool wallBroken = false;
     [SerializeField] private bool groupAlerted = false;
 
-    private readonly List<EnemyAI> members = new List<EnemyAI>();
+    private readonly List<EnemyAIBase> members = new List<EnemyAIBase>();
 
     public Transform Player => player;
     public Transform BreachPoint => breachPoint;
@@ -32,13 +32,13 @@ public class EnemyGroupAI : MonoBehaviour
 
     public Vector3 LastKnownPlayerPosition { get; private set; }
 
-    public void Register(EnemyAI enemy)
+    public void Register(EnemyAIBase enemy)
     {
         if (enemy != null && !members.Contains(enemy))
             members.Add(enemy);
     }
 
-    public void Unregister(EnemyAI enemy)
+    public void Unregister(EnemyAIBase enemy)
     {
         if (enemy != null)
             members.Remove(enemy);
@@ -60,7 +60,7 @@ public class EnemyGroupAI : MonoBehaviour
         wallBroken = true;
     }
 
-    public Vector3 GetSearchPoint(EnemyAI enemy)
+    public Vector3 GetSearchPoint(EnemyAIBase enemy)
     {
         Vector3 center = searchCenter != null ? searchCenter.position : transform.position;
 
@@ -71,7 +71,7 @@ public class EnemyGroupAI : MonoBehaviour
         return center + offset;
     }
 
-    public Vector3 GetFlankPoint(EnemyAI enemy, float radius)
+    public Vector3 GetFlankPoint(EnemyAIBase enemy, float radius)
     {
         if (player == null)
             return enemy.transform.position;
@@ -86,7 +86,7 @@ public class EnemyGroupAI : MonoBehaviour
         return player.position + side.normalized * radius;
     }
 
-    public int CountMembersNearPlayer(float radius, EnemyAI exclude = null)
+    public int CountMembersNearPlayer(float radius, EnemyAIBase exclude = null)
     {
         if (player == null)
             return 0;
@@ -94,7 +94,7 @@ public class EnemyGroupAI : MonoBehaviour
         int count = 0;
         float sqr = radius * radius;
 
-        foreach (EnemyAI member in members)
+        foreach (EnemyAIBase member in members)
         {
             if (member == null || member == exclude)
                 continue;
@@ -106,7 +106,7 @@ public class EnemyGroupAI : MonoBehaviour
         return count;
     }
 
-    public bool ShouldUnitFlank(EnemyAI enemy, float crowdedRadius)
+    public bool ShouldUnitFlank(EnemyAIBase enemy, float crowdedRadius)
     {
         int nearbyAllies = CountMembersNearPlayer(crowdedRadius, enemy);
         bool assignedFlanker = Mathf.Abs(enemy.GetInstanceID()) % 2 == 0;

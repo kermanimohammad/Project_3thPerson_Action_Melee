@@ -1,41 +1,36 @@
-using System;
 using System.Collections.Generic;
 
-public class StateMachine<TOwner, TStateID> where TStateID : Enum
+public class StateMachine<TOwner>
 {
-    public TStateID CurrentStateId { get; private set; }
-    public AbstractState<TOwner, TStateID> CurrentState { get; private set; }
-    public TOwner Owner { get; }
+	public StateID CurrentStateId { get; private set; }
+	public AbstractState<TOwner> CurrentState { get; private set; }
+	public TOwner Owner { get; }
 
-    private Dictionary<TStateID, AbstractState<TOwner, TStateID>> states = new Dictionary<TStateID, AbstractState<TOwner, TStateID>>();
+	private Dictionary<StateID, AbstractState<TOwner>> states = new Dictionary<StateID, AbstractState<TOwner>>();
 
-    public StateMachine(TOwner owner)
-    {
-        Owner = owner;
-    }
+	public StateMachine(TOwner owner, Dictionary<StateID, AbstractState<TOwner>> states)
+	{
+		Owner = owner;
+		this.states = states;
+	}
 
-    public void SetStates(Dictionary<TStateID, AbstractState<TOwner, TStateID>> states)
-    {
-        this.states = states;
-    }
+	public void SetState(StateID stateId)
+	{
+		if (CurrentState != null && CurrentState.ID != stateId)
+		{
+			return;
+		}
 
-    public void SetState(TStateID stateId)
-    {
-        if (CurrentState != null && EqualityComparer<TStateID>.Default.Equals(CurrentStateId, stateId))
-        {
-            return;
-        }
+		CurrentState?.Exit();
 
-        CurrentState?.Exit();
+		CurrentStateId = stateId;
+		CurrentState = states[stateId];
 
-        CurrentStateId = stateId;
-        CurrentState = states[stateId];
+		CurrentState.Enter();
+	}
 
-        CurrentState.Enter();
-    }
-
-    public void Tick()
-    {
-        CurrentState?.Tick();
-    }
+	public void Tick()
+	{
+		CurrentState?.Tick();
+	}
 }

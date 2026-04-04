@@ -99,7 +99,7 @@ public class AttackManager : MonoBehaviour
         attacks[activeAttackIndex].CreateAOE(transform);
     }
 
-    private bool CanAttack()
+    public bool CanAttack()
     {
         if (attacks == null || attacks.Length == 0 || animator == null)
             return false;

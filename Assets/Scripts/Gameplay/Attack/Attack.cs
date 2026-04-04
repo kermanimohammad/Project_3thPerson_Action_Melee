@@ -10,7 +10,8 @@ public class Attack
 
     [Header("Attack Data")]
     [SerializeField] private string animationTrigger;
-    [SerializeField] private float damage = 10f;
+    [SerializeField] private float damageToCharacters = 10f;
+    [SerializeField] private float damageToDoors = 0f;
     public float timeToResetCombo = 2f;
 
     public string AnimationTrigger => animationTrigger;
@@ -58,7 +59,7 @@ public class Attack
             boxSize,
             owner.rotation,
             lifeTime,
-            (target) => DamageService.Instance.DealDamage(owner.gameObject, target, damage)
+            (target) => DamageService.Instance.DealDamage(owner.gameObject, target, damageToCharacters)
             );
     }
 

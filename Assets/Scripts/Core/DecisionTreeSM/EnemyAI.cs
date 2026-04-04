@@ -47,7 +47,7 @@ public class EnemyAI : MonoBehaviour
     private static readonly int AttackHash = Animator.StringToHash("Attack");
     private static readonly int DefendHash = Animator.StringToHash("isDefending");
 
-    public StateMachine<EnemyAI, MainStateID> MainStateMachine { get; private set; }
+    public StateMachine<EnemyAI> MainStateMachine { get; private set; }
 
     public EnemyGroupAI GroupAI => groupAI;
     public Transform Player => player;
@@ -79,26 +79,25 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        if (groupAI != null)
-            groupAI.Register(this);
-    }
+    //private void OnEnable()
+    //{
+    //    if (groupAI != null)
+    //        groupAI.Register(this);
+    //}
 
-    private void OnDisable()
-    {
-        if (groupAI != null)
-            groupAI.Unregister(this);
-    }
+    //private void OnDisable()
+    //{
+    //    if (groupAI != null)
+    //        groupAI.Unregister(this);
+    //}
 
     private void Start()
     {
         if (groupAI != null && player == null)
             player = groupAI.Player;
 
-        MainStateMachine = new StateMachine<EnemyAI, MainStateID>(this);
-        MainStateMachine.SetStates(StateFactory.GetMainStates(this, MainStateMachine));
-        MainStateMachine.SetState(MainStateID.Seek);
+        //MainStateMachine = new StateMachine<EnemyAI>(this, StateFactory.GetMainStates(this, MainStateMachine));
+        //MainStateMachine.SetState(StateID.Seek);
     }
 
     private void Update()
@@ -143,7 +142,7 @@ public class EnemyAI : MonoBehaviour
         if (IsTestMode)
             return debugShouldFlank;
 
-        return groupAI != null && groupAI.ShouldUnitFlank(this, attackRange * 1.8f);
+        return groupAI != null; // && groupAI.ShouldUnitFlank(this, attackRange * 1.8f);
     }
 
     public bool HasLostPlayer()
@@ -289,7 +288,7 @@ public class EnemyAI : MonoBehaviour
         if (groupAI.GroupAlerted)
             return groupAI.LastKnownPlayerPosition;
 
-        return groupAI.GetSearchPoint(this);
+        return Vector3.zero; // groupAI.GetSearchPoint(this);
     }
 
     public Vector3 GetRetreatDestination()
@@ -307,7 +306,7 @@ public class EnemyAI : MonoBehaviour
     public Vector3 GetFlankDestination()
     {
         if (groupAI != null)
-            return groupAI.GetFlankPoint(this, flankRadius);
+            return Vector3.zero;// groupAI.GetFlankPoint(this, flankRadius);
 
         if (player == null)
             return transform.position;
