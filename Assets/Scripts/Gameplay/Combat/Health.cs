@@ -9,17 +9,21 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField] private float currentHealth;
     [SerializeField, Range(0f, 1f)] private float normalized01;
 
+    private bool isDead;
+
     [Header("Hit reaction (optional)")]
     [SerializeField] private Animator animator;
     [Tooltip("Minimum seconds between hit reactions.")]
     [SerializeField] private float hitReactCooldownSeconds = 0.1f;
     private float nextHitReactTime;
     public event Action<float, float> OnHealthChanged;
+    public event Action OnDied;
     // (currentHealth, maxHealth)
 
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
     public float Normalized01 => maxHealth <= 0 ? 0f : Mathf.Clamp01(currentHealth / maxHealth);
+    public bool IsDead => isDead;
 
     private void Awake()
     {
@@ -33,6 +37,9 @@ public class Health : MonoBehaviour, IDamageable
 
     public void TakeDamage(float amount)
     {
+        if (isDead)
+            return;
+
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         normalized01 = Normalized01;
@@ -62,6 +69,12 @@ public class Health : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        if (isDead)
+            return;
+
+        isDead = true;
+        OnDied?.Invoke();
+
         Destroy(gameObject);
     }
 }
