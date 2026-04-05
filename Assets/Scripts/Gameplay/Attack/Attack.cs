@@ -27,6 +27,7 @@ public class Attack
     public void TriggerAttackAnimation(Animator ownerAnimator)
     {
         ownerAnimator.ResetTrigger(animationTrigger);
+        ownerAnimator.SetBool("isGrounded", true);
         ownerAnimator.SetTrigger(animationTrigger);
     }
 

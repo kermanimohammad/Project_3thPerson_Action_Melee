@@ -19,6 +19,10 @@ public abstract class EnemyAIBase : MonoBehaviour
 	[SerializeField] protected float fleeHealthThreshold = 0.25f;
 	[SerializeField] protected float defendHealthThreshold = 0.5f;
 
+	[Header("Decision Timing")]
+	[SerializeField] private float mainStateDuration = 0.75f;
+	private float stateTimer;
+
 	public Transform CurrentTarget { get; private set; }
 
 	public EnemyMoverBase GetMover() => mover;
@@ -44,19 +48,8 @@ public abstract class EnemyAIBase : MonoBehaviour
 	protected virtual void Awake()
 	{
 		stateMachine = new StateMachine<EnemyAIBase>(this, StateFactory.GetMainStates(this, stateMachine));
+		stateMachine.SetState(StateID.Seek);
 	}
-
-	//protected virtual void OnEnable()
-	//{
-	//	if (groupAI != null)
-	//		groupAI.Register(this);
-	//}
-
-	//protected virtual void OnDisable()
-	//{
-	//	if (groupAI != null)
-	//		groupAI.Unregister(this);
-	//}
 
 	protected void Update()
 	{
@@ -64,20 +57,28 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 		stateMachine.Tick();
 
-		desiredState = UpdateDesiredState();
+		stateTimer -= Time.deltaTime;
+
+		if (stateTimer > 0f)
+			return;
+
+
+		desiredState = GetUpdatedDesiredState();
 
 		if (desiredState != stateMachine.CurrentStateId && stateMachine.CurrentState.CanTransitionTo(desiredState))
 		{
 			stateMachine.SetState(desiredState);
+			stateTimer = mainStateDuration;
 		}
+
 	}
 
-	protected abstract StateID UpdateDesiredState();
+	protected abstract StateID GetUpdatedDesiredState();
 	protected abstract Transform GetUpdatedTarget();
-	protected abstract bool ShouldFlee();
-	protected abstract bool ShouldSeek();
-	protected abstract bool ShouldAttack();
-	protected abstract bool ShouldDefend();
-	protected abstract bool ShouldFlank();
+	protected abstract float GetFleeWeight();
+	protected abstract float GetSeekWeight();
+	protected abstract float GetAttackWeight();
+	protected abstract float GetDefendWeight();
+	protected abstract float GetFlankWeight();
 
 }

@@ -16,7 +16,7 @@ public class StateMachine<TOwner>
 
 	public void SetState(StateID stateId)
 	{
-		if (CurrentState != null && CurrentState.ID != stateId)
+		if (CurrentState != null && CurrentState.ID == stateId)
 		{
 			return;
 		}

@@ -5,6 +5,11 @@ public class AttackState : AbstractState<EnemyAIBase>
 	{
 	}
 
+	public override bool CanTransitionTo(StateID stateID)
+	{
+		return !owner.GetAttackManager().InAttackState();
+	}
+
 	public override void Tick()
 	{
 		TryRotateTowardsAimTarget(owner.CurrentTarget); 
