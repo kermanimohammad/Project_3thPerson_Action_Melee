@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class PlayerDodge : MonoBehaviour
 {
@@ -21,10 +22,17 @@ public class PlayerDodge : MonoBehaviour
     [SerializeField] private CharacterController characterController;
     [SerializeField] private CapsuleCollider capsuleCollider;
 
+    [Header("Dodge SFX")]
+    [Tooltip("Optional: plays when a dodge starts.")]
+    [SerializeField] private AudioClip dodgeStartClip;
+    [SerializeField, Range(0f, 1f)] private float dodgeStartClipVolume = 1f;
+    [SerializeField] private AudioMixerGroup dodgeSfxOutputGroup;
+
     [Header("References")]
     [SerializeField] private PlayerInputRouter input;
     [SerializeField] private PlayerMotor motor;
     [SerializeField] private PlayerCombat combat;
+    [SerializeField] private PlayerStamina stamina;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform cameraTransform;
 
@@ -36,13 +44,25 @@ public class PlayerDodge : MonoBehaviour
     private float originalCapsuleHeight;
     private Vector3 originalCapsuleCenter;
     private bool colliderScaled;
+    private AudioSource _dodgeSfxSource;
 
     private void Awake()
     {
+        if (stamina == null)
+            stamina = GetComponent<PlayerStamina>();
+
         if (characterController == null)
             characterController = GetComponent<CharacterController>();
         if (capsuleCollider == null)
             capsuleCollider = GetComponent<CapsuleCollider>();
+
+        _dodgeSfxSource = gameObject.AddComponent<AudioSource>();
+        _dodgeSfxSource.playOnAwake = false;
+        _dodgeSfxSource.loop = false;
+        _dodgeSfxSource.spatialBlend = 0f;
+        if (dodgeSfxOutputGroup == null)
+            dodgeSfxOutputGroup = GameAudioSettings.FindMixerGroup("SFX");
+        _dodgeSfxSource.outputAudioMixerGroup = dodgeSfxOutputGroup;
     }
 
     private void OnEnable()
@@ -74,6 +94,9 @@ public class PlayerDodge : MonoBehaviour
         if (combat != null && combat.IsDefending)
             return;
 
+        if (stamina != null && !stamina.TrySpendDodge())
+            return;
+
         nextDodgeTime = Time.time + dodgeCooldown;
         StartCoroutine(DodgeRoutine());
     }
@@ -89,6 +112,14 @@ public class PlayerDodge : MonoBehaviour
 
         animator.ResetTrigger(AnimParams.Dodge);
         animator.SetTrigger(AnimParams.Dodge);
+
+        if (dodgeStartClip != null && _dodgeSfxSource != null)
+        {
+            if (dodgeSfxOutputGroup == null)
+                dodgeSfxOutputGroup = GameAudioSettings.FindMixerGroup("SFX");
+            _dodgeSfxSource.outputAudioMixerGroup = dodgeSfxOutputGroup;
+            _dodgeSfxSource.PlayOneShot(dodgeStartClip, Mathf.Clamp01(dodgeStartClipVolume));
+        }
 
         try
         {

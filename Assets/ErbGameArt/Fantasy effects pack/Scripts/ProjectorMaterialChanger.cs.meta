@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: dfec01eb71be82b419ed6c543fcdede8
+timeCreated: 1506603731
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107068
+  packageName: Fantasy effects pack
+  packageVersion: 3.0
+  assetPath: Assets/ErbGameArt/Fantasy effects pack/Scripts/ProjectorMaterialChanger.cs
+  uploadId: 863550

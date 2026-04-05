@@ -30,6 +30,7 @@ public class PlayerMotor : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private PlayerInputRouter input;
     [SerializeField] private PlayerCombat combat;
+    [SerializeField] private PlayerStamina stamina;
 
     [Header("Combat Movement")]
     [SerializeField] private float attackMoveSpeedMultiplier = 0.35f;
@@ -80,9 +81,36 @@ public class PlayerMotor : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        if (cameraTransform == null && Camera.main != null)
+        TryResolveCameraTransform();
+        if (stamina == null)
+            stamina = GetComponent<PlayerStamina>();
+    }
+
+    private void LateUpdate()
+    {
+        // Scene transitions (MainMenu -> BattleArea) can change which Camera is tagged MainCamera
+        // or create the gameplay camera after this component's Awake. Keep the reference valid.
+        if (cameraTransform == null || !cameraTransform.gameObject.activeInHierarchy)
+            TryResolveCameraTransform();
+    }
+
+    private void TryResolveCameraTransform()
+    {
+        if (Camera.main != null)
         {
             cameraTransform = Camera.main.transform;
+            return;
+        }
+
+        // Fallback: find any enabled camera (useful if tag is missing).
+        Camera[] cams = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        for (int i = 0; i < cams.Length; i++)
+        {
+            if (cams[i] != null && cams[i].isActiveAndEnabled)
+            {
+                cameraTransform = cams[i].transform;
+                return;
+            }
         }
     }
 
@@ -111,6 +139,20 @@ public class PlayerMotor : MonoBehaviour
         bool defending = combat != null && combat.IsDefending;
         bool suppressLocomotion = combat != null && combat.SuppressLocomotionFromInput && controller != null && controller.isGrounded;
         bool suppressAllPlanar = IsPlanarDisplacementSuppressed;
+
+        if (stamina != null && input != null && controller != null)
+        {
+            bool hasMoveInput = input.Move.sqrMagnitude >= moveDeadzone * moveDeadzone;
+            bool sprintingNow =
+                controller.isGrounded
+                && !MovementLocked
+                && !defending
+                && !suppressLocomotion
+                && !suppressAllPlanar
+                && hasMoveInput
+                && input.SprintHeld;
+            stamina.SetSprintHeld(sprintingNow);
+        }
 
         Vector3 planar;
 
@@ -411,8 +453,12 @@ public class PlayerMotor : MonoBehaviour
 
     public void ForceMove(Vector3 worldDisplacement)
     {
+        if (combat != null && combat.IsDefending)
+            worldDisplacement = new Vector3(0f, worldDisplacement.y, 0f);
+
         if (IsPlanarDisplacementSuppressed)
             return;
+
         controller.Move(worldDisplacement);
     }
 

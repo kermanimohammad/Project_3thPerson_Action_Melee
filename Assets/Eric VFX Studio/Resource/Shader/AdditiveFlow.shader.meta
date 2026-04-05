@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ce47b9045a7a3214ca1379e605f54d9f
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 344984
+  packageName: Free Game VFX - Magic Circle(URP)
+  packageVersion: 1.01
+  assetPath: Assets/Eric VFX Studio/Resource/Shader/AdditiveFlow.shader
+  uploadId: 844516

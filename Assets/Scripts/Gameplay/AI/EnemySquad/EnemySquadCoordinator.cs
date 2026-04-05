@@ -1,0 +1,190 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// Shared blackboard for a 3-member squad: doors, stone, player, who is fighting.
+/// Place one instance per squad in the scene and wire references in the Inspector.
+/// </summary>
+public class EnemySquadCoordinator : MonoBehaviour
+{
+    [Header("Squad")]
+    [SerializeField] private string playerTag = "Player";
+    [Tooltip("Max horizontal distance to count as 'engaging' the player in melee context.")]
+    [SerializeField] private float engagePlayerRadius = 4f;
+
+    /// <summary>Horizontal distance at which a member counts as engaging the player.</summary>
+    public float EngagePlayerRadius => engagePlayerRadius;
+
+    [Header("Objectives")]
+    [Tooltip("Palace doors (DoorBreakable). At least one must be broken to consider the palace 'open'.")]
+    [SerializeField] private DoorBreakable[] palaceDoors;
+    [Tooltip("Magic stone / objective inside palace (Health or DoorBreakable on same object).")]
+    [SerializeField] private GameObject magicStoneObjective;
+
+    public Transform PlayerTransform { get; private set; }
+    public Vector3 LastKnownPlayerPosition { get; private set; }
+    public bool HasLastKnownPlayer { get; private set; }
+
+    private readonly List<EnemyGroupMemberAI> _members = new List<EnemyGroupMemberAI>(4);
+
+    private void Awake()
+    {
+        LastKnownPlayerPosition = transform.position;
+        HasLastKnownPlayer = false;
+    }
+
+    private void Update()
+    {
+        ResolvePlayer();
+        if (PlayerTransform != null)
+        {
+            LastKnownPlayerPosition = PlayerTransform.position;
+            HasLastKnownPlayer = true;
+        }
+    }
+
+    private void ResolvePlayer()
+    {
+        if (PlayerTransform != null && PlayerTransform.gameObject.activeInHierarchy)
+            return;
+
+        GameObject go = GameObject.FindGameObjectWithTag(playerTag);
+        PlayerTransform = go != null ? go.transform : null;
+    }
+
+    public void RegisterMember(EnemyGroupMemberAI member)
+    {
+        if (member == null || _members.Contains(member))
+            return;
+        _members.Add(member);
+    }
+
+    public void UnregisterMember(EnemyGroupMemberAI member)
+    {
+        _members.Remove(member);
+    }
+
+    /// <summary>True if any registered palace door is already broken.</summary>
+    public bool IsPalaceBreached()
+    {
+        if (palaceDoors == null)
+            return false;
+        for (int i = 0; i < palaceDoors.Length; i++)
+        {
+            DoorBreakable d = palaceDoors[i];
+            if (d != null && d.IsBroken)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>Pick a door that still has HP; otherwise null.</summary>
+    public DoorBreakable GetBestDoorToAttack(Vector3 fromPosition)
+    {
+        DoorBreakable best = null;
+        float bestDist = float.MaxValue;
+        if (palaceDoors == null)
+            return null;
+
+        for (int i = 0; i < palaceDoors.Length; i++)
+        {
+            DoorBreakable d = palaceDoors[i];
+            if (d == null || d.IsBroken)
+                continue;
+            float dist = HorizontalDistance(fromPosition, d.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = d;
+            }
+        }
+        return best;
+    }
+
+    public Transform GetMagicStoneTransform() => magicStoneObjective != null ? magicStoneObjective.transform : null;
+
+    /// <summary>How many squad members are within horizontal range of the player (for task delegation).</summary>
+    public int CountMembersNearPlayer()
+    {
+        if (PlayerTransform == null)
+            return 0;
+        int n = 0;
+        for (int i = 0; i < _members.Count; i++)
+        {
+            EnemyGroupMemberAI m = _members[i];
+            if (m == null || !m.isActiveAndEnabled)
+                continue;
+            float d = HorizontalDistance(m.transform.position, PlayerTransform.position);
+            if (d <= engagePlayerRadius)
+                n++;
+        }
+        return n;
+    }
+
+    /// <summary>Like <see cref="CountMembersNearPlayer"/> but excludes one member (e.g. self).</summary>
+    public int CountMembersNearPlayerExcluding(EnemyGroupMemberAI exclude)
+    {
+        if (PlayerTransform == null)
+            return 0;
+        int n = 0;
+        for (int i = 0; i < _members.Count; i++)
+        {
+            EnemyGroupMemberAI m = _members[i];
+            if (m == null || !m.isActiveAndEnabled || m == exclude)
+                continue;
+            float d = HorizontalDistance(m.transform.position, PlayerTransform.position);
+            if (d <= engagePlayerRadius)
+                n++;
+        }
+        return n;
+    }
+
+    /// <summary>Separation vector from squadmates (XZ), normalized or zero.</summary>
+    public Vector3 GetSeparationHint(Vector3 selfPosition, float radius, float weight)
+    {
+        Vector3 push = Vector3.zero;
+        int count = 0;
+        for (int i = 0; i < _members.Count; i++)
+        {
+            EnemyGroupMemberAI m = _members[i];
+            if (m == null)
+                continue;
+            Vector3 o = m.transform.position;
+            float d = Vector3.Distance(new Vector3(selfPosition.x, 0f, selfPosition.z), new Vector3(o.x, 0f, o.z));
+            if (d < 0.001f || d > radius)
+                continue;
+            Vector3 away = selfPosition - o;
+            away.y = 0f;
+            push += away.normalized * (1f - d / radius);
+            count++;
+        }
+        if (count == 0)
+            return Vector3.zero;
+        push /= count;
+        return push * weight;
+    }
+
+    private static float HorizontalDistance(Vector3 a, Vector3 b)
+    {
+        a.y = 0f;
+        b.y = 0f;
+        return Vector3.Distance(a, b);
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.35f);
+        if (palaceDoors != null)
+        {
+            for (int i = 0; i < palaceDoors.Length; i++)
+            {
+                if (palaceDoors[i] != null)
+                    Gizmos.DrawLine(transform.position, palaceDoors[i].transform.position);
+            }
+        }
+        if (magicStoneObjective != null)
+            Gizmos.DrawLine(transform.position, magicStoneObjective.transform.position);
+    }
+#endif
+}

@@ -222,6 +222,16 @@ public sealed class PauseMenuController : MonoBehaviour
         // Menu object might appear after load (instantiation); keep trying.
         if (menuRoot == null)
             TryAutoWire();
+
+        // Some gameplay scripts may re-lock/hide the cursor every frame.
+        // While paused, we must keep it unlocked + visible for UI interaction.
+        if (_paused && unlockCursorOnPause)
+        {
+            if (Cursor.lockState != CursorLockMode.None)
+                Cursor.lockState = CursorLockMode.None;
+            if (!Cursor.visible)
+                Cursor.visible = true;
+        }
     }
 
     private void OnPausePerformed(InputAction.CallbackContext ctx)
@@ -289,9 +299,9 @@ public sealed class PauseMenuController : MonoBehaviour
 
             RegisterUiAnimatorsUnscaledUnder(menuRoot);
             FocusDefaultOrFirstSelectable();
-            // Battle music: do not Stop — either AudioListener.pause pauses it, or we Pause the source if listener is not paused.
-            if (!pauseAudioListener)
-                PauseBattleMusicForMenuExplicit();
+            // Battle music: always pause explicitly (safer than relying on AudioListener.pause,
+            // since other systems/sources may ignore listener pause).
+            PauseBattleMusicForMenuExplicit();
             PlayPauseMenuMusicIfConfigured();
         }
         else
@@ -320,9 +330,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
             _lastSelectableUnderMenuScope = null;
             StopPauseMenuMusic();
-            // Battle music resumes via AudioListener when pauseAudioListener is true; otherwise UnPause the source.
-            if (!pauseAudioListener)
-                ResumeBattleMusicAfterMenuExplicit();
+            // Always resume explicitly if we paused it.
+            ResumeBattleMusicAfterMenuExplicit();
         }
     }
 
@@ -861,8 +870,15 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
 
         _quitLoadStarted = true;
+        // Prevent a 1-frame "music blast" when leaving while paused:
+        // stop any battle/pause menu music BEFORE unpausing the AudioListener.
+        StopBattleMusic();
+        StopPauseMenuMusic();
+
         Time.timeScale = 1f;
         AudioListener.pause = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
     }
 
