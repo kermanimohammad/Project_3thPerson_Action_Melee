@@ -92,8 +92,6 @@ public static class Pathfinding
             .FirstOrDefault();
     }
 
-    public static int GetPlatform(Vector3 position, Dictionary<(int,int,int), Node> nodes, bool filter = false, NodeTypeEnum typeFilter = NodeTypeEnum.Normal) => FindNearestNode(position, nodes, filter, typeFilter).Index.platform;
-
     public static void DebugPrintPath(List<Node> path)
     {
         string s = "Path: ";
