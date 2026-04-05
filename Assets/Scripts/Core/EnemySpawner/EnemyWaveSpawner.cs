@@ -139,9 +139,9 @@ public class EnemyWaveSpawner : MonoBehaviour
 
             runtime.RegisterMember(spawnedMember);
 
-            EnemyAI enemyAI = enemyObj.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.InitializeGroup(groupAIInstance);
+            //EnemyAIBase enemyAI = enemyObj.GetComponent<EnemyAIBase>();
+            //if (enemyAI != null)
+            //    enemyAI.InitializeGroup(groupAIInstance);
         }
 
         Debug.Log($"Spawned {groupName} with {runtime.AliveCount} enemies.");

@@ -434,20 +434,20 @@ public class EnemyAI : MonoBehaviour
 
     public void InitializeGroup(EnemyGroupAI newGroup)
     {
-        if (groupAI == newGroup)
-            return;
+        //if (groupAI == newGroup)
+        //    return;
 
-        if (groupAI != null)
-            groupAI.Unregister(this);
+        //if (groupAI != null)
+        //    groupAI.Unregister(this);
 
-        groupAI = newGroup;
+        //groupAI = newGroup;
 
-        if (groupAI != null)
-        {
-            groupAI.Register(this);
+        //if (groupAI != null)
+        //{
+        //    groupAI.Register(this);
 
-            if (player == null)
-                player = groupAI.Player;
-        }
+        //    if (player == null)
+        //        player = groupAI.Player;
+        //}
     }
 }
