@@ -227,6 +227,34 @@ public class NodeGraph : MonoBehaviour
 		return edgeNodes;
 	}
 
+	// call this when a door is destroyed with the location of the door
+	public void UpdateGridAroundPoint(Vector3 position, float radius)
+	{
+		(int, int)[] indexOffsets = { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+		List<Node> affectedNodes = Nodes.Values
+			.Where(n => Vector3.Distance(n.loc, position) <= radius)
+			.ToList();
+
+		foreach (var node in affectedNodes)
+		{
+			(int platform, int x, int z) = node.Index;
+			foreach (var offset in indexOffsets)
+			{
+				if (!Nodes.TryGetValue((platform, x + offset.Item1, z + offset.Item2), out Node neighbor))
+					continue;
+				if (node.AdjList.Contains(neighbor))
+					continue;
+				if (!IsPathBlocked(node.loc, neighbor.loc))
+				{
+					node.AdjList.Add(neighbor);
+					if (!neighbor.AdjList.Contains(node))
+						neighbor.AdjList.Add(node);
+				}
+			}
+		}
+	}
+
 	void FindJumpConnections()
 	{
 		List<Node> edgeNodes = FindEdgeNodes();
