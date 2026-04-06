@@ -7,6 +7,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private PlayerMotor motor;
     [SerializeField] private AttackManager attackManager;
     [SerializeField] private CharacterDefense characterDefense;
+    [SerializeField] private PlayerStamina stamina;
 
     public bool IsDefending => characterDefense.IsDefending;
     public bool InAttackState => attackManager.InAttackState();
@@ -15,6 +16,12 @@ public class PlayerCombat : MonoBehaviour
     [Tooltip("Extra suppression window right after attack input (covers transition frames before the Animator enters the attack state).")]
     [SerializeField] private float attackStartSuppressSeconds = 0.12f;
     public bool SuppressLocomotionFromInput => IsInAttackAnimationOrTransition() || Time.time < suppressLocomotionUntilTime;
+
+    /// <summary>
+    /// True while an attack animation is playing, or while transitioning into one.
+    /// Useful for VFX (e.g., weapon trails).
+    /// </summary>
+    public bool IsAttackingAnimation => IsInAttackAnimationOrTransition();
     private float suppressLocomotionUntilTime;
 
     [Header("Special Attack (Sphere AOE)")]
@@ -24,6 +31,13 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private float specialDamageAmount = 0.40f;
 
     private const string _EnemyTag = "Enemy";
+    private bool wasDefendHeld;
+
+    private void Awake()
+    {
+        if (stamina == null)
+            stamina = GetComponent<PlayerStamina>();
+    }
 
     private void OnEnable()
     {
@@ -41,6 +55,9 @@ public class PlayerCombat : MonoBehaviour
             input.AttackPressed -= TryAttack;
             input.SpecialAttackPressed -= TrySpecialAttack;
         }
+
+        if (stamina != null)
+            stamina.SetBlockHeld(false);
     }
 
     private void Update()
@@ -59,15 +76,31 @@ public class PlayerCombat : MonoBehaviour
         }
 
         bool shouldDefend = input.DefendHeld && motor.IsGrounded && !motor.MovementLocked;
+        if (stamina != null)
+            stamina.SetBlockHeld(shouldDefend);
 
         if (shouldDefend)
         {
+            if (!wasDefendHeld)
+            {
+                // Cancel any buffered attacks so they don't "resume" after releasing defend.
+                if (attackManager != null)
+                    attackManager.CancelBufferedComboNow();
+
+                if (animator != null)
+                {
+                    animator.ResetTrigger(AnimParams.Special);
+                    animator.ResetTrigger(AnimParams.Attack);
+                }
+            }
             characterDefense.StartDefend();
         }
         else if (IsDefending)
         {
             characterDefense.StopDefend();
         }
+
+        wasDefendHeld = shouldDefend;
     }
 
     private void TryAttack()
@@ -76,6 +109,9 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         if (attackManager == null)
+            return;
+
+        if (stamina != null && !stamina.TrySpendAttack())
             return;
 
         if (TryAirKickAfterMovingJump())
@@ -99,6 +135,9 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         if (animator == null)
+            return;
+
+        if (stamina != null && !stamina.TrySpendSpecialAttack())
             return;
 
         // Fire Special trigger for SpacialAttack transition in PlayerController.controller

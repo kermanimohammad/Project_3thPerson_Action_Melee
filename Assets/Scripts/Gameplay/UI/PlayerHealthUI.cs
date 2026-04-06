@@ -1,14 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerHealthUI : MonoBehaviour
 {
     [SerializeField] private Slider healthSlider;
+    [Header("Low health blink")]
+    [SerializeField] private Image fillImage;
+    [SerializeField] private TMP_Text healthText;
+    [SerializeField, Range(0f, 1f)] private float lowHealthThreshold = 0.2f;
+    [Tooltip("Blink speed in cycles per second.")]
+    [SerializeField, Min(0.1f)] private float blinkCyclesPerSecond = 2.0f;
+    [SerializeField] private Color normalFillColor = Color.white;
+    [SerializeField] private Color lowFillColor = Color.red;
+
     [SerializeField] private Health playerHealth;
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private float autoBindRetrySeconds = 1.0f;
 
     private Coroutine bindRoutine;
+    private Coroutine blinkRoutine;
+    private bool isLow;
 
     private void OnEnable()
     {
@@ -22,11 +34,16 @@ public class PlayerHealthUI : MonoBehaviour
         {
             BindToActivePlayerHealth();
         }
+
+        ApplyNormalFillColor();
     }
 
     private void OnDisable()
     {
         Unbind();
+
+        StopBlink();
+        ApplyNormalFillColor();
 
         if (bindRoutine != null)
         {
@@ -39,7 +56,9 @@ public class PlayerHealthUI : MonoBehaviour
     {
         if (healthSlider == null)
             return;
-        healthSlider.value = (float)current / max;
+        float normalized = max <= 0f ? 0f : (float)current / max;
+        healthSlider.value = normalized;
+        UpdateLowState(normalized);
     }
 
     /// <summary>Call this after enabling the chosen character, if needed.</summary>
@@ -93,6 +112,7 @@ public class PlayerHealthUI : MonoBehaviour
             {
                 playerHealth = h;
                 playerHealth.OnHealthChanged += UpdateHealthBar;
+                RefreshNow();
                 bindRoutine = null;
                 yield break;
             }
@@ -102,6 +122,65 @@ public class PlayerHealthUI : MonoBehaviour
         }
 
         bindRoutine = null;
+    }
+
+    private void UpdateLowState(float normalized)
+    {
+        bool lowNow = normalized < lowHealthThreshold;
+        if (lowNow == isLow)
+            return;
+
+        isLow = lowNow;
+        if (isLow)
+            StartBlink();
+        else
+        {
+            StopBlink();
+            ApplyNormalFillColor();
+        }
+    }
+
+    private void StartBlink()
+    {
+        if (fillImage == null && healthText == null)
+            return;
+        if (blinkRoutine != null)
+            return;
+        blinkRoutine = StartCoroutine(BlinkRoutine());
+    }
+
+    private void StopBlink()
+    {
+        if (blinkRoutine == null)
+            return;
+        StopCoroutine(blinkRoutine);
+        blinkRoutine = null;
+    }
+
+    private System.Collections.IEnumerator BlinkRoutine()
+    {
+        while (true)
+        {
+            if (fillImage == null && healthText == null)
+            {
+                blinkRoutine = null;
+                yield break;
+            }
+
+            float t = (Mathf.Sin(Time.unscaledTime * (Mathf.PI * 2f) * blinkCyclesPerSecond) + 1f) * 0.5f;
+            Color c = Color.Lerp(normalFillColor, lowFillColor, t);
+            if (fillImage != null) fillImage.color = c;
+            if (healthText != null) healthText.color = c;
+            yield return null;
+        }
+    }
+
+    private void ApplyNormalFillColor()
+    {
+        if (fillImage != null)
+            fillImage.color = normalFillColor;
+        if (healthText != null)
+            healthText.color = normalFillColor;
     }
 
     private bool TryResolveActivePlayerHealth(out Health health)

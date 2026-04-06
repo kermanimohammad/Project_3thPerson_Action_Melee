@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 515f549645bd3fd4fb4ff55ac5054803
+guid: 8a5891e71833a994b8dda847e939d062
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -83,6 +83,20 @@ ModelImporter:
         messageOptions: 0
       - time: 0.7192118
         functionName: CreateAOE
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.6588785
+        functionName: TrailOn
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.8130841
+        functionName: TrailOff
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

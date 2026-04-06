@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 8dbae84e6642676449cd6a7de289770d
+timeCreated: 1515078964
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107068
+  packageName: Fantasy effects pack
+  packageVersion: 3.0
+  assetPath: Assets/ErbGameArt/Fantasy effects pack/Scripts/ColliderTurnOff.cs
+  uploadId: 863550

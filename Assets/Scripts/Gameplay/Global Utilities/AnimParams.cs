@@ -12,6 +12,8 @@ public static class AnimParams
     public static readonly int Attack = Animator.StringToHash("Attack");
     public static readonly int Dodge = Animator.StringToHash("Dodge");
     public static readonly int Hit = Animator.StringToHash("Hit");
+    public static readonly int Death = Animator.StringToHash("Death");
+    public static readonly int GetEnergy = Animator.StringToHash("GetEnergy");
     public static readonly int Special = Animator.StringToHash("Special");
 
     public static readonly int AttackTag = Animator.StringToHash("Attack");

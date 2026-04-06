@@ -177,4 +177,13 @@ public class AttackManager : MonoBehaviour
 
     private bool IsValidActiveAttack() => activeAttackIndex >= 0 && activeAttackIndex < attacks.Length;
 
+    /// <summary>
+    /// Clears any queued/buffered combo continuation and resets combo indices.
+    /// Useful when another action (e.g., Defend) should cancel pending attacks.
+    /// </summary>
+    public void CancelBufferedComboNow()
+    {
+        ClearBufferedCombo();
+    }
+
 }

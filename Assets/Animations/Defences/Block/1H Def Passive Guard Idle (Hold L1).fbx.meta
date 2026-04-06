@@ -34,8 +34,8 @@ ModelImporter:
       name: 1H Def Passive Guard Idle (Hold L1)
       takeName: 1H Def Passive Guard Idle (Hold L1)
       internalID: 4275535986010666021
-      firstFrame: 0
-      lastFrame: 159
+      firstFrame: 31
+      lastFrame: 77
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

@@ -36,12 +36,18 @@ public class MainMenuBattleStartController : MonoBehaviour
     [Header("Behaviour")]
     [SerializeField] private bool hideLoadingOverlayIfSceneFails = true;
 
+    [Header("MainMenu UI (optional)")]
+    [Tooltip("If assigned, this object will be deactivated when loading starts (e.g. Canvas/MainMenu).")]
+    [SerializeField] private GameObject mainMenuRootToDeactivate;
+
     [Header("Menu music (optional)")]
     [Tooltip("If assigned, pause menu music before playing loading one-shot (e.g. BaseBoom1).")]
     [SerializeField] private MainMenuSettingsCoordinator mainMenuSettingsCoordinator;
 
     private Coroutine _loadRoutine;
     private AudioSource _loadingSfxSource;
+    private CursorLockMode _prevCursorLockMode;
+    private bool _prevCursorVisible;
 
     private void Awake()
     {
@@ -55,6 +61,23 @@ public class MainMenuBattleStartController : MonoBehaviour
         if (loadingSfxOutputGroup == null)
             loadingSfxOutputGroup = GameAudioSettings.FindMixerGroup("SFX");
         _loadingSfxSource.outputAudioMixerGroup = loadingSfxOutputGroup;
+    }
+
+    private void EnsureMainMenuRootResolved()
+    {
+        if (mainMenuRootToDeactivate != null)
+            return;
+
+        // Best-effort auto-bind for the common hierarchy: Canvas/MainMenu
+        var canvas = GameObject.Find("Canvas");
+        if (canvas == null)
+            return;
+
+        var mainMenu = canvas.transform.Find("MainMenu");
+        if (mainMenu == null)
+            return;
+
+        mainMenuRootToDeactivate = mainMenu.gameObject;
     }
 
     /// <summary>Assign this to BattleBTN OnClick().</summary>
@@ -91,8 +114,18 @@ public class MainMenuBattleStartController : MonoBehaviour
 
     private IEnumerator LoadBattleSceneAsync()
     {
+        EnsureMainMenuRootResolved();
+
+        _prevCursorLockMode = Cursor.lockState;
+        _prevCursorVisible = Cursor.visible;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         if (loadingOverlayRoot != null)
             loadingOverlayRoot.SetActive(true);
+
+        if (mainMenuRootToDeactivate != null)
+            mainMenuRootToDeactivate.SetActive(false);
 
         SetProgressUi(0f);
 
@@ -118,6 +151,10 @@ public class MainMenuBattleStartController : MonoBehaviour
             Debug.LogError($"{nameof(MainMenuBattleStartController)}: scene '{battleSceneName}' not in Build Settings or name mismatch.", this);
             if (hideLoadingOverlayIfSceneFails && loadingOverlayRoot != null)
                 loadingOverlayRoot.SetActive(false);
+            if (mainMenuRootToDeactivate != null)
+                mainMenuRootToDeactivate.SetActive(true);
+            Cursor.lockState = _prevCursorLockMode;
+            Cursor.visible = _prevCursorVisible;
             _loadRoutine = null;
             yield break;
         }
