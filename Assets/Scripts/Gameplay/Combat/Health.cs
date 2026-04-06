@@ -26,6 +26,8 @@ public class Health : MonoBehaviour, IDamageable
     public event Action<float, float> OnHealthChanged;
     // (currentHealth, maxHealth)
 
+    public event Action OnDied;
+
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
     public float Normalized01 => maxHealth <= 0 ? 0f : Mathf.Clamp01(currentHealth / maxHealth);
@@ -95,6 +97,7 @@ public class Health : MonoBehaviour, IDamageable
             return;
 
         _dead = true;
+        OnDied?.Invoke();
 
         foreach (var attack in GetComponentsInChildren<AttackManager>(true))
         {
