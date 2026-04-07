@@ -41,19 +41,31 @@ public class MeleeEnemyAI : EnemyAIBase
 			return 0f;
 
 		float health01 = health.Normalized01;
-		float inRange = 1f;
-		float healthyConfidence = Mathf.Lerp(0.25f, 1f, health01);
-		float lowHealthPenalty = 1f - health01;
+		float lowHealth = 1f - health01;
+		bool playerPressuring = PlayerIsNearAndAttacking();
+
+		float healthDrive = Mathf.Lerp(0.35f, 1f, health01);
+		float aggressionDrive = aggression;
+		float braveryDrive = bravery;
+		float cautionPenalty = caution;
+
+		float pressurePenalty = playerPressuring ? 0.35f : 0f;
+		float lowHealthPenalty = lowHealth * 0.2f;
 
 		float score =
-			0.15f +
-			aggression * 0.45f +
-			bravery * 0.25f +
-			healthyConfidence * 0.35f -
-			caution * 0.15f -
-			lowHealthPenalty * 0.25f;
+			0.2f +
+			aggressionDrive * 0.35f +
+			braveryDrive * 0.2f +
+			healthDrive * 0.3f -
+			cautionPenalty * 0.15f -
+			pressurePenalty -
+			lowHealthPenalty;
 
-		return Mathf.Clamp01(score) * inRange;
+		// If the player is not actively threatening, lean more toward attacking.
+		if (!playerPressuring)
+			score += 0.2f;
+
+		return Mathf.Clamp01(score);
 	}
 
 	protected override float GetDefendScore()
@@ -68,20 +80,26 @@ public class MeleeEnemyAI : EnemyAIBase
 			return 0f;
 
 		float health01 = health.Normalized01;
-		float lowHealthPressure = 1f - health01;
+		float lowHealth = 1f - health01;
+		bool playerPressuring = PlayerIsNearAndAttacking();
+
+		float pressureDrive = playerPressuring ? 1f : 0f;
 		float recoveryNeed = attackManager.CanAttack() ? 0f : 1f;
-		float cautionDrive = caution;
-		float aggressionSuppression = 1f - aggression * 0.4f;
 
 		float score =
-			lowHealthPressure * 0.4f +
-			recoveryNeed * 0.35f +
-			cautionDrive * 0.3f +
-			aggressionSuppression * 0.15f;
+			lowHealth * 0.2f +          // low HP matters, but not too much
+			recoveryNeed * 0.3f +       // defend more when recovering between attacks
+			caution * 0.2f +
+			pressureDrive * 0.45f -     // main reason to defend
+			aggression * 0.1f -
+			bravery * 0.05f;
+
+		// If player is not attacking, defending should usually not dominate.
+		if (!playerPressuring)
+			score -= 0.2f;
 
 		return Mathf.Clamp01(score);
 	}
-
 	protected override float GetFleeScore()
 	{
 		float health01 = health.Normalized01;
@@ -131,5 +149,17 @@ public class MeleeEnemyAI : EnemyAIBase
 	protected override float GetFlankScore()
 	{
 		return 0;
+	}
+
+	public bool PlayerIsNearAndAttacking()
+	{
+		Transform player = GlobalReferences.Instance.GetPlayer();
+
+		if (player == null || !perception.InAttackRange(player, 0.9f))
+		{
+			return false;
+		}
+
+		return player.GetComponent<PlayerCombat>().IsAttackingAnimation;
 	}
 }

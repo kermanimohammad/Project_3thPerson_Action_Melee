@@ -111,7 +111,7 @@ public class PlayerCombat : MonoBehaviour
         if (attackManager == null)
             return;
 
-        if (stamina != null && !stamina.TrySpendAttack())
+        if (stamina != null && !stamina.CanSpendAttack())
             return;
 
         if (TryAirKickAfterMovingJump())
@@ -125,6 +125,12 @@ public class PlayerCombat : MonoBehaviour
         TryRotateTowardsAimTarget(aimTarget);
 
         int attackIndex = attackManager.TryAttack();
+        
+        if (attackIndex >= 0)
+		{
+            stamina.TrySpendAttack();
+		}
+
         if (attackIndex >= 0 && (motor == null || motor.IsGrounded))
             suppressLocomotionUntilTime = Time.time + attackStartSuppressSeconds;
     }
