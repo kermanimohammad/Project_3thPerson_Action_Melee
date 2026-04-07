@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ConcreteEnemyMover : EnemyMoverBase
@@ -6,9 +7,12 @@ public class ConcreteEnemyMover : EnemyMoverBase
 	[SerializeField] private float arriveDistance = 1.35f;
 	[SerializeField] private Animator animator;
 	[SerializeField] private CharacterController controller;
+	[SerializeField] private NodeGraph graph;
 
 	private Vector3 targetPosition;
 	private Vector3 _velocity;
+	List<Node> currentPath;
+	int currentIndex = 0;
 
 	public override float CurrentSpeed => speed;
 
@@ -44,8 +48,9 @@ public class ConcreteEnemyMover : EnemyMoverBase
 		flat.y = 0f;
 		if (flat.sqrMagnitude < arriveDistance * arriveDistance)
 		{
-			_velocity = Vector3.zero;
+			currentIndex++;
 			// pathfinding possibly here
+			// 
 			return;
 		}
 
@@ -63,6 +68,37 @@ public class ConcreteEnemyMover : EnemyMoverBase
 
 		animator.SetFloat(AnimParams.Speed, _velocity.magnitude);
 		animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
+	}
+
+	public void Move()
+	{
+		if (currentIndex >= currentPath.Count)
+		{
+			return;
+		}
+
+		var currentNode = currentPath[currentIndex];
+		//var nextNode = currentPath[currentIndex + 1];
+
+		//if (currentNode.NodeType == NodeTypeEnum.Jumping && nextNode.NodeType == NodeTypeEnum.Jumping)
+		//{
+		//	// Jump Towards
+		//}
+
+		MoveTo(currentNode.loc);
+	}
+
+	private void JumpTowards(Vector3 destination)
+	{
+		
+	}
+
+	public void RecalculatePathFinding(Vector3 destination)
+	{
+		Node start = Pathfinding.FindNearestNode(transform.position, graph.Nodes);
+		Node dest = Pathfinding.FindNearestNode(destination, graph.Nodes);
+		currentPath = Pathfinding.FindPath(start, dest, destination);
+		currentIndex = 0;
 	}
 
 	private void ApplyMove(Vector3 planarVelocity, float speed)
