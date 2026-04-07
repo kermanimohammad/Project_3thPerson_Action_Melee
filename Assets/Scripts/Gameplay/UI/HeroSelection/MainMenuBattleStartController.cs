@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Wire BattleBTN OnClick → <see cref="StartBattle"/>.
-/// Saves current character + weapon/helmet/shield, shows loading UI, loads BattleArea asynchronously.
+/// Saves current character + weapon/helmet/shield, shows loading UI, loads the Tutorial scene (then BattleArea after the timeline) asynchronously.
 /// </summary>
 public class MainMenuBattleStartController : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class MainMenuBattleStartController : MonoBehaviour
     [SerializeField] private MenuHelmetShieldPicker helmetShieldPicker;
 
     [Header("Target scene")]
-    [SerializeField] private string battleSceneName = "BattleArea";
+    [SerializeField] private string battleSceneName = "Tutorial";
 
     [Header("Loading UI")]
     [Tooltip("Panel/canvas group shown while the next scene loads (assign an overlay with loading art).")]

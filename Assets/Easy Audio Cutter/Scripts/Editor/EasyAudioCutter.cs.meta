@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f8a7022201f6834469cfd3979098c29e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 316085
+  packageName: Easy Audio Cutter
+  packageVersion: 1.2
+  assetPath: Assets/Easy Audio Cutter/Scripts/Editor/EasyAudioCutter.cs
+  uploadId: 834314
