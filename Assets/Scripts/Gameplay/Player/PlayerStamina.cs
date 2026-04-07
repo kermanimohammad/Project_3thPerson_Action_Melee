@@ -134,6 +134,7 @@ public class PlayerStamina : MonoBehaviour
     }
 
     public bool CanSpend(float cost) => cost <= CurrentStamina;
+    public bool CanSpendAttack() => CanSpend(attackCost);
 
     public bool TrySpendAttack() => TrySpend(attackCost);
     public bool TrySpendSpecialAttack() => TrySpend(specialAttackCost);
