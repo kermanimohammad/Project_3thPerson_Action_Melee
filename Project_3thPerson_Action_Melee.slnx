@@ -1,4 +1,6 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="AH_AssemblyDefinition.csproj" />
+  <Project Path="Heureka_GlobalAssemblyDefinition.csproj" />
 </Solution>

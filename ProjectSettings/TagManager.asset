@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - CinemachineTarget
+  - Wall
+  - PlatformPosition
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -14,8 +17,8 @@ TagManager:
   - UI
   - LightRoom
   - Fire
-  - 
-  - 
+  - Terrain
+  - Obstacles
   - 
   - 
   - 

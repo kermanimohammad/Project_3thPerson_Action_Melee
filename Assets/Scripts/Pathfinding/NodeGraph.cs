@@ -41,6 +41,9 @@ public class NodeGraph : MonoBehaviour
 		for (int i = 0; i < StartingPositions.Count; i++) FloodFillGrid(StartingPositions[i].position, i);
 		GenerateThenCleanAdjacencies();
 		FindJumpConnections();
+#if UNITY_EDITOR
+		InvalidateGizmoCache();
+#endif
 	}
 
 	void GenerateThenCleanAdjacencies()
@@ -88,6 +91,7 @@ public class NodeGraph : MonoBehaviour
             {
                 Vector3 newPos = pos + directions[i];
             	if (!OnSamePlatform(pos, newPos, out Vector3 groundPos, out float heightDiff)) continue;
+				if (Physics.CheckSphere(groundPos + Vector3.up * NodeRaycastHeight, GridIncrement * 0.4f, ObstaclesLayerMask, QueryTriggerInteraction.Ignore)) continue;
 
                 (int, int) newIndex = (xIdx + indexOffsets[i].Item1, zIdx + indexOffsets[i].Item2);
 
@@ -107,7 +111,8 @@ public class NodeGraph : MonoBehaviour
             {
                 if (Nodes.TryGetValue((platform, kvp.Key.Item2 + off.Item1, kvp.Key.Item3 + off.Item2), out Node adj))
                 {
-                    if (Mathf.Abs(node.loc.y - adj.loc.y) >= MinJumpHeight)
+                    float yDiff = Mathf.Abs(node.loc.y - adj.loc.y);
+                    if (yDiff >= MinJumpHeight && yDiff <= MaxJumpHeight)
                     {
                         node.NodeType = NodeTypeEnum.Jumping;
                         adj.NodeType = NodeTypeEnum.Jumping;
@@ -172,7 +177,7 @@ public class NodeGraph : MonoBehaviour
             
             foreach (var adjNode in node.AdjList)
             {
-                if (!IsPathBlocked(node.loc, adjNode.loc))
+                if (Mathf.Abs(node.loc.y - adjNode.loc.y) <= MaxJumpHeight && !IsPathBlocked(node.loc, adjNode.loc))
                     validAdjacents.Add(adjNode);
             }
             
@@ -188,7 +193,7 @@ public class NodeGraph : MonoBehaviour
         Vector3 direction = toRay - fromRay;
         float distance = direction.magnitude;
         
-        return Physics.Raycast(fromRay, direction.normalized, distance, ObstaclesLayerMask);
+        return Physics.Raycast(fromRay, direction.normalized, distance, ObstaclesLayerMask, QueryTriggerInteraction.Ignore);
 	}
 
 	void RemoveOrphanNodes()
@@ -230,29 +235,28 @@ public class NodeGraph : MonoBehaviour
 	// call this when a door is destroyed with the location of the door
 	public void UpdateGridAroundPoint(Vector3 position, float radius)
 	{
-		(int, int)[] indexOffsets = { (1, 0), (-1, 0), (0, 1), (0, -1) };
-
 		List<Node> affectedNodes = Nodes.Values
 			.Where(n => Vector3.Distance(n.loc, position) <= radius)
 			.ToList();
 
-		foreach (var node in affectedNodes)
+		float connectDist = GridIncrement * 2.0f;
+		for (int i = 0; i < affectedNodes.Count; i++)
 		{
-			(int platform, int x, int z) = node.Index;
-			foreach (var offset in indexOffsets)
+			for (int j = i + 1; j < affectedNodes.Count; j++)
 			{
-				if (!Nodes.TryGetValue((platform, x + offset.Item1, z + offset.Item2), out Node neighbor))
-					continue;
-				if (node.AdjList.Contains(neighbor))
-					continue;
-				if (!IsPathBlocked(node.loc, neighbor.loc))
+				Node a = affectedNodes[i], b = affectedNodes[j];
+				if (Vector3.Distance(a.loc, b.loc) > connectDist) continue;
+				if (a.AdjList.Contains(b)) continue;
+				if (!IsPathBlocked(a.loc, b.loc))
 				{
-					node.AdjList.Add(neighbor);
-					if (!neighbor.AdjList.Contains(node))
-						neighbor.AdjList.Add(node);
+					a.AdjList.Add(b);
+					b.AdjList.Add(a);
 				}
 			}
 		}
+#if UNITY_EDITOR
+		InvalidateGizmoCache();
+#endif
 	}
 
 	void FindJumpConnections()
@@ -270,6 +274,8 @@ public class NodeGraph : MonoBehaviour
 
 				float vertDist = Mathf.Abs(nodeA.loc.y - nodeB.loc.y);
 				if (vertDist > MaxJumpHeight) continue;
+
+				if (IsPathBlocked(nodeA.loc, nodeB.loc)) continue;
 
 				nodeA.NodeType = NodeTypeEnum.Jumping;
 				nodeB.NodeType = NodeTypeEnum.Jumping;
@@ -291,31 +297,60 @@ public class NodeGraph : MonoBehaviour
 	public float NodeGizmoSize = 0.3f;
 	public float EdgeThickness = 1.0f;
 
+	private Vector3[] _gizmoNodePositions;
+	private NodeTypeEnum[] _gizmoNodeTypes;
+	private (Vector3 a, Vector3 b)[] _gizmoEdges;
+	private bool _gizmoCacheDirty = true;
+
+	public void InvalidateGizmoCache() => _gizmoCacheDirty = true;
+
+	void RebuildGizmoCache()
+	{
+		var nodeList = new List<Node>(Nodes.Values);
+		_gizmoNodePositions = new Vector3[nodeList.Count];
+		_gizmoNodeTypes = new NodeTypeEnum[nodeList.Count];
+
+		var edges = new List<(Vector3, Vector3)>();
+		var seen = new HashSet<(Node, Node)>();
+
+		for (int i = 0; i < nodeList.Count; i++)
+		{
+			_gizmoNodePositions[i] = nodeList[i].loc;
+			_gizmoNodeTypes[i] = nodeList[i].NodeType;
+			foreach (var adj in nodeList[i].AdjList)
+			{
+				if (seen.Contains((adj, nodeList[i]))) continue;
+				seen.Add((nodeList[i], adj));
+				edges.Add((nodeList[i].loc, adj.loc));
+			}
+		}
+
+		_gizmoEdges = edges.ToArray();
+		_gizmoCacheDirty = false;
+	}
+
 	void OnDrawGizmos()
 	{
+		if (Nodes == null || Nodes.Count == 0) return;
+		if (_gizmoCacheDirty || _gizmoNodePositions == null) RebuildGizmoCache();
+
 		Vector3 offset = new Vector3(0, 0.1f, 0);
-    	if (Nodes == null || Nodes.Count == 0)
-        	return;
 
-    	if (ShowEdges)
-    	{
+		if (ShowEdges)
+		{
 			UnityEditor.Handles.color = EdgeColor;
-        	Gizmos.color = EdgeColor;
-        	foreach (var node in Nodes.Values)
-        	{
-            	foreach (var adjacentNode in node.AdjList)
-                	UnityEditor.Handles.DrawLine(node.loc + offset, adjacentNode.loc + offset, EdgeThickness);
-        	}
-    	}
+			foreach (var (a, b) in _gizmoEdges)
+				UnityEditor.Handles.DrawLine(a + offset, b + offset, EdgeThickness);
+		}
 
-    	if (ShowNodes)
-    	{
-        	foreach (var node in Nodes.Values)
-        	{
-            	Gizmos.color = node.NodeType == NodeTypeEnum.Jumping ? JumpingNodeColor : NodeColor;
-            	Gizmos.DrawSphere(node.loc + offset, NodeGizmoSize);
-        	}
-    	}
+		if (ShowNodes)
+		{
+			for (int i = 0; i < _gizmoNodePositions.Length; i++)
+			{
+				Gizmos.color = _gizmoNodeTypes[i] == NodeTypeEnum.Jumping ? JumpingNodeColor : NodeColor;
+				Gizmos.DrawSphere(_gizmoNodePositions[i] + offset, NodeGizmoSize);
+			}
+		}
 	}
 #endif
 }

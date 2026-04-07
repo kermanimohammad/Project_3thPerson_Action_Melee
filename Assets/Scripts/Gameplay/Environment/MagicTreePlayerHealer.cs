@@ -64,7 +64,7 @@ public class MagicTreePlayerHealer : MonoBehaviour
 
     private void Awake()
     {
-        var col = GetComponent<Collider>();
+        var col = GetComponent<SphereCollider>();
         if (col != null)
             col.isTrigger = true;
 
