@@ -51,6 +51,9 @@ public class DoorBreakable : MonoBehaviour, IDamageableWithSource
     [Tooltip("If true, also makes pieces kinematic after the delay (freezes them in place).")]
     [SerializeField] private bool freezePiecesKinematicAfterDelay = true;
 
+    [SerializeField] private NodeGraph PathfindingGraph;
+    [SerializeField] private GameObject PathfindingBlocker;
+
     private bool broken;
     private AudioSource _doorAudio;
     private float nextHitSoundTime;
@@ -176,7 +179,7 @@ public class DoorBreakable : MonoBehaviour, IDamageableWithSource
         return d.normalized;
     }
 
-    private void Break(Vector3 direction)
+    public void Break(Vector3 direction)
     {
         broken = true;
         PlayBreakSound();
@@ -215,6 +218,9 @@ public class DoorBreakable : MonoBehaviour, IDamageableWithSource
         {
             StartCoroutine(DisablePiecePhysicsAfterDelay());
         }
+
+        PathfindingBlocker.SetActive(false);
+        PathfindingGraph.UpdateGridAroundPoint(transform.position, 2.0f);
     }
 
     private void PlayHitSound()
@@ -265,5 +271,20 @@ public class DoorBreakable : MonoBehaviour, IDamageableWithSource
             }
         }
     }
+
+
 }
 
+#if UNITY_EDITOR
+[UnityEditor.CustomEditor(typeof(DoorBreakable))]
+public class BreakDoorButton : UnityEditor.Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        DoorBreakable door = (DoorBreakable)target;
+        if (GUILayout.Button("Break Door"))
+            door.Break(Vector3.forward);
+    }
+};
+#endif
