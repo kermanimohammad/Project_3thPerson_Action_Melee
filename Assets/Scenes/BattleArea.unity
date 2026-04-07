@@ -45864,6 +45864,7 @@ GameObject:
   m_Component:
   - component: {fileID: 280408564893245759}
   - component: {fileID: 625972543605455750}
+  - component: {fileID: 625972543605455751}
   m_Layer: 0
   m_Name: MagicalSton
   m_TagString: Untagged
@@ -45883,8 +45884,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ed0854fd89617d46b6aa464fe7225c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MagicRockBreakable
-  maxHealth: 200
-  currentHealth: 200
+  maxHealth: 2800
+  currentHealth: 2800
   normalAttackDamageMultiplier: 5
   specialAttackDamageMultiplier: 50
   disableRootOnBreak: 0
@@ -45904,6 +45905,22 @@ MonoBehaviour:
   disablePhysicsAfterSeconds: 3
   freezePieceRigidbodies: 1
   disablePieceMeshColliders: 1
+--- !u!114 &625972543605455751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625972543605455749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a514ab266d2e64cb25b2fb5e0e18a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MagicRockHealthSlider
+  rock: {fileID: 625972543605455750}
+  healthSlider: {fileID: 480971344}
+  healthValueLabel: {fileID: 681946837}
+  healthLabelFormat: '{0}/{1}'
 --- !u!1001 &973946251854504802
 PrefabInstance:
   m_ObjectHideFlags: 0

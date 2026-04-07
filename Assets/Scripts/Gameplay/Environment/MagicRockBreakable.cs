@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -59,6 +60,11 @@ public sealed class MagicRockBreakable : MonoBehaviour, IDamageableWithSource
     public float CurrentHealth => currentHealth;
     public bool IsBroken => _broken;
 
+    /// <summary>Invoked after <see cref="currentHealth"/> changes (including when broken or destroyed).</summary>
+    public event Action HealthChanged;
+
+    private void OnDestroy() => HealthChanged?.Invoke();
+
     private void Awake()
     {
         if (maxHealth <= 0f)
@@ -92,6 +98,8 @@ public sealed class MagicRockBreakable : MonoBehaviour, IDamageableWithSource
             if (sfxOutputGroup != null)
                 _audio.outputAudioMixerGroup = sfxOutputGroup;
         }
+
+        HealthChanged?.Invoke();
     }
 
     public void TakeDamage(float amount) => TakeDamage(null, amount);
@@ -106,6 +114,7 @@ public sealed class MagicRockBreakable : MonoBehaviour, IDamageableWithSource
             return;
 
         currentHealth = Mathf.Clamp(currentHealth - finalAmount, 0f, maxHealth);
+        HealthChanged?.Invoke();
 
         if (currentHealth <= 0f)
         {
@@ -203,9 +212,9 @@ public sealed class MagicRockBreakable : MonoBehaviour, IDamageableWithSource
             if (randomTorque > 0f)
             {
                 Vector3 t = new Vector3(
-                    Random.Range(-randomTorque, randomTorque),
-                    Random.Range(-randomTorque, randomTorque),
-                    Random.Range(-randomTorque, randomTorque)
+                    UnityEngine.Random.Range(-randomTorque, randomTorque),
+                    UnityEngine.Random.Range(-randomTorque, randomTorque),
+                    UnityEngine.Random.Range(-randomTorque, randomTorque)
                 );
                 rb.AddTorque(t, forceMode);
             }
