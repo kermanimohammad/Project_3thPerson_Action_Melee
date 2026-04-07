@@ -75,10 +75,10 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 	protected abstract StateID GetUpdatedDesiredState();
 	protected abstract Transform GetUpdatedTarget();
-	protected abstract float GetFleeWeight();
-	protected abstract float GetSeekWeight();
-	protected abstract float GetAttackWeight();
-	protected abstract float GetDefendWeight();
-	protected abstract float GetFlankWeight();
+	protected abstract float GetFleeScore();
+	protected abstract float GetSeekScore();
+	protected abstract float GetAttackScore();
+	protected abstract float GetDefendScore();
+	protected abstract float GetFlankScore();
 
 }

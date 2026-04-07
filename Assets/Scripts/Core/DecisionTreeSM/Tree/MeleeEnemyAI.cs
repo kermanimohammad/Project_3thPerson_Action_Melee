@@ -8,30 +8,21 @@ public class MeleeEnemyAI : EnemyAIBase
 	[SerializeField, Range(0f, 1f)] private float caution = 0.4f;
 	[SerializeField, Range(0f, 1f)] private float randomness = 0.15f;
 
-
 	protected override StateID GetUpdatedDesiredState()
 	{
-		float attack = GetAttackWeight();
-		float defend = GetDefendWeight();
-		float flee = GetFleeWeight();
-		float seek = GetSeekWeight();
-		float total = attack + defend + flee + seek;
+		float flee = GetFleeScore();
+		float attack = GetAttackScore() * (1f - flee * 0.7f);
+		float defend = GetDefendScore() * (1f - flee * 0.25f);
+		float seek = GetSeekScore() * (1f - flee * 0.4f);
 
-		StateID newState;
+		float best = -1f;
+		StateID newState = StateID.Seek;
 
-		if (total <= 0f)
-		{
-			newState = StateID.Seek;
-		}
-		else
-		{
-			float roll = Random.value * total;
-
-			if (roll < attack) newState = StateID.Attack;
-			else if ((roll -= attack) < defend) newState = StateID.Defend;
-			else if ((roll -= defend) < flee) newState = StateID.Flee;
-			else newState = StateID.Seek;
-		}
+		if (attack > best) { best = attack; newState = StateID.Attack; }
+		if (defend > best) { best = defend; newState = StateID.Defend; }
+		if (flee > best) { best = flee; newState = StateID.Flee; }
+		//flank
+		if (seek > best) { newState = StateID.Seek; }
 
 		return newState;
 	}
@@ -41,91 +32,103 @@ public class MeleeEnemyAI : EnemyAIBase
 		return GlobalReferences.Instance.GetPlayer();
 	}
 
-	protected override float GetAttackWeight()
+	protected override float GetAttackScore()
 	{
+		if (CurrentTarget == null)
+			return 0f;
+
 		if (!attackManager.CanAttack() || !perception.InAttackRange(CurrentTarget))
 			return 0f;
 
 		float health01 = health.Normalized01;
-		float healthConfidence = Mathf.Lerp(0.3f, 1f, health01);
-		float randomFactor = Random.Range(0f, randomness);
+		float inRange = 1f;
+		float healthyConfidence = Mathf.Lerp(0.25f, 1f, health01);
+		float lowHealthPenalty = 1f - health01;
 
-		float weight =
-			0.4f +
-			aggression * 0.5f +
-			bravery * 0.3f +
-			healthConfidence * 0.4f +
-			randomFactor;
+		float score =
+			0.15f +
+			aggression * 0.45f +
+			bravery * 0.25f +
+			healthyConfidence * 0.35f -
+			caution * 0.15f -
+			lowHealthPenalty * 0.25f;
 
-		return Mathf.Max(0f, weight);
+		return Mathf.Clamp01(score) * inRange;
 	}
 
-	protected override float GetDefendWeight()
+	protected override float GetDefendScore()
 	{
-		if (CurrentTarget != GlobalReferences.Instance.GetPlayer() ||
-			!perception.InAttackRange(CurrentTarget, 0.9f))
+		if (CurrentTarget == null)
+			return 0f;
+
+		if (CurrentTarget != GlobalReferences.Instance.GetPlayer())
+			return 0f;
+
+		if (!perception.InAttackRange(CurrentTarget, 0.9f))
 			return 0f;
 
 		float health01 = health.Normalized01;
 		float lowHealthPressure = 1f - health01;
-		float recoveryNeed = attackManager.CanAttack() ? 0f : 0.5f;
-		float randomFactor = Random.Range(0f, randomness * 0.5f);
+		float recoveryNeed = attackManager.CanAttack() ? 0f : 1f;
+		float cautionDrive = caution;
+		float aggressionSuppression = 1f - aggression * 0.4f;
 
-		float weight =
-			caution * 0.5f +
-			lowHealthPressure * 0.6f +
-			recoveryNeed * 0.7f +
-			randomFactor;
+		float score =
+			lowHealthPressure * 0.4f +
+			recoveryNeed * 0.35f +
+			cautionDrive * 0.3f +
+			aggressionSuppression * 0.15f;
 
-		return Mathf.Max(0f, weight);
+		return Mathf.Clamp01(score);
 	}
 
-	protected override float GetFleeWeight()
+	protected override float GetFleeScore()
 	{
 		float health01 = health.Normalized01;
-		float lowHealthPressure = 1f - health01;
+		float missingHealth = 1f - health01;
 
-		float randomFactor = Random.Range(0f, randomness * 0.25f);
+		float belowThreshold01 = 0f;
+		if (fleeHealthThreshold > 0f)
+			belowThreshold01 = Mathf.Clamp01((fleeHealthThreshold - health01) / fleeHealthThreshold);
 
-		float baseFlee = (1f - bravery) * 0.1f;
+		float fear =
+			(1f - bravery) * 0.35f +
+			caution * 0.25f +
+			missingHealth * 0.4f;
 
-		if (health01 > fleeHealthThreshold)
-			return baseFlee;
+		float score =
+			belowThreshold01 * 0.65f +
+			fear * 0.5f;
 
-		float weight =
-			0.7f +
-			lowHealthPressure * 1.0f +
-			(1f - bravery) * 0.6f +
-			randomFactor;
-
-		return Mathf.Max(0f, weight);
+		return Mathf.Clamp01(score);
 	}
 
-	protected override float GetSeekWeight()
+	protected override float GetSeekScore()
 	{
+		if (CurrentTarget == null)
+			return 1f;
+
 		float health01 = health.Normalized01;
 		float distance = Vector3.Distance(transform.position, CurrentTarget.position);
 
-		bool farFromTarget = !perception.InAttackRange(CurrentTarget);
-		bool healthy = health01 > fleeHealthThreshold;
+		bool inRange = perception.InAttackRange(CurrentTarget);
+		if (inRange)
+			return 0f;
 
-		if (!farFromTarget)
-			return 0;
+		float distancePressure = Mathf.Clamp01(distance / Mathf.Max(1f, flankRadius * 2f));
+		float healthyEnough = Mathf.InverseLerp(fleeHealthThreshold, 1f, health01);
 
-		if (distance > flankRadius && farFromTarget && healthy)
-			return 5f;
+		float score =
+			0.1f +
+			distancePressure * 0.45f +
+			healthyEnough * 0.3f +
+			aggression * 0.15f +
+			bravery * 0.1f -
+			caution * 0.1f;
 
-		float distanceFactor = Mathf.Clamp01(distance / 10f);
-
-		float weight =
-			0.2f +
-			health01 +
-			distanceFactor * 0.8f;
-
-		return Mathf.Max(0f, weight);
+		return Mathf.Clamp01(score);
 	}
-
-	protected override float GetFlankWeight()
+	protected override float GetFlankScore()
 	{
 		return 0;
 	}

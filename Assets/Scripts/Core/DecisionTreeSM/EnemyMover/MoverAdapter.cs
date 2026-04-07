@@ -20,4 +20,9 @@ public class MoverAdapter : EnemyMoverBase
     {
         return false;
     }
+
+	public override void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
+	{
+		throw new System.NotImplementedException();
+	}
 }

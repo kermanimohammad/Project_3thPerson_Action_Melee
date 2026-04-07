@@ -564,6 +564,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4482538848810879710, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4561012089398350741, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
       propertyPath: m_Name
       value: Brute Variant
@@ -572,7 +576,24 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 7050825746651823270, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7050825746651823270, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: characterController
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8229005943443682978, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 7050825746651823270, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+    - {fileID: 4482538848810879710, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+    - {fileID: 8229005943443682978, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+    - {fileID: 7404236934330712191, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+    - {fileID: 8141621335869729022, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2789964735152092703, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
@@ -634,6 +655,9 @@ MonoBehaviour:
   normalized01: 0
   animator: {fileID: 1713612740137093905}
   hitReactCooldownSeconds: 0.1
+  destroyGameObjectOnDeath: 1
+  destroyDelayAfterDeath: 0
+  deathTriggerName: Death
 --- !u!136 &8469339486945781555
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -717,6 +741,11 @@ MonoBehaviour:
   defendDuration: 0.8
   fleeHealthThreshold: 0.25
   defendHealthThreshold: 0.5
+  mainStateDuration: 0.75
+  aggression: 0.7
+  bravery: 0.6
+  caution: 0.4
+  randomness: 0.15
 --- !u!114 &3347921840439748284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,6 +779,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConcreteEnemyMover
   speed: 4
+  arriveDistance: 1.35
   animator: {fileID: 1713612740137093905}
   controller: {fileID: 2063191328129213370}
 --- !u!143 &2063191328129213370

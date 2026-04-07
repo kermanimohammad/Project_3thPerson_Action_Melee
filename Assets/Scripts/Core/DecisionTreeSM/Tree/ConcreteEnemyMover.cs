@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class ConcreteEnemyMover : EnemyMoverBase
 {
-	[SerializeField] private float speed = 1f;
+	[SerializeField] private float speed = 3.2f;
+	[SerializeField] private float arriveDistance = 1.35f;
 	[SerializeField] private Animator animator;
 	[SerializeField] private CharacterController controller;
 
 	private Vector3 targetPosition;
-	private float verticalVelocity;
-	private const float _gravity = -9.81f;
+	private Vector3 _velocity;
 
 	public override float CurrentSpeed => speed;
 
@@ -35,59 +35,85 @@ public class ConcreteEnemyMover : EnemyMoverBase
 		return Vector3.Distance(flatCurrent, flatTarget) <= threshold;
 	}
 
-	public override void MoveTo(Vector3 destination, float speedMultiplier = 1)
+	public override void MoveTo(Vector3 destination, float speedMultiplier = 1) => MoveTo(destination, Vector3.zero, speedMultiplier);
+
+	public override void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
 	{
 		targetPosition = destination;
-
-		float finalSpeed = speed * speedMultiplier;
-
-		Vector3 horizontal = targetPosition - transform.position;
-		horizontal.y = 0f;
-
-		bool reached = horizontal.sqrMagnitude <= 0.0025f || HasReachedDestination(0.05f);
-
-		if (reached)
+		Vector3 flat = destination - transform.position;
+		flat.y = 0f;
+		if (flat.sqrMagnitude < arriveDistance * arriveDistance)
 		{
-			StopMoving();
-			ApplyGravity();
+			_velocity = Vector3.zero;
+			// pathfinding possibly here
 			return;
 		}
 
-		horizontal.Normalize();
-
-		// Apply horizontal movement
-		Vector3 velocity = horizontal * finalSpeed;
-
-		// Apply gravity
-		if (controller.isGrounded && verticalVelocity < 0f)
-			verticalVelocity = -2f; // stick to ground
+		Vector3 dir = flat.normalized + groupSeparationVector;
+		if (dir.sqrMagnitude < 0.001f)
+			dir = flat.normalized;
 		else
-			verticalVelocity += _gravity * Time.deltaTime;
+			dir.Normalize();
 
-		velocity.y = verticalVelocity;
+		_velocity = dir * speed;
 
-		controller.Move(velocity * Time.deltaTime);
+		// pathfinding possibly here
 
-		FaceTowards(targetPosition);
+		ApplyMove(dir * speed, speed);
 
-		animator.SetFloat(AnimParams.Speed, finalSpeed);
+		animator.SetFloat(AnimParams.Speed, _velocity.magnitude);
 		animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
+	}
+
+	private void ApplyMove(Vector3 planarVelocity, float speed)
+	{
+		if (controller != null)
+		{
+			Vector3 motion = planarVelocity * Time.deltaTime;
+			motion.y = Physics.gravity.y * Time.deltaTime;
+			controller.Move(motion);
+			if (planarVelocity.sqrMagnitude > 0.01f)
+			{
+				Vector3 look = planarVelocity;
+				look.y = 0f;
+				transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(look.normalized), 10f * Time.deltaTime);
+			}
+		}
+		else
+		{
+			transform.position += planarVelocity * Time.deltaTime;
+		}
 	}
 
 	public override void StopMoving()
 	{
-		ApplyGravity();
-		animator.SetFloat(AnimParams.Speed, 0f);
-		animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
+		//animator.SetFloat(AnimParams.Speed, 0f);
 	}
 
-	private void ApplyGravity()
+	private void Update()
 	{
-		if (controller.isGrounded && verticalVelocity < 0f)
-			verticalVelocity = -2f;
-		else
-			verticalVelocity += _gravity * Time.deltaTime;
-
-		controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+		UpdateAnimatorGrounded();
 	}
+
+	private bool ComputeIsGroundedForAnimator()
+	{
+		if (controller != null && controller.enabled)
+			return controller.isGrounded;
+
+		const float probe = 0.45f;
+		Vector3 origin = transform.position + Vector3.up * 0.15f;
+		return Physics.Raycast(origin, Vector3.down, probe, ~0, QueryTriggerInteraction.Ignore);
+	}
+
+	private void UpdateAnimatorGrounded()
+	{
+		if (animator == null)
+			return;
+
+		bool grounded = ComputeIsGroundedForAnimator();
+
+		animator.SetBool(AnimParams.IsGrounded, grounded);
+	}
+
+
 }
