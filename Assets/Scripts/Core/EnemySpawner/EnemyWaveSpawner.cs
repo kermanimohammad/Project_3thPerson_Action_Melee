@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class EnemyWaveSpawner : MonoBehaviour
 {
@@ -20,6 +21,13 @@ public class EnemyWaveSpawner : MonoBehaviour
     private int remainingGroupsInCurrentWave;
     private bool started;
     private bool waitingForNextWave;
+
+    public event Action<int, int> OnWaveStarted;        
+    public event Action<int, int> OnKillCountChanged;   
+    public event Action<int> OnWaveCleared;       
+
+    private int totalEnemiesInCurrentWave;
+    private int killedEnemiesInCurrentWave;
 
     private readonly List<EnemyGroupRuntime> activeGroups = new();
     private List<Transform> currentWaveSpawnOrder = new();
@@ -59,6 +67,12 @@ public class EnemyWaveSpawner : MonoBehaviour
         activeGroups.Clear();
         remainingGroupsInCurrentWave = 0;
         waitingForNextWave = false;
+
+        totalEnemiesInCurrentWave = 0;
+        killedEnemiesInCurrentWave = 0;
+
+        OnWaveStarted?.Invoke(waveIndex + 1, autoWaveSettings.TotalWaves);
+        OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
 
         currentWaveSpawnOrder = BuildShuffledSpawnPointList();
         int groupCount = GetAutoGroupCountForWave(waveIndex);
@@ -139,6 +153,10 @@ public class EnemyWaveSpawner : MonoBehaviour
 
             runtime.RegisterMember(spawnedMember);
 
+            spawnedMember.OnMemberDied += HandleSpawnedMemberDied;
+            totalEnemiesInCurrentWave++;
+            OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
+
             //EnemyAIBase enemyAI = enemyObj.GetComponent<EnemyAIBase>();
             //if (enemyAI != null)
             //    enemyAI.InitializeGroup(groupAIInstance);
@@ -169,6 +187,7 @@ public class EnemyWaveSpawner : MonoBehaviour
     private IEnumerator HandleWaveClearedRoutine()
     {
         Debug.Log($"Wave {currentWaveIndex + 1} cleared.");
+        OnWaveCleared?.Invoke(currentWaveIndex + 1);
 
         yield return new WaitForSeconds(autoWaveSettings.DelayAfterWaveCleared);
         StartCoroutine(SpawnNextWaveRoutine());
@@ -189,7 +208,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         return Mathf.Max(
             1,
             Mathf.RoundToInt(autoWaveSettings.BaseEnemiesPerGroup + waveIndex * autoWaveSettings.EnemyGrowthPerWave) +
-            Random.Range(-autoWaveSettings.EnemyCountVariance, autoWaveSettings.EnemyCountVariance + 1)
+            UnityEngine.Random.Range(-autoWaveSettings.EnemyCountVariance, autoWaveSettings.EnemyCountVariance + 1)
         );
     }
 
@@ -209,7 +228,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         if (totalWeight <= 0)
             return null;
 
-        int roll = Random.Range(0, totalWeight);
+        int roll = UnityEngine.Random.Range(0, totalWeight);
 
         foreach (WeightedEnemyPrefab option in autoEnemyPool)
         {
@@ -229,7 +248,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         if (autoWaveSettings.SpawnScatterRadius <= 0f)
             return center;
 
-        Vector2 random2D = Random.insideUnitCircle * autoWaveSettings.SpawnScatterRadius;
+        Vector2 random2D = UnityEngine.Random.insideUnitCircle * autoWaveSettings.SpawnScatterRadius;
         return center + new Vector3(random2D.x, 0f, random2D.y);
     }
 
@@ -249,10 +268,21 @@ public class EnemyWaveSpawner : MonoBehaviour
 
         for (int i = 0; i < shuffled.Count; i++)
         {
-            int randomIndex = Random.Range(i, shuffled.Count);
+            int randomIndex = UnityEngine.Random.Range(i, shuffled.Count);
             (shuffled[i], shuffled[randomIndex]) = (shuffled[randomIndex], shuffled[i]);
         }
 
         return shuffled;
+    }
+
+    private void HandleSpawnedMemberDied(EnemySpawnedMember member)
+    {
+        if (member == null)
+            return;
+
+        member.OnMemberDied -= HandleSpawnedMemberDied;
+
+        killedEnemiesInCurrentWave++;
+        OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
     }
 }
