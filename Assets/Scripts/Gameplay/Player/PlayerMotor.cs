@@ -165,6 +165,11 @@ public class PlayerMotor : MonoBehaviour
         {
             planar = Vector3.zero;
             planarVelocity = Vector3.zero;
+
+            // Attack (and attack-input suppress window): no planar move from this Update path, but WASD should still steer facing.
+            if (!MovementLocked && !defending && IsInAttackAnimation())
+                ApplyRotationTowardMoveInput();
+
             if (animator != null)
             {
                 if (defending)
@@ -204,18 +209,11 @@ public class PlayerMotor : MonoBehaviour
 
         Vector3 direction = new Vector3(move.x, 0f, move.y).normalized;
 
-        bool attacking = IsInAttackAnimation();
-
-        // During attack: allow aiming/turning from input, but do not apply locomotion displacement.
-        bool canRotate = true;
-
         float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
 
-        if (canRotate)
-        {
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, rotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
-        }
+        bool attacking = IsInAttackAnimation();
+
+        ApplyRotationTowardCameraRelativeDirection(direction);
 
         if (attacking)
         {
@@ -238,6 +236,32 @@ public class PlayerMotor : MonoBehaviour
         if (animator != null) animator.SetFloat(AnimParams.Speed, speed, 0.1f, Time.deltaTime);
 
         return moveDir.normalized * (speed * locomotionDisplacementMultiplier);
+    }
+
+    private void ApplyRotationTowardMoveInput()
+    {
+        if (input == null)
+            return;
+        Vector2 m = input.Move;
+        if (m.sqrMagnitude < moveDeadzone * moveDeadzone)
+            return;
+        ApplyRotationTowardCameraRelativeDirection(new Vector3(m.x, 0f, m.y).normalized);
+    }
+
+    private void ApplyRotationTowardCameraRelativeDirection(Vector3 normalizedPlanarFromInputXZ)
+    {
+        if (cameraTransform == null)
+            return;
+
+        if (normalizedPlanarFromInputXZ.sqrMagnitude < moveDeadzone * moveDeadzone)
+            return;
+
+        normalizedPlanarFromInputXZ.Normalize();
+
+        float targetAngle = Mathf.Atan2(normalizedPlanarFromInputXZ.x, normalizedPlanarFromInputXZ.z) * Mathf.Rad2Deg
+            + cameraTransform.eulerAngles.y;
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, rotationSmoothTime);
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
     private bool IsInAttackAnimation()
@@ -458,6 +482,18 @@ public class PlayerMotor : MonoBehaviour
 
         if (IsPlanarDisplacementSuppressed)
             return;
+
+        controller.Move(worldDisplacement);
+    }
+
+    /// <summary>
+    /// Forces a displacement even when planar displacement is suppressed due to attack animations.
+    /// Intended for AnimationEvent-driven attack movement (lunge/impulse).
+    /// </summary>
+    public void ForceMoveFromAttack(AnimationEvent _ignoredEvent, Vector3 worldDisplacement)
+    {
+        if (combat != null && combat.IsDefending)
+            worldDisplacement = new Vector3(0f, worldDisplacement.y, 0f);
 
         controller.Move(worldDisplacement);
     }

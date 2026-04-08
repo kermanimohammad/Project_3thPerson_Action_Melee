@@ -10,10 +10,14 @@ public class PlayerAttackMotion : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerMotor motor;
+    [SerializeField] private PlayerStamina stamina;
 
     [Header("Tuning")]
     [Tooltip("If true, motion uses transform.forward. If false, uses last planar move direction when available.")]
     [SerializeField] private bool useCharacterForward = true;
+
+    [Tooltip("If AttackMoveImpulse fires but stamina cannot pay PlayerStamina attack cost, skip the lunge/slide.")]
+    [SerializeField] private bool skipLungeIfCannotSpendStamina = true;
 
     [Tooltip("Optional easing for dash (0..1). If empty, movement is linear.")]
     [SerializeField] private AnimationCurve dashEase;
@@ -24,6 +28,10 @@ public class PlayerAttackMotion : MonoBehaviour
 
     public event System.Action AttackMoveFinished;
 
+    private Animator animator;
+    /// <summary>At most one <see cref="PlayerStamina.TrySpendSpecialAttack"/> per SpacialAttack clip (multiple impulses won't double-charge).</summary>
+    private bool specialStaminaSpentThisSpacialAttack;
+
     private Coroutine dashRoutine;
     private Coroutine continuousMoveRoutine;
     private bool isContinuousMoving;
@@ -33,6 +41,32 @@ public class PlayerAttackMotion : MonoBehaviour
     {
         if (motor == null)
             motor = GetComponent<PlayerMotor>();
+        if (stamina == null)
+            stamina = GetComponent<PlayerStamina>();
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>(includeInactive: true);
+
+        EnsureAnimatorEventRelay();
+    }
+
+    private void Update()
+    {
+        if (!IsAnimatorInSpacialAttackState())
+            specialStaminaSpentThisSpacialAttack = false;
+    }
+
+    private void EnsureAnimatorEventRelay()
+    {
+        var animator = GetComponentInChildren<Animator>(includeInactive: true);
+        if (animator == null)
+            return;
+
+        // Animation Events are invoked on components attached to the Animator's GameObject.
+        var relay = animator.GetComponent<PlayerAttackMotionEventRelay>();
+        if (relay == null)
+            relay = animator.gameObject.AddComponent<PlayerAttackMotionEventRelay>();
+
+        relay.Bind(this);
     }
 
     /// <summary>
@@ -47,10 +81,76 @@ public class PlayerAttackMotion : MonoBehaviour
             return;
 
         float speed = Mathf.Max(0f, e.floatParameter);
+        bool inSpecial = IsAnimatorInSpacialAttackState();
+
+        if (inSpecial)
+        {
+            if (stamina != null && !specialStaminaSpentThisSpacialAttack)
+            {
+                if (!stamina.TrySpendSpecialAttack())
+                {
+                    if (skipLungeIfCannotSpendStamina)
+                        return;
+                }
+                else
+                    specialStaminaSpentThisSpacialAttack = true;
+            }
+
+            if (speed <= 0f)
+                return;
+
+            StartContinuousMove(speed, e.intParameter / 1000f);
+            return;
+        }
+
         if (speed <= 0f)
             return;
 
+        if (stamina != null)
+        {
+            if (!stamina.TrySpendAttack())
+            {
+                if (skipLungeIfCannotSpendStamina)
+                    return;
+            }
+        }
+
         StartContinuousMove(speed, e.intParameter / 1000f);
+    }
+
+    /// <summary>
+    /// Typo alias: imported clips sometimes use <c>AttachMoveImpulse</c> instead of <c>AttackMoveImpulse</c>.
+    /// </summary>
+    public void AttachMoveImpulse(AnimationEvent e) => AttackMoveImpulse(e);
+
+    /// <summary>Typo alias when the event only passes a float (speed).</summary>
+    public void AttachMoveImpulse(float speed)
+    {
+        var e = new AnimationEvent { floatParameter = speed };
+        AttackMoveImpulse(e);
+    }
+
+    /// <summary>Typo alias for parameterless events (treated as speed 0).</summary>
+    public void AttachMoveImpulse() => AttackMoveImpulse(new AnimationEvent());
+
+    private bool IsAnimatorInSpacialAttackState()
+    {
+        if (animator == null)
+            return false;
+
+        const int layer = 0;
+        AnimatorStateInfo cur = animator.GetCurrentAnimatorStateInfo(layer);
+        if (cur.IsName("SpacialAttack"))
+            return true;
+
+        if (animator.IsInTransition(layer))
+        {
+            AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(layer);
+            if (next.IsName("SpacialAttack"))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -113,7 +213,7 @@ public class PlayerAttackMotion : MonoBehaviour
     {
         while (isContinuousMoving)
         {
-            motor.ForceMove(ResolveDashDirection() * (continuousMoveSpeed * Time.deltaTime));
+            motor.ForceMoveFromAttack(null, ResolveDashDirection() * (continuousMoveSpeed * Time.deltaTime));
             yield return null;
         }
 
@@ -126,7 +226,7 @@ public class PlayerAttackMotion : MonoBehaviour
         while (isContinuousMoving && t < durationSeconds)
         {
             t += Time.deltaTime;
-            motor.ForceMove(ResolveDashDirection() * (continuousMoveSpeed * Time.deltaTime));
+            motor.ForceMoveFromAttack(null, ResolveDashDirection() * (continuousMoveSpeed * Time.deltaTime));
             yield return null;
         }
 
@@ -169,7 +269,7 @@ public class PlayerAttackMotion : MonoBehaviour
 
         if (durationSeconds <= 0.0001f)
         {
-            motor.ForceMove(ResolveDashDirection() * distance);
+            motor.ForceMoveFromAttack(null, ResolveDashDirection() * distance);
             return;
         }
 
@@ -193,7 +293,7 @@ public class PlayerAttackMotion : MonoBehaviour
             float deltaAlpha = eased - lastAlpha;
             lastAlpha = eased;
 
-            motor.ForceMove(dir * (distance * deltaAlpha));
+            motor.ForceMoveFromAttack(null, dir * (distance * deltaAlpha));
 
             yield return null;
         }

@@ -107,7 +107,6 @@ public class PlayerCombat : MonoBehaviour
     {
         if (IsDefending
         || attackManager ==  null
-        || (stamina != null && !stamina.CanAffordAttack())
         || TryAirKickAfterMovingJump())
             return;
 
@@ -129,6 +128,7 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         // Fire Special trigger for SpacialAttack transition in PlayerController.controller
+        // Special stamina is spent on the clip's <see cref="PlayerAttackMotion.AttackMoveImpulse"/> event.
         animator.ResetTrigger(AnimParams.Special);
         animator.SetTrigger(AnimParams.Special);
 

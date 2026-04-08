@@ -11,8 +11,12 @@ public class EnemyMover : MonoBehaviour
 	[SerializeField] private NodeGraph graph;
 	[SerializeField] private float jumpHeight = 1.15f;
 	[SerializeField] private float jumpDuration = 0.5f;
+	[Tooltip("Max yaw deg/s when rotating toward move velocity. Inspector on EnemyGroupMemberAI also has align-to-velocity when using that path.")]
+	[SerializeField, Min(1f)] private float alignToVelocityMaxDegreesPerSecond = 220f;
 
 	private Vector3 _velocity;
+	private Vector3 _groupSeparationVector;
+	private float _externalSpeedMultiplier = 1f;
 	List<Node> currentPath;
 	int currentIndex = 0;
 	private bool isJumping = false;
@@ -21,6 +25,14 @@ public class EnemyMover : MonoBehaviour
 	private float jumpTimer = 0f;
 
 	public float CurrentSpeed => speed;
+
+	/// <summary>
+	/// Allows higher-level AI to scale movement speed (e.g., walk when low stamina).
+	/// </summary>
+	public void SetExternalSpeedMultiplier(float multiplier)
+	{
+		_externalSpeedMultiplier = Mathf.Clamp(multiplier, 0f, 10f);
+	}
 
 	private void Awake()
 	{
@@ -38,15 +50,19 @@ public class EnemyMover : MonoBehaviour
 			return;
 		}
 
-		Vector3 dir = flat.normalized + groupSeparationVector;
-		if (dir.sqrMagnitude < 0.001f)
-			dir = flat.normalized;
+		groupSeparationVector.y = 0f;
+		Vector3 goalDir = flat.normalized;
+		Vector3 combined = goalDir + groupSeparationVector;
+		Vector3 dir;
+		if (combined.sqrMagnitude < 1e-6f)
+			dir = goalDir;
 		else
-			dir.Normalize();
+			dir = combined.normalized;
 
-		_velocity = dir * speed;
+		float effectiveSpeed = speed * Mathf.Clamp(speedMultiplier, 0f, 10f) * _externalSpeedMultiplier;
+		_velocity = dir * effectiveSpeed;
 
-		ApplyMove(dir * speed, speed);
+		ApplyMove(dir * effectiveSpeed, effectiveSpeed);
 		animator.SetFloat(AnimParams.Speed, _velocity.magnitude);
 		animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
 	}
@@ -74,7 +90,18 @@ public class EnemyMover : MonoBehaviour
 			}
 		}
 
-		MoveTo(currentNode.loc);
+		// Pass 1 here; external scaling is applied inside MoveTo.
+		MoveTo(currentNode.loc, _groupSeparationVector, 1f);
+	}
+
+	/// <summary>
+	/// Provides a small planar steering bias to reduce stacking when multiple enemies share a destination/path.
+	/// Expected in world space, XZ only (Y ignored).
+	/// </summary>
+	public void SetGroupSeparation(Vector3 worldSeparation)
+	{
+		worldSeparation.y = 0f;
+		_groupSeparationVector = worldSeparation;
 	}
 
 	private void JumpTowards(Vector3 destination)
@@ -106,11 +133,11 @@ public class EnemyMover : MonoBehaviour
 		look.y = 0f;
 		if (look.sqrMagnitude > 0.001f)
 		{
-			transform.rotation = Quaternion.Slerp(
+			Quaternion targetRot = Quaternion.LookRotation(look.normalized);
+			transform.rotation = Quaternion.RotateTowards(
 				transform.rotation,
-				Quaternion.LookRotation(look.normalized),
-				10f * Time.deltaTime
-			);
+				targetRot,
+				alignToVelocityMaxDegreesPerSecond * Time.deltaTime);
 		}
 
 		animator.SetFloat(AnimParams.Speed, speed);
@@ -154,11 +181,15 @@ public class EnemyMover : MonoBehaviour
 			Vector3 motion = planarVelocity * Time.deltaTime;
 			if (!isJumping) motion.y = Physics.gravity.y * Time.deltaTime;
 			controller.Move(motion);
-			if (planarVelocity.sqrMagnitude > 0.01f)
+			if (planarVelocity.sqrMagnitude > 0.08f)
 			{
 				Vector3 look = planarVelocity;
 				look.y = 0f;
-				transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(look.normalized), 10f * Time.deltaTime);
+				Quaternion targetRot = Quaternion.LookRotation(look.normalized);
+				transform.rotation = Quaternion.RotateTowards(
+					transform.rotation,
+					targetRot,
+					alignToVelocityMaxDegreesPerSecond * Time.deltaTime);
 			}
 		}
 		else

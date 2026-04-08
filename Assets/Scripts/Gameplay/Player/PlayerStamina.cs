@@ -15,7 +15,9 @@ public class PlayerStamina : MonoBehaviour
     [SerializeField] private bool regenWhileBlocking = false;
 
     [Header("Action costs (one-shot)")]
+    [Tooltip("Spent when a normal combo clip fires <c>AttackMoveImpulse</c> (lunge), not when the attack button is pressed.")]
     [SerializeField, Min(0f)] private float attackCost = 10f;
+    [Tooltip("Spent on the first <c>AttackMoveImpulse</c> during animator state <c>SpacialAttack</c>, not when the special button is pressed.")]
     [SerializeField, Min(0f)] private float specialAttackCost = 25f;
     [SerializeField, Min(0f)] private float dodgeCost = 18f;
 

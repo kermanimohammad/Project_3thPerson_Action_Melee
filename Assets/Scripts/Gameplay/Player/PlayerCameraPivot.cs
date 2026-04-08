@@ -46,9 +46,15 @@ public class PlayerCameraPivot : MonoBehaviour
 
     private void OnEnable()
     {
+        if (_actions == null)
+            _actions = new PlayerInputActions();
+
         TryResolveCharacterBody();
-        InputRebindPersistence.LoadAndApply(_actions.asset);
-        InputBindingRuntimeSync.Register(_actions.asset);
+        if (_actions.asset != null)
+        {
+            InputRebindPersistence.LoadAndApply(_actions.asset);
+            InputBindingRuntimeSync.Register(_actions.asset);
+        }
         _actions.Player.Enable();
     }
 
@@ -57,7 +63,8 @@ public class PlayerCameraPivot : MonoBehaviour
         if (_actions != null)
         {
             _actions.Player.Disable();
-            InputBindingRuntimeSync.Unregister(_actions.asset);
+            if (_actions.asset != null)
+                InputBindingRuntimeSync.Unregister(_actions.asset);
         }
     }
 

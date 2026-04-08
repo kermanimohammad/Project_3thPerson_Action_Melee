@@ -157,15 +157,28 @@ public class EnemyWaveSpawner : MonoBehaviour
                 runtimeParent
             );
 
+            // Silence missing AnimationEvent receivers on imported enemy clips (e.g. "foot_sound", "TrailOn").
+            // Events are dispatched on the same GameObject as the Animator — put the receiver there.
+            var anim = enemyObj.GetComponentInChildren<Animator>(includeInactive: true);
+            GameObject eventHost = anim != null ? anim.gameObject : enemyObj;
+            if (eventHost.GetComponent<AnimationEventNoopReceiver>() == null)
+                eventHost.AddComponent<AnimationEventNoopReceiver>();
+
             // Disable the old single-target AI if present (we want squad behaviour).
             var meleeAi = enemyObj.GetComponent<MeleeEnemyAI>();
             if (meleeAi != null)
                 meleeAi.enabled = false;
 
-            // Ensure squad AI is present and wired.
+            // Squad AI must be authored on the enemy prefab so it can be tuned in the Inspector.
             var memberAi = enemyObj.GetComponent<EnemyGroupMemberAI>();
             if (memberAi == null)
-                memberAi = enemyObj.AddComponent<EnemyGroupMemberAI>();
+            {
+                Debug.LogError(
+                    $"{nameof(EnemyWaveSpawner)}: Spawned enemy '{enemyObj.name}' has no {nameof(EnemyGroupMemberAI)}. " +
+                    $"Add {nameof(EnemyGroupMemberAI)} to the enemy prefab so you can tune separation/roles in Inspector.",
+                    enemyObj);
+                continue;
+            }
 
             // 2 engage player, 1 objective (doors/stone).
             bool objectiveMember = (i == enemyCount - 1);

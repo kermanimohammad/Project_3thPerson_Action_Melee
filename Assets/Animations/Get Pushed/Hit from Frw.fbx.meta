@@ -60,14 +60,14 @@ ModelImporter:
       curves: []
       events:
       - time: 0.16619718
-        functionName: back_start
+        functionName: Hit_Move_Start
         data: 
         objectReferenceParameter: {instanceID: 0}
-        floatParameter: 0
+        floatParameter: 1
         intParameter: 0
         messageOptions: 0
       - time: 0.7830986
-        functionName: back_end
+        functionName: Hit_Move_End
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

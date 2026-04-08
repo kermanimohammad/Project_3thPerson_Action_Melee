@@ -28,7 +28,8 @@ public class MiniMapEnemyIcons : MonoBehaviour
     [Header("Enemy discovery")]
     [Tooltip("If set, enemies will be found by Tag (active objects only).")]
     [SerializeField] private string enemyTag = "Enemy";
-    [Tooltip("If set, enemies will ALSO be found by LayerMask (active objects only). Useful if you don't use tags.")]
+    [Tooltip("Optional: also discover enemies by LayerMask (active objects only). Off by default to avoid false positives when many objects share a layer.")]
+    [SerializeField] private bool alsoDiscoverByLayerMask = false;
     [SerializeField] private LayerMask enemyLayers = 0;
     [SerializeField, Min(0.05f)] private float refreshIntervalSeconds = 0.5f;
     [SerializeField] private bool logDiscoveryDebug = false;
@@ -138,7 +139,7 @@ public class MiniMapEnemyIcons : MonoBehaviour
                 }
             }
 
-            if (enemyLayers.value != 0)
+            if (alsoDiscoverByLayerMask && enemyLayers.value != 0)
             {
                 // Active objects only. Note: this can be heavier; we run it on refreshIntervalSeconds.
                 Transform[] all = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
@@ -153,6 +154,15 @@ public class MiniMapEnemyIcons : MonoBehaviour
 
                     int layerBit = 1 << go.layer;
                     if ((enemyLayers.value & layerBit) == 0)
+                        continue;
+
+                    // Filter out obvious non-enemy objects: require some enemy-like component on the root.
+                    // This prevents "everything on layer X" from being treated as an enemy.
+                    // (Most enemies have Health + AttackManager / EnemyMover.)
+                    var h = go.GetComponentInParent<Health>();
+                    if (h == null)
+                        continue;
+                    if (go.GetComponentInParent<AttackManager>() == null && go.GetComponentInParent<EnemyMover>() == null)
                         continue;
 
                     // Avoid duplicates (if an enemy is both tagged and layered)

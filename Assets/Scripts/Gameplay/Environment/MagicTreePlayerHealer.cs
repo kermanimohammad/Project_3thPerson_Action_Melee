@@ -14,6 +14,8 @@ public class MagicTreePlayerHealer : MonoBehaviour
     [Header("Trigger")]
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private LayerMask playerLayers = ~0;
+    [Tooltip("Extra safety: only heal objects that also look like the actual player (prevents enemies from being healed if tags/layers are misconfigured).")]
+    [SerializeField] private bool requirePlayerGameplayComponent = true;
 
     [Header("Healing")]
     [Tooltip("HP restored per second while in the zone.")]
@@ -151,7 +153,7 @@ public class MagicTreePlayerHealer : MonoBehaviour
         if (!IsPlayerCollider(other))
             return;
 
-        _playerHealth = FindHealthInHierarchy(other.transform);
+        _playerHealth = FindPlayerHealth(other.transform);
         _playerInZone = true;
 
         if (_playerHealth == null)
@@ -223,29 +225,57 @@ public class MagicTreePlayerHealer : MonoBehaviour
                 return false;
         }
         if (other.CompareTag(playerTag))
-            return true;
+        {
+            return !requirePlayerGameplayComponent || LooksLikePlayer(other.transform);
+        }
 
         Transform t = other.transform;
         while (t != null)
         {
             if (t.CompareTag(playerTag))
-                return true;
+                return !requirePlayerGameplayComponent || LooksLikePlayer(t);
             t = t.parent;
         }
         return false;
     }
 
-    private static Health FindHealthInHierarchy(Transform start)
+    private static bool LooksLikePlayer(Transform taggedRootOrChild)
+    {
+        if (taggedRootOrChild == null)
+            return false;
+
+        // The real player in this project always has one of these gameplay components in its hierarchy.
+        // Using component presence avoids accidentally healing enemies due to tag/layer mistakes.
+        return taggedRootOrChild.GetComponentInParent<PlayerCombat>() != null
+               || taggedRootOrChild.GetComponentInParent<PlayerMotor>() != null
+               || taggedRootOrChild.GetComponentInParent<PlayerInputRouter>() != null
+               || taggedRootOrChild.GetComponentInParent<PlayerMovementController>() != null;
+    }
+
+    private static Transform FindTaggedRoot(Transform start, string tag)
     {
         Transform t = start;
         while (t != null)
         {
-            Health h = t.GetComponent<Health>();
-            if (h != null && h.isActiveAndEnabled)
-                return h;
+            if (t.CompareTag(tag))
+                return t;
             t = t.parent;
         }
-        return null;
+        return start;
+    }
+
+    private Health FindPlayerHealth(Transform other)
+    {
+        if (other == null)
+            return null;
+
+        Transform root = FindTaggedRoot(other, playerTag);
+        if (requirePlayerGameplayComponent && !LooksLikePlayer(root))
+            return null;
+
+        // Prefer Health under the tagged root (player), not arbitrary parents.
+        Health h = root.GetComponentInChildren<Health>(includeInactive: false);
+        return h != null && h.isActiveAndEnabled ? h : null;
     }
 
     private void PlayHealingParticles()

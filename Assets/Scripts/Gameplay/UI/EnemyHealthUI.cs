@@ -9,13 +9,20 @@ public class EnemyHealthUI : MonoBehaviour
 
     private void Awake()
     {
+        if (healthSlider == null)
+            healthSlider = GetComponent<Slider>();
         health = GetComponentInParent<Health>();
     }
 
     private void OnEnable()
     {
-        if (health != null)
-            health.OnHealthChanged += UpdateHealthBar;
+        if (health == null)
+            health = GetComponentInParent<Health>();
+        if (health == null || healthSlider == null)
+            return;
+
+        health.OnHealthChanged += UpdateHealthBar;
+        UpdateHealthBar(health.CurrentHealth, health.MaxHealth);
     }
 
     private void OnDisable()
@@ -26,7 +33,9 @@ public class EnemyHealthUI : MonoBehaviour
 
     private void UpdateHealthBar(float current, float max)
     {
-        healthSlider.maxValue = max;
-        healthSlider.value = current;
+        if (healthSlider == null)
+            return;
+        healthSlider.maxValue = Mathf.Max(1f, max);
+        healthSlider.value = Mathf.Clamp(current, healthSlider.minValue, healthSlider.maxValue);
     }
 }

@@ -131,7 +131,7 @@ public class AttackManager : MonoBehaviour
         Attack attack = attacks[index];
 
         attack.TriggerAttackAnimation(animator);
-        stamina?.TrySpendAttack();
+        // Attack stamina is spent on animation <c>AttackMoveImpulse</c> (see <see cref="PlayerAttackMotion"/>), not on input.
 
         comboWindowOpen = false;
 

@@ -22,6 +22,7 @@ public class EnemySquadCoordinator : MonoBehaviour
     [SerializeField] private GameObject magicStoneObjective;
 
     public Transform PlayerTransform { get; private set; }
+    private Health _playerHealth;
     public Vector3 LastKnownPlayerPosition { get; private set; }
     public bool HasLastKnownPlayer { get; private set; }
 
@@ -59,10 +60,27 @@ public class EnemySquadCoordinator : MonoBehaviour
     private void ResolvePlayer()
     {
         if (PlayerTransform != null && PlayerTransform.gameObject.activeInHierarchy)
-            return;
+        {
+            // If player died, stop advertising them as a target.
+            if (_playerHealth == null)
+                _playerHealth = PlayerTransform.GetComponentInChildren<Health>(includeInactive: true);
+            if (_playerHealth != null && _playerHealth.IsDead)
+            {
+                PlayerTransform = null;
+                _playerHealth = null;
+            }
+            else
+                return;
+        }
 
         GameObject go = GameObject.FindGameObjectWithTag(playerTag);
         PlayerTransform = go != null ? go.transform : null;
+        _playerHealth = PlayerTransform != null ? PlayerTransform.GetComponentInChildren<Health>(includeInactive: true) : null;
+        if (_playerHealth != null && _playerHealth.IsDead)
+        {
+            PlayerTransform = null;
+            _playerHealth = null;
+        }
     }
 
     private void ResolveObjectivesIfMissing()
@@ -239,29 +257,49 @@ public class EnemySquadCoordinator : MonoBehaviour
         return n;
     }
 
-    /// <summary>Separation vector from squadmates (XZ), normalized or zero.</summary>
+    /// <summary>
+    /// Planar repulsion from squadmates (XZ). Sums weighted away directions then normalizes (no averaging),
+    /// so pairs do not cancel to zero. Length is at most <paramref name="weight"/>.
+    /// </summary>
     public Vector3 GetSeparationHint(Vector3 selfPosition, float radius, float weight)
     {
+        if (radius <= 0.001f || weight <= 0f)
+            return Vector3.zero;
+
         Vector3 push = Vector3.zero;
-        int count = 0;
         for (int i = 0; i < _members.Count; i++)
         {
             EnemyGroupMemberAI m = _members[i];
-            if (m == null)
+            if (m == null || !m.isActiveAndEnabled)
+                continue;
+            if (m.TryGetComponent<Health>(out var oh) && oh.IsDead)
                 continue;
             Vector3 o = m.transform.position;
             float d = Vector3.Distance(new Vector3(selfPosition.x, 0f, selfPosition.z), new Vector3(o.x, 0f, o.z));
-            if (d < 0.001f || d > radius)
+            if (d > radius)
                 continue;
+
+            float falloff = 1f - d / radius;
+            if (d < 0.08f)
+            {
+                // Stacked / overlapping colliders: deterministic sideways bias so they unstick.
+                float ang = (i * 137.513f + selfPosition.x * 31.7f + selfPosition.z * 17.3f) * Mathf.Deg2Rad;
+                push += new Vector3(Mathf.Cos(ang), 0f, Mathf.Sin(ang)) * Mathf.Max(falloff, 0.35f);
+                continue;
+            }
+
             Vector3 away = selfPosition - o;
             away.y = 0f;
-            push += away.normalized * (1f - d / radius);
-            count++;
+            float len = away.magnitude;
+            if (len < 1e-5f)
+                continue;
+            push += (away / len) * falloff;
         }
-        if (count == 0)
+
+        if (push.sqrMagnitude < 1e-8f)
             return Vector3.zero;
-        push /= count;
-        return push * weight;
+
+        return push.normalized * weight;
     }
 
     private static float HorizontalDistance(Vector3 a, Vector3 b)

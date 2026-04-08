@@ -5409,6 +5409,7 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 0
+  requirePlayerGameplayComponent: 1
   healPerSecond: 5
   particleRoot: {fileID: 840892095}
   extraParticleSystems: []
@@ -14072,7 +14073,7 @@ Transform:
   m_GameObject: {fileID: 644719262}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 68.5, y: 1.1, z: 5.7}
+  m_LocalPosition: {x: 0.15, y: 1.1, z: -46.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37056,16 +37057,10 @@ MonoBehaviour:
     spawnScatterRadius: 1.5
   autoSpawnPoints:
   - {fileID: 644719263}
-  - {fileID: 1939693129}
-  - {fileID: 1989435269}
   autoGroupAIPrefab: {fileID: 6646304430914987252, guid: 621640364580b634d84f210f006ab47c, type: 3}
   autoEnemyPool:
   - enemyPrefab: {fileID: 5079681191551491444, guid: 1e8193bc0254c2e499d3964a87206b41, type: 3}
-    weight: 5
-  - enemyPrefab: {fileID: 5079681191551491444, guid: 1e8193bc0254c2e499d3964a87206b41, type: 3}
-    weight: 10
-  - enemyPrefab: {fileID: 5079681191551491444, guid: 1e8193bc0254c2e499d3964a87206b41, type: 3}
-    weight: 10
+    weight: 1
   squadSize: 3
   runtimeParent: {fileID: 0}
 --- !u!4 &1751161923

@@ -5049,7 +5049,7 @@ GameObject:
   - component: {fileID: 8578396374319562463}
   - component: {fileID: -7174880573632149154}
   - component: {fileID: -3551254010471055028}
-  - component: {fileID: 2827816867970829951}
+  - component: {fileID: 1552980760011029547}
   m_Layer: 3
   m_Name: Paladin
   m_TagString: Player
@@ -5193,10 +5193,10 @@ MonoBehaviour:
   characterDefense: {fileID: 5665117054806514923}
   stamina: {fileID: -3551254010471055028}
   attackStartSuppressSeconds: 0.12
-  specialSphereRadius: 4
+  specialSphereRadius: 5
   specialSphereForwardOffset: 1
   specialSphereLifetime: 0.3
-  specialDamageAmount: 1
+  specialDamageAmount: 25
 --- !u!114 &3751899567195264231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5369,7 +5369,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackMotion
   motor: {fileID: 0}
+  stamina: {fileID: 0}
   useCharacterForward: 1
+  skipLungeIfCannotSpendStamina: 1
   dashEase:
     serializedVersion: 2
     m_Curve: []
@@ -5528,18 +5530,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   startingStamina: 100
-  regenPerSecond: 3
+  regenPerSecond: 5
   regenDelaySeconds: 0.75
   regenWhileSprinting: 1
   regenWhileBlocking: 1
   attackCost: 3
   specialAttackCost: 20
   dodgeCost: 2
-  sprintDrainPerSecond: 4
+  sprintDrainPerSecond: 5
   blockDrainPerSecond: 10
   minStaminaToSprint: 1
   minStaminaToBlock: 1
---- !u!114 &2827816867970829951
+--- !u!114 &1552980760011029547
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5548,15 +5550,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 6208590737904982228}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a2b17af7e03f2a40a91cc47f0b9047a, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c674024cff2cb041820028cb4f59b9d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHitBack
-  motor: {fileID: 6010822775015155537}
-  backDistance: 1.25
-  backDurationSeconds: 0.14
-  lockMovementWhileBacking: 1
-  useFacingDirection: 1
-  worldDirection: {x: 0, y: 0, z: -1}
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHitMove
+  motor: {fileID: 0}
+  health: {fileID: 0}
+  moveDistance: 0.75
+  moveDurationSeconds: 0.12
+  lockMovementWhileMoving: 1
+  moveAwayFromSource: 1
 --- !u!1 &6223682663416989661
 GameObject:
   m_ObjectHideFlags: 0

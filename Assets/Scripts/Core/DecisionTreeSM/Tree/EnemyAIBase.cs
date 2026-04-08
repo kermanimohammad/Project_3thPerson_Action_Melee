@@ -53,6 +53,9 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 	protected void Update()
 	{
+		if (health != null && health.IsDead)
+			return;
+
 		CurrentTarget = GetUpdatedTarget();
 
 		stateMachine.Tick();
