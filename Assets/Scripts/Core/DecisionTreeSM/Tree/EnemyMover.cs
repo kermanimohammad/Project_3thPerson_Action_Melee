@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // EnemyMover
-public class EnemyMover : EnemyMoverBase
+public class EnemyMover : MonoBehaviour
 {
 	[SerializeField] private float speed = 3.2f;
 	[SerializeField] private float arriveDistance = 1.35f;
@@ -21,9 +21,9 @@ public class EnemyMover : EnemyMoverBase
 	private Vector3 jumpEnd;
 	private float jumpTimer = 0f;
 
-	public override float CurrentSpeed => speed;
+	public float CurrentSpeed => speed;
 
-	public override void FaceTowards(Vector3 target)
+	public void FaceTowards(Vector3 target)
 	{
 		Vector3 direction = target - transform.position;
 		direction.y = 0f;
@@ -35,7 +35,7 @@ public class EnemyMover : EnemyMoverBase
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
 	}
 
-	public override bool HasReachedDestination(float threshold)
+	public bool HasReachedDestination(float threshold)
 	{
 		Vector3 flatCurrent = transform.position;
 		Vector3 flatTarget = targetPosition;
@@ -46,9 +46,9 @@ public class EnemyMover : EnemyMoverBase
 		return Vector3.Distance(flatCurrent, flatTarget) <= threshold;
 	}
 
-	public override void MoveTo(Vector3 destination, float speedMultiplier = 1) => MoveTo(destination, Vector3.zero, speedMultiplier);
+	public void MoveTo(Vector3 destination, float speedMultiplier = 1) => MoveTo(destination, Vector3.zero, speedMultiplier);
 
-	public override void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
+	public void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
 	{
 		targetPosition = destination;
 		Vector3 flat = destination - transform.position;
@@ -188,7 +188,7 @@ public class EnemyMover : EnemyMoverBase
 		}
 	}
 
-	public override void StopMoving()
+	public void StopMoving()
 	{
 		//animator.SetFloat(AnimParams.Speed, 0f);
 	}

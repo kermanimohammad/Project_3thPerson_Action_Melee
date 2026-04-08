@@ -8,7 +8,7 @@ public abstract class EnemyAIBase : MonoBehaviour
 	[Header("References")]
 	//[SerializeField] protected EnemyGroupAI groupAI;
 	[SerializeField] protected Health health;
-	[SerializeField] protected EnemyMoverBase mover;
+	[SerializeField] protected EnemyMover mover;
 	[SerializeField] protected EnemyAIPerception perception;
 	[SerializeField] protected AttackManager attackManager;
 	[SerializeField] protected CharacterDefense characterDefense;
@@ -25,7 +25,7 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 	public Transform CurrentTarget { get; private set; }
 
-	public EnemyMoverBase GetMover() => mover;
+	public EnemyMover GetMover() => mover;
 	public AttackManager GetAttackManager() => attackManager;
 	public CharacterDefense GetDefense() => characterDefense;
 
