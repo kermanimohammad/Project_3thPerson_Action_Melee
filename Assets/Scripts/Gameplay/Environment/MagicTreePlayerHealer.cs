@@ -64,9 +64,18 @@ public class MagicTreePlayerHealer : MonoBehaviour
 
     private void Awake()
     {
-        var col = GetComponent<SphereCollider>();
+        // Ensure this volume behaves as a trigger (any collider type).
+        var col = GetComponent<Collider>();
         if (col != null)
             col.isTrigger = true;
+
+        // Ensure trigger callbacks fire reliably (Unity requires a Rigidbody on at least one side).
+        // We keep it kinematic and gravity-free so it doesn't affect gameplay.
+        var rb = GetComponent<Rigidbody>();
+        if (rb == null)
+            rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
 
         CollectParticleSystems();
 
@@ -206,8 +215,13 @@ public class MagicTreePlayerHealer : MonoBehaviour
     {
         if (other == null)
             return false;
-        if (((1 << other.gameObject.layer) & playerLayers.value) == 0)
-            return false;
+
+        // If mask is 0 in the inspector, treat it as "no filtering" (common misconfiguration).
+        if (playerLayers.value != 0)
+        {
+            if (((1 << other.gameObject.layer) & playerLayers.value) == 0)
+                return false;
+        }
         if (other.CompareTag(playerTag))
             return true;
 

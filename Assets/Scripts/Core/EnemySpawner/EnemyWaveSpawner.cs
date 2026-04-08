@@ -14,6 +14,9 @@ public class EnemyWaveSpawner : MonoBehaviour
     [SerializeField] private EnemyGroupAI autoGroupAIPrefab;
     [SerializeField] private WeightedEnemyPrefab[] autoEnemyPool;
 
+    [Header("Squad (3-person)")]
+    [SerializeField, Min(1)] private int squadSize = 3;
+
     [Header("Runtime Parent")]
     [SerializeField] private Transform runtimeParent;
 
@@ -75,11 +78,14 @@ public class EnemyWaveSpawner : MonoBehaviour
         OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
 
         currentWaveSpawnOrder = BuildShuffledSpawnPointList();
-        int groupCount = GetAutoGroupCountForWave(waveIndex);
+        // Wave spawns: one 3-person squad per spawn point (A/B/C).
+        int groupCount = currentWaveSpawnOrder != null && currentWaveSpawnOrder.Count > 0
+            ? currentWaveSpawnOrder.Count
+            : 0;
 
         for (int groupIndex = 0; groupIndex < groupCount; groupIndex++)
         {
-            EnemyGroupRuntime runtime = SpawnAutoGroup(waveIndex, groupIndex);
+            EnemyGroupRuntime runtime = SpawnAutoSquad(waveIndex, groupIndex);
             if (runtime != null)
             {
                 runtime.OnGroupCleared += HandleGroupCleared;
@@ -96,7 +102,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         }
     }
 
-    private EnemyGroupRuntime SpawnAutoGroup(int waveIndex, int groupIndex)
+    private EnemyGroupRuntime SpawnAutoSquad(int waveIndex, int groupIndex)
     {
         if (autoSpawnPoints == null || autoSpawnPoints.Length == 0)
         {
@@ -115,21 +121,25 @@ public class EnemyWaveSpawner : MonoBehaviour
             return null;
         }
 
+        // Create a per-squad coordinator so members can delegate objectives (player/doors/stone).
+        var coordinatorGo = new GameObject($"Wave_{waveIndex + 1}_Squad_{groupIndex + 1}");
+        coordinatorGo.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+        if (runtimeParent != null)
+            coordinatorGo.transform.SetParent(runtimeParent, true);
+        var coordinator = coordinatorGo.AddComponent<EnemySquadCoordinator>();
+        // Let coordinator auto-resolve doors/stone if not wired; no scene edits required.
+        coordinator.ConfigureObjectives(null, null);
+
         EnemyGroupAI groupAIInstance = null;
         if (autoGroupAIPrefab != null)
         {
-            groupAIInstance = Instantiate(
-                autoGroupAIPrefab,
-                spawnPoint.position,
-                spawnPoint.rotation,
-                runtimeParent
-            );
+            groupAIInstance = Instantiate(autoGroupAIPrefab, spawnPoint.position, spawnPoint.rotation, runtimeParent);
         }
 
-        string groupName = $"Wave_{waveIndex + 1}_Group_{groupIndex + 1}";
+        string groupName = $"Wave_{waveIndex + 1}_Squad_{groupIndex + 1}";
         EnemyGroupRuntime runtime = new EnemyGroupRuntime(groupName, groupAIInstance);
 
-        int enemyCount = GetAutoEnemyCountForGroup(waveIndex);
+        int enemyCount = Mathf.Max(1, squadSize);
 
         for (int i = 0; i < enemyCount; i++)
         {
@@ -146,6 +156,21 @@ public class EnemyWaveSpawner : MonoBehaviour
                 spawnRotation,
                 runtimeParent
             );
+
+            // Disable the old single-target AI if present (we want squad behaviour).
+            var meleeAi = enemyObj.GetComponent<MeleeEnemyAI>();
+            if (meleeAi != null)
+                meleeAi.enabled = false;
+
+            // Ensure squad AI is present and wired.
+            var memberAi = enemyObj.GetComponent<EnemyGroupMemberAI>();
+            if (memberAi == null)
+                memberAi = enemyObj.AddComponent<EnemyGroupMemberAI>();
+
+            // 2 engage player, 1 objective (doors/stone).
+            bool objectiveMember = (i == enemyCount - 1);
+            bool engageMember = !objectiveMember;
+            memberAi.InitializeForWaveSquad(coordinator, engageMember, objectiveMember);
 
             EnemySpawnedMember spawnedMember = enemyObj.GetComponent<EnemySpawnedMember>();
             if (spawnedMember == null)

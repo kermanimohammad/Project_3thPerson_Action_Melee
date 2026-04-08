@@ -41,12 +41,26 @@ public class EnemyGroupMemberAI : MonoBehaviour
     [SerializeField] private float arriveDistance = 1.35f;
     [SerializeField] private float searchMoveDistance = 22f;
 
+    [Header("Custom pathfinding (optional)")]
+    [Tooltip("If assigned (or auto-found), movement uses the project's NodeGraph-based mover instead of direct steering/NavMesh.")]
+    [SerializeField] private EnemyMover customMover;
+    [Tooltip("How often to recompute a path while chasing a goal using the custom mover.")]
+    [SerializeField, Min(0.05f)] private float customPathRecalcInterval = 0.5f;
+    [SerializeField, Min(0f)] private float customPathRecalcDistance = 1.0f;
+
     [Header("Fuzzy / behaviour")]
     [Tooltip("If missing HP fraction is above this, flee desire is high.")]
     [SerializeField] private float fleeHpMissingPeak = 0.55f;
     [SerializeField] private float delegateWhenNearPlayerCount = 2f;
     [Tooltip("Seconds before re-evaluating role (hysteresis).")]
     [SerializeField] private float roleSwitchCooldown = 0.35f;
+
+    [Header("Wave squad role override (optional)")]
+    [Tooltip("If enabled, this member will always try to fight the player (ignores fuzzy role switching).")]
+    [SerializeField] private bool forceEngagePlayerRole;
+
+    [Tooltip("If enabled, this member will always try objective logic: if palace is breached and stone exists -> AttackStone, else AttackDoor (if any), otherwise fight player.")]
+    [SerializeField] private bool forceObjectiveRole;
 
     [Header("Objectives (DPS)")]
     [SerializeField] private float damagePerSecondToObjectives = 18f;
@@ -76,6 +90,8 @@ public class EnemyGroupMemberAI : MonoBehaviour
     private float _nextMeleeInputTime;
     private Vector3 _velocity;
     private int _isGroundedParamHash;
+    private float _nextCustomPathRecalcTime;
+    private Vector3 _lastCustomPathGoal;
 
     private void Awake()
     {
@@ -87,6 +103,10 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (navMeshAgent == null)
             navMeshAgent = GetComponent<NavMeshAgent>();
 #endif
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>(includeInactive: true);
+        if (customMover == null)
+            customMover = GetComponent<EnemyMover>();
         if (attackManager == null)
             attackManager = GetComponentInChildren<AttackManager>(true);
 
@@ -113,9 +133,52 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (selfHealth.IsDead)
             return;
 
-        EvaluateFuzzyRole();
+        if (forceEngagePlayerRole || forceObjectiveRole)
+            EvaluateForcedRole();
+        else
+            EvaluateFuzzyRole();
         ExecuteCurrentRole();
         UpdateAnimatorGrounded();
+    }
+
+    /// <summary>Called by wave spawner to wire a runtime-created squad coordinator and optionally lock a role.</summary>
+    public void InitializeForWaveSquad(EnemySquadCoordinator squadCoordinator, bool engagePlayer, bool objectiveMember)
+    {
+        coordinator = squadCoordinator;
+        forceEngagePlayerRole = engagePlayer;
+        forceObjectiveRole = objectiveMember;
+    }
+
+    private void EvaluateForcedRole()
+    {
+        if (coordinator == null)
+            return;
+
+        if (forceEngagePlayerRole && !forceObjectiveRole)
+        {
+            CurrentRole = SquadRole.EngagePlayer;
+            return;
+        }
+
+        // Objective member: stone if possible, else door, else player.
+        bool palaceOpen = coordinator.IsPalaceBreached();
+        DoorBreakable door = coordinator.GetBestDoorToAttack(transform.position);
+        Transform stone = coordinator.GetMagicStoneTransform();
+
+        if (palaceOpen && stone != null)
+        {
+            CurrentRole = SquadRole.AttackStone;
+            return;
+        }
+
+        if (!palaceOpen && door != null && !door.IsBroken)
+        {
+            CurrentRole = SquadRole.AttackDoor;
+            return;
+        }
+
+        // Fallback: if no door/stone is configured, just fight player.
+        CurrentRole = SquadRole.EngagePlayer;
     }
 
     private void UpdateAnimatorGrounded()
@@ -253,6 +316,10 @@ public class EnemyGroupMemberAI : MonoBehaviour
                 break;
         }
 
+        // If we are using the project's custom mover, it already drives Speed/IsGrounded.
+        if (customMover != null)
+            return;
+
         if (animator != null && !string.IsNullOrEmpty(animatorSpeedParam))
         {
 #if UNITY_AI_NAVIGATION
@@ -364,6 +431,9 @@ public class EnemyGroupMemberAI : MonoBehaviour
 
     private void MoveToward(Vector3 world, float speed, Vector3 separation)
     {
+        if (TryMoveWithCustomPathfinding(world))
+            return;
+
         Vector3 flat = world - transform.position;
         flat.y = 0f;
         if (flat.sqrMagnitude < arriveDistance * arriveDistance)
@@ -412,6 +482,12 @@ public class EnemyGroupMemberAI : MonoBehaviour
         _velocity = dir * speed;
 
 #if UNITY_AI_NAVIGATION
+        // (custom mover pathfinding is used below for non-navmesh)
+#endif
+        if (TryMoveWithCustomPathfinding(transform.position + dir * 8f))
+            return;
+
+#if UNITY_AI_NAVIGATION
         if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
         {
             navMeshAgent.speed = speed;
@@ -421,6 +497,32 @@ public class EnemyGroupMemberAI : MonoBehaviour
         }
 #endif
         ApplyMove(dir * speed, speed);
+    }
+
+    private bool TryMoveWithCustomPathfinding(Vector3 goal)
+    {
+        if (customMover == null)
+            return false;
+
+        // Keep the custom mover's speed aligned to this AI's speed (EnemyMover exposes serialized speed; no setter).
+        // We just drive path and let EnemyMover handle actual displacement/animator.
+
+        float dist = HorizontalDist(transform.position, goal);
+        if (dist <= arriveDistance)
+        {
+            _velocity = Vector3.zero;
+            return true;
+        }
+
+        if (Time.time >= _nextCustomPathRecalcTime || Vector3.Distance(_lastCustomPathGoal, goal) >= customPathRecalcDistance)
+        {
+            _nextCustomPathRecalcTime = Time.time + customPathRecalcInterval;
+            _lastCustomPathGoal = goal;
+            customMover.RecalculatePathFinding(goal);
+        }
+
+        customMover.Move();
+        return true;
     }
 
     private void ApplyMove(Vector3 planarVelocity, float speed)

@@ -567,7 +567,13 @@ public sealed class PauseMenuController : MonoBehaviour
             menuRoot = FindInActiveSceneIncludingInactive("Menu");
 
         if (hudRoot == null)
+        {
+            // Backward/scene-variant compatibility: some scenes use "HUD" under a root "Canvas"
+            // instead of the older "Canvas-HUD" root name.
             hudRoot = FindInActiveSceneIncludingInactive("Canvas-HUD");
+            if (hudRoot == null)
+                hudRoot = FindInActiveSceneIncludingInactive("HUD");
+        }
 
         WireContinueButtonIfAny();
         WireSettingsButtonIfAny();

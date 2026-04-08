@@ -23,6 +23,16 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField, Min(0f)] private float destroyDelayAfterDeath;
     [SerializeField] private string deathTriggerName = "Death";
 
+    [Header("Player-style death lock (optional)")]
+    [Tooltip("If true and Destroy On Death is OFF, disables other behaviours on this GameObject after Death triggers (prevents movement/attacks/other animations).")]
+    [SerializeField] private bool disableOtherBehavioursOnDeathWhenNotDestroyed = true;
+
+    [Tooltip("If > 0 and Destroy On Death is OFF: after this delay, freezes the Animator so no further animations can play. Leave at 0 to let Death play fully and keep Animator running.")]
+    [SerializeField, Min(0f)] private float freezeAnimatorAfterDeathSeconds = 0f;
+
+    [Tooltip("If true, disables the Animator component after freezing (strongest guarantee nothing else plays). Typically leave OFF so Death can play.")]
+    [SerializeField] private bool disableAnimatorComponentAfterFreeze = false;
+
     public event Action<float, float> OnHealthChanged;
     // (currentHealth, maxHealth)
 
@@ -34,6 +44,7 @@ public class Health : MonoBehaviour, IDamageable
     public bool IsDead => _dead;
 
     private Coroutine _deathRoutine;
+    private Coroutine _deathLockRoutine;
     private bool _dead;
 
     private void Awake()
@@ -108,7 +119,12 @@ public class Health : MonoBehaviour, IDamageable
         TryPlayDeathAnimation();
 
         if (!destroyGameObjectOnDeath)
+        {
+            if (_deathLockRoutine != null)
+                StopCoroutine(_deathLockRoutine);
+            _deathLockRoutine = StartCoroutine(DeathLockRoutine());
             return;
+        }
 
         if (destroyDelayAfterDeath <= 0f)
         {
@@ -137,5 +153,33 @@ public class Health : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(destroyDelayAfterDeath);
         _deathRoutine = null;
         Destroy(gameObject);
+    }
+
+    private IEnumerator DeathLockRoutine()
+    {
+        // Immediately stop other gameplay behaviours from driving animator params / movement.
+        if (disableOtherBehavioursOnDeathWhenNotDestroyed)
+        {
+            var behaviours = GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                var b = behaviours[i];
+                if (b == null || b == this)
+                    continue;
+                b.enabled = false;
+            }
+        }
+
+        // Optional: after some time (e.g. after Death has clearly finished), freeze the animator.
+        // Default is 0 seconds, meaning: do not freeze; just block gameplay inputs/behaviours.
+        if (animator != null && freezeAnimatorAfterDeathSeconds > 0f)
+        {
+            yield return new WaitForSeconds(freezeAnimatorAfterDeathSeconds);
+            animator.speed = 0f;
+            if (disableAnimatorComponentAfterFreeze)
+                animator.enabled = false;
+        }
+
+        _deathLockRoutine = null;
     }
 }

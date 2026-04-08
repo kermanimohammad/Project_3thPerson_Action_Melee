@@ -5339,6 +5339,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 0
   destroyDelayAfterDeath: 0
   deathTriggerName: Death
+  disableOtherBehavioursOnDeathWhenNotDestroyed: 1
+  freezeAnimatorAfterDeathSeconds: 2.5
+  disableAnimatorComponentAfterFreeze: 1
 --- !u!114 &5665117054806514923
 MonoBehaviour:
   m_ObjectHideFlags: 0

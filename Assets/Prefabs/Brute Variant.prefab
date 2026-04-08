@@ -155,7 +155,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 7221348484951673670}
   m_FillRect: {fileID: 2116896175889633043}
   m_HandleRect: {fileID: 3416128984673207116}
@@ -264,8 +264,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 2.25}
-  m_SizeDelta: {x: 750, y: 230}
+  m_AnchoredPosition: {x: 0, y: 2.2469}
+  m_SizeDelta: {x: 432.9192, y: 99.9683}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &1065997592279139713
 Canvas:
@@ -363,7 +363,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: -5, y: 0}
+  m_AnchoredPosition: {x: -4.9999847, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &9135674737578385512
@@ -424,7 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 0.72156864}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -576,6 +576,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 6192793088648756779, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 7050825746651823270, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -658,6 +662,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 1
   destroyDelayAfterDeath: 0
   deathTriggerName: Death
+  disableOtherBehavioursOnDeathWhenNotDestroyed: 1
+  freezeAnimatorAfterDeathSeconds: 0
+  disableAnimatorComponentAfterFreeze: 0
 --- !u!136 &8469339486945781555
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -677,10 +684,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.4
-  m_Height: 2.5
+  m_Radius: 0.34
+  m_Height: 1.72
   m_Direction: 1
-  m_Center: {x: 0, y: 0.96, z: 0}
+  m_Center: {x: 0, y: 0.73, z: 0}
 --- !u!114 &4629462421252232338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -703,9 +710,11 @@ MonoBehaviour:
     forwardOffset: 1
     lifeTime: 0.15
     boxSize: {x: 2, y: 1.5, z: 2}
+  stamina: {fileID: 0}
   allowBuffering: 1
   inputBufferTime: 0.2
   cancelBufferedComboAfterSeconds: 1
+  queuedNextAttack: 0
 --- !u!114 &8317246971801654124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -732,6 +741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30dea642ed80e3645a4e252e3af67e99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeEnemyAI
+  groupAI: {fileID: 0}
   health: {fileID: 4819541481993412871}
   mover: {fileID: 4944544680401534856}
   perception: {fileID: 3347921840439748284}
@@ -782,6 +792,9 @@ MonoBehaviour:
   arriveDistance: 1.35
   animator: {fileID: 1713612740137093905}
   controller: {fileID: 2063191328129213370}
+  graph: {fileID: 0}
+  jumpHeight: 1.15
+  jumpDuration: 0.5
 --- !u!143 &2063191328129213370
 CharacterController:
   m_ObjectHideFlags: 0
@@ -800,13 +813,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2.1
-  m_Radius: 0.35
+  m_Height: 1.7
+  m_Radius: 0.32
   m_SlopeLimit: 45
   m_StepOffset: 0.5
   m_SkinWidth: 0.01
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0.9, z: 0}
+  m_Center: {x: 0, y: 0.8, z: 0}
 --- !u!114 &6379635427298291000
 MonoBehaviour:
   m_ObjectHideFlags: 0

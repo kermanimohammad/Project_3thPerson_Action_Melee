@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[ExecuteAlways]
 public class NodeGraph : MonoBehaviour
 {
 	public List<Transform> StartingPositions;
@@ -23,10 +24,53 @@ public class NodeGraph : MonoBehaviour
 	public float MaxJumpHeight;
 	public float MinJumpHeight = 0.5f;
 
+	[Header("Editor")]
+	[Tooltip("If enabled, generates/refreshes the grid in Edit Mode (no Play required). Can be slow on big scenes.")]
+	public bool GenerateInEditMode = true;
+
 	void Start()
 	{
-		GenerateGrid();	
+		// In play mode we always generate at startup.
+		if (Application.isPlaying)
+			GenerateGrid();
 	}
+
+#if UNITY_EDITOR
+	private void OnEnable()
+	{
+		// In Edit Mode: optionally auto-generate so gizmos can be seen without pressing Play.
+		if (Application.isPlaying)
+			return;
+		if (!GenerateInEditMode)
+			return;
+
+		// Delay to let Unity finish loading scene objects/colliders before raycasts.
+		UnityEditor.EditorApplication.delayCall += () =>
+		{
+			if (this == null) return;
+			if (Application.isPlaying) return;
+			if (!GenerateInEditMode) return;
+			GenerateGrid();
+		};
+	}
+
+	private void OnValidate()
+	{
+		if (Application.isPlaying)
+			return;
+		if (!GenerateInEditMode)
+			return;
+
+		// Debounced refresh when parameters change.
+		UnityEditor.EditorApplication.delayCall += () =>
+		{
+			if (this == null) return;
+			if (Application.isPlaying) return;
+			if (!GenerateInEditMode) return;
+			GenerateGrid();
+		};
+	}
+#endif
 
 	public NodeGraph()
 	{
@@ -299,6 +343,8 @@ public class NodeGraph : MonoBehaviour
 
 #if UNITY_EDITOR
 	[Header("Gizmos Parameters")]
+	[Tooltip("If true, gizmos (nodes/edges) are only drawn while the editor is in Play Mode.")]
+	public bool RequirePlayModeForGizmos = false;
 	public bool ShowNodes = true;
 	public bool ShowEdges = true;
 	public Color NodeColor = Color.green;
@@ -306,11 +352,20 @@ public class NodeGraph : MonoBehaviour
 	public Color EdgeColor = Color.cyan;
 	public float NodeGizmoSize = 0.3f;
 	public float EdgeThickness = 1.0f;
+	[Tooltip("Limits how often gizmos are drawn (reduces Scene view slowdown). 0 = no throttling.")]
+	public float GizmoDrawHz = 15f;
+	[Header("Edge draw performance")]
+	[Tooltip("Draw every Nth edge (1 = draw all). Higher values reduce cost a lot.")]
+	public int EdgeDrawStride = 1;
+	[Tooltip("If > 0, only draw edges whose midpoint is within this distance from the SceneView camera.")]
+	public float EdgeMaxCameraDistance = 0f;
 
 	private Vector3[] _gizmoNodePositions;
 	private NodeTypeEnum[] _gizmoNodeTypes;
 	private (Vector3 a, Vector3 b)[] _gizmoEdges;
+	private Vector3[] _gizmoEdgeSegments;
 	private bool _gizmoCacheDirty = true;
+	private double _nextAllowedGizmoDrawTime;
 
 	public void InvalidateGizmoCache() => _gizmoCacheDirty = true;
 
@@ -336,31 +391,105 @@ public class NodeGraph : MonoBehaviour
 		}
 
 		_gizmoEdges = edges.ToArray();
+		// Prebuild segment array for batch drawing (a0,b0,a1,b1,...)
+		_gizmoEdgeSegments = new Vector3[_gizmoEdges.Length * 2];
+		for (int i = 0; i < _gizmoEdges.Length; i++)
+		{
+			_gizmoEdgeSegments[i * 2] = _gizmoEdges[i].a;
+			_gizmoEdgeSegments[i * 2 + 1] = _gizmoEdges[i].b;
+		}
 		_gizmoCacheDirty = false;
 	}
 
 	void OnDrawGizmos()
 	{
+		if (RequirePlayModeForGizmos && !Application.isPlaying)
+			return;
 		if (Nodes == null || Nodes.Count == 0) return;
+
+		// Throttle gizmo drawing to reduce editor slowdown when many nodes exist.
+		// Note: this skips whole-frame drawing (nodes+edges), which is fine for visualization.
+		if (GizmoDrawHz > 0f)
+		{
+			double now = UnityEditor.EditorApplication.timeSinceStartup;
+			if (now < _nextAllowedGizmoDrawTime)
+				return;
+			_nextAllowedGizmoDrawTime = now + (1.0 / Mathf.Max(0.01f, GizmoDrawHz));
+		}
+
 		if (_gizmoCacheDirty || _gizmoNodePositions == null) RebuildGizmoCache();
 
 		Vector3 offset = new Vector3(0, 0.1f, 0);
 
+		// Make node/edge visualization respect scene depth (no x-ray through walls).
+		var prevZTest = UnityEditor.Handles.zTest;
+		UnityEditor.Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+
 		if (ShowEdges)
 		{
 			UnityEditor.Handles.color = EdgeColor;
-			foreach (var (a, b) in _gizmoEdges)
-				UnityEditor.Handles.DrawLine(a + offset, b + offset, EdgeThickness);
+			// Drawing edges one-by-one is very expensive for large graphs.
+			// Batch draw via DrawLines, with optional stride and camera-distance culling.
+			if (_gizmoEdgeSegments != null && _gizmoEdgeSegments.Length >= 2)
+			{
+				int stride = Mathf.Max(1, EdgeDrawStride);
+
+				Vector3 camPos = default;
+				float maxDist = EdgeMaxCameraDistance;
+				float maxDistSqr = maxDist > 0f ? maxDist * maxDist : 0f;
+
+				if (maxDist > 0f && UnityEditor.SceneView.lastActiveSceneView != null)
+					camPos = UnityEditor.SceneView.lastActiveSceneView.camera.transform.position;
+
+				// If no culling and stride==1, draw everything in one call.
+				if (stride == 1 && maxDist <= 0f)
+				{
+					// Apply offset by drawing a temporary shifted array (avoid mutating cache).
+					var segs = new Vector3[_gizmoEdgeSegments.Length];
+					for (int i = 0; i < _gizmoEdgeSegments.Length; i++)
+						segs[i] = _gizmoEdgeSegments[i] + offset;
+					UnityEditor.Handles.DrawLines(segs);
+				}
+				else
+				{
+					// Filtered draw: build a smaller segment list.
+					var segs = new List<Vector3>(_gizmoEdgeSegments.Length / (stride * 2));
+					for (int e = 0; e < _gizmoEdges.Length; e += stride)
+					{
+						var (a, b) = _gizmoEdges[e];
+						if (maxDist > 0f)
+						{
+							Vector3 mid = (a + b) * 0.5f;
+							if ((mid - camPos).sqrMagnitude > maxDistSqr)
+								continue;
+						}
+						segs.Add(a + offset);
+						segs.Add(b + offset);
+					}
+
+					if (segs.Count >= 2)
+						UnityEditor.Handles.DrawLines(segs.ToArray());
+				}
+			}
 		}
 
 		if (ShowNodes)
 		{
 			for (int i = 0; i < _gizmoNodePositions.Length; i++)
 			{
-				Gizmos.color = _gizmoNodeTypes[i] == NodeTypeEnum.Jumping ? JumpingNodeColor : NodeColor;
-				Gizmos.DrawSphere(_gizmoNodePositions[i] + offset, NodeGizmoSize);
+				UnityEditor.Handles.color = _gizmoNodeTypes[i] == NodeTypeEnum.Jumping ? JumpingNodeColor : NodeColor;
+				// Cube is cheaper than sphere for large node counts. Use Handles so depth test applies.
+				float s = Mathf.Max(0.001f, NodeGizmoSize * 2f);
+				UnityEditor.Handles.CubeHandleCap(
+					controlID: 0,
+					position: _gizmoNodePositions[i] + offset,
+					rotation: Quaternion.identity,
+					size: s,
+					eventType: UnityEngine.EventType.Repaint);
 			}
 		}
+
+		UnityEditor.Handles.zTest = prevZTest;
 	}
 #endif
 }

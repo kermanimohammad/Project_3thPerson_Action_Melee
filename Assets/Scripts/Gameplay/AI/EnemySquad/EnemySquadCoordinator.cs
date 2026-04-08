@@ -36,11 +36,24 @@ public class EnemySquadCoordinator : MonoBehaviour
     private void Update()
     {
         ResolvePlayer();
+        ResolveObjectivesIfMissing();
         if (PlayerTransform != null)
         {
             LastKnownPlayerPosition = PlayerTransform.position;
             HasLastKnownPlayer = true;
         }
+    }
+
+    /// <summary>
+    /// Runtime-friendly configuration for wave-spawned squads.
+    /// Any null values will be auto-resolved by <see cref="ResolveObjectivesIfMissing"/>.
+    /// </summary>
+    public void ConfigureObjectives(DoorBreakable[] doors, GameObject magicStone)
+    {
+        if (doors != null && doors.Length > 0)
+            palaceDoors = doors;
+        if (magicStone != null)
+            magicStoneObjective = magicStone;
     }
 
     private void ResolvePlayer()
@@ -50,6 +63,38 @@ public class EnemySquadCoordinator : MonoBehaviour
 
         GameObject go = GameObject.FindGameObjectWithTag(playerTag);
         PlayerTransform = go != null ? go.transform : null;
+    }
+
+    private void ResolveObjectivesIfMissing()
+    {
+        // Doors: if not wired in inspector, fall back to anything in scene.
+        if (palaceDoors == null || palaceDoors.Length == 0)
+            palaceDoors = Object.FindObjectsByType<DoorBreakable>(FindObjectsSortMode.None);
+
+        // Magic stone: try GlobalReferences first, then name-based fallback for existing BattleArea object.
+        if (magicStoneObjective == null)
+        {
+            if (GlobalReferences.Instance != null)
+                magicStoneObjective = GlobalReferences.Instance.GetMagicStone();
+        }
+
+        if (magicStoneObjective == null)
+        {
+            // BattleArea currently has an object named "MagicalSton" (typo). Use contains match to be robust.
+            var gos = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+            for (int i = 0; i < gos.Length; i++)
+            {
+                var go = gos[i];
+                if (go == null) continue;
+                var n = go.name;
+                if (string.IsNullOrEmpty(n)) continue;
+                if (n.Contains("MagicalSton") || n.Contains("MagicStone") || n.Contains("Magic Stone"))
+                {
+                    magicStoneObjective = go;
+                    break;
+                }
+            }
+        }
     }
 
     public void RegisterMember(EnemyGroupMemberAI member)
