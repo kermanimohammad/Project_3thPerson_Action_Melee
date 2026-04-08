@@ -6,7 +6,7 @@ public abstract class EnemyAIBase : MonoBehaviour
 	private StateID desiredState;
 
 	[Header("References")]
-	//[SerializeField] protected EnemyGroupAI groupAI;
+	[SerializeField] protected EnemyGroup groupAI;
 	[SerializeField] protected Health health;
 	[SerializeField] protected EnemyMover mover;
 	[SerializeField] protected EnemyAIPerception perception;
@@ -73,8 +73,9 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 	}
 
+	protected Transform GetUpdatedTarget() => groupAI.GetAssignedTarget(this);
+
 	protected abstract StateID GetUpdatedDesiredState();
-	protected abstract Transform GetUpdatedTarget();
 	protected abstract float GetFleeScore();
 	protected abstract float GetSeekScore();
 	protected abstract float GetAttackScore();

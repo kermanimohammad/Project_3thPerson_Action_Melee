@@ -22,6 +22,11 @@ public class EnemyMover : MonoBehaviour
 
 	public float CurrentSpeed => speed;
 
+	private void Awake()
+	{
+		graph = FindFirstObjectByType<NodeGraph>();
+	}
+
 	public void MoveTo(Vector3 destination, float speedMultiplier = 1) => MoveTo(destination, Vector3.zero, speedMultiplier);
 	private void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
 	{
