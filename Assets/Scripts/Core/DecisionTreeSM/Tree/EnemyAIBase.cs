@@ -73,7 +73,7 @@ public abstract class EnemyAIBase : MonoBehaviour
 
 	}
 
-	protected Transform GetUpdatedTarget() => groupAI.GetAssignedTarget(this);
+	protected virtual Transform GetUpdatedTarget() => groupAI.GetAssignedTarget(this);
 
 	protected abstract StateID GetUpdatedDesiredState();
 	protected abstract float GetFleeScore();
