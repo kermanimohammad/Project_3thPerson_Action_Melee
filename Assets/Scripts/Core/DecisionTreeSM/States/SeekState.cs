@@ -11,14 +11,14 @@ public class SeekState : AbstractState<EnemyAIBase>
 
 	public override void Enter()
 	{
-		if (owner.CurrentTarget == GlobalReferences.Instance.GetPlayer())
-		{
-			// generate path every tick
-		}
-		else
-		{
-			// generate path once
-		}
+		//if (owner.CurrentTarget == GlobalReferences.Instance.GetPlayer())
+		//{
+		//	// generate path every tick
+		//}
+		//else
+		//{
+		//	// generate path once
+		//}
 	}
 
 	public override void Exit()

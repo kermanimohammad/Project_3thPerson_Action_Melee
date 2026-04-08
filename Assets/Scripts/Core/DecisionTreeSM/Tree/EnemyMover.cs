@@ -9,11 +9,17 @@ public class EnemyMover : EnemyMoverBase
 	[SerializeField] private Animator animator;
 	[SerializeField] private CharacterController controller;
 	[SerializeField] private NodeGraph graph;
+	[SerializeField] private float jumpHeight = 1.15f;
+	[SerializeField] private float jumpDuration = 0.5f;
 
 	private Vector3 targetPosition;
 	private Vector3 _velocity;
 	List<Node> currentPath;
 	int currentIndex = 0;
+	private bool isJumping = false;
+	private Vector3 jumpStart;
+	private Vector3 jumpEnd;
+	private float jumpTimer = 0f;
 
 	public override float CurrentSpeed => speed;
 
@@ -50,8 +56,6 @@ public class EnemyMover : EnemyMoverBase
 		if (flat.sqrMagnitude < arriveDistance * arriveDistance)
 		{
 			currentIndex++;
-			// pathfinding possibly here
-			// 
 			return;
 		}
 
@@ -63,35 +67,96 @@ public class EnemyMover : EnemyMoverBase
 
 		_velocity = dir * speed;
 
-		// pathfinding possibly here
-
 		ApplyMove(dir * speed, speed);
-
 		animator.SetFloat(AnimParams.Speed, _velocity.magnitude);
 		animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
 	}
 
 	public void Move()
 	{
-		if (currentIndex >= currentPath.Count)
+		if (currentPath == null || currentIndex >= currentPath.Count)
 		{
+			Debug.LogWarning($"Null Path Detected for {gameObject.name}");
 			return;
 		}
 
 		var currentNode = currentPath[currentIndex];
-		//var nextNode = currentPath[currentIndex + 1];
 
-		//if (currentNode.NodeType == NodeTypeEnum.Jumping && nextNode.NodeType == NodeTypeEnum.Jumping)
-		//{
-		//	// Jump Towards
-		//}
+		if (currentIndex > 0)
+		{
+			var prevNode = currentPath[currentIndex - 1];
+
+			if (currentNode.NodeType == NodeTypeEnum.Jumping &&
+				prevNode.NodeType == NodeTypeEnum.Jumping &&
+				currentNode.loc.y > prevNode.loc.y)
+			{
+				JumpTowards(currentNode.loc);
+				return;
+			}
+		}
 
 		MoveTo(currentNode.loc);
 	}
 
 	private void JumpTowards(Vector3 destination)
 	{
-		
+		if (!isJumping)
+		{
+			animator.SetTrigger(AnimParams.Jump);
+			isJumping = true;
+			jumpStart = transform.position;
+			jumpEnd = destination;
+			jumpTimer = 0f;
+		}
+
+		jumpTimer += Time.deltaTime;
+		float t = Mathf.Clamp01(jumpTimer / jumpDuration);
+
+		Vector3 horizontal = Vector3.Lerp(jumpStart, jumpEnd, t);
+		float verticalOffset = 4f * jumpHeight * t * (1f - t);
+		Vector3 desiredPosition = horizontal + Vector3.up * verticalOffset;
+
+		Vector3 frameDelta = desiredPosition - transform.position;
+
+		if (controller != null)
+		{
+			controller.Move(frameDelta);
+		}
+
+		Vector3 look = jumpEnd - transform.position;
+		look.y = 0f;
+		if (look.sqrMagnitude > 0.001f)
+		{
+			transform.rotation = Quaternion.Slerp(
+				transform.rotation,
+				Quaternion.LookRotation(look.normalized),
+				10f * Time.deltaTime
+			);
+		}
+
+		animator.SetFloat(AnimParams.Speed, speed);
+		animator.SetBool(AnimParams.IsGrounded, controller != null ? controller.isGrounded : false);
+
+		if (t >= 1f)
+		{
+			isJumping = false;
+
+			Vector3 flatCurrent = transform.position;
+			Vector3 flatEnd = jumpEnd;
+			flatCurrent.y = 0f;
+			flatEnd.y = 0f;
+
+			float remainingDistance = Vector3.Distance(flatCurrent, flatEnd);
+
+			if (remainingDistance <= arriveDistance)
+			{
+				currentIndex++;
+			}
+			else
+			{
+				RecalculatePathFinding(jumpEnd);
+			}
+		}
 	}
 
 	public void RecalculatePathFinding(Vector3 destination)
@@ -99,6 +164,7 @@ public class EnemyMover : EnemyMoverBase
 		Node start = Pathfinding.FindNearestNode(transform.position, graph.Nodes);
 		Node dest = Pathfinding.FindNearestNode(destination, graph.Nodes);
 		currentPath = Pathfinding.FindPath(start, dest, destination);
+		isJumping = false;
 		currentIndex = 0;
 	}
 
@@ -107,7 +173,7 @@ public class EnemyMover : EnemyMoverBase
 		if (controller != null)
 		{
 			Vector3 motion = planarVelocity * Time.deltaTime;
-			motion.y = Physics.gravity.y * Time.deltaTime;
+			if (!isJumping) motion.y = Physics.gravity.y * Time.deltaTime;
 			controller.Move(motion);
 			if (planarVelocity.sqrMagnitude > 0.01f)
 			{
@@ -151,6 +217,5 @@ public class EnemyMover : EnemyMoverBase
 
 		animator.SetBool(AnimParams.IsGrounded, grounded);
 	}
-
 
 }
