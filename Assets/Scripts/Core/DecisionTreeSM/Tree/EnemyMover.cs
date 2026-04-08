@@ -12,7 +12,6 @@ public class EnemyMover : MonoBehaviour
 	[SerializeField] private float jumpHeight = 1.15f;
 	[SerializeField] private float jumpDuration = 0.5f;
 
-	private Vector3 targetPosition;
 	private Vector3 _velocity;
 	List<Node> currentPath;
 	int currentIndex = 0;
@@ -23,34 +22,9 @@ public class EnemyMover : MonoBehaviour
 
 	public float CurrentSpeed => speed;
 
-	public void FaceTowards(Vector3 target)
-	{
-		Vector3 direction = target - transform.position;
-		direction.y = 0f;
-
-		if (direction.sqrMagnitude <= 0.0001f)
-			return;
-
-		Quaternion targetRotation = Quaternion.LookRotation(direction);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
-	}
-
-	public bool HasReachedDestination(float threshold)
-	{
-		Vector3 flatCurrent = transform.position;
-		Vector3 flatTarget = targetPosition;
-
-		flatCurrent.y = 0f;
-		flatTarget.y = 0f;
-
-		return Vector3.Distance(flatCurrent, flatTarget) <= threshold;
-	}
-
 	public void MoveTo(Vector3 destination, float speedMultiplier = 1) => MoveTo(destination, Vector3.zero, speedMultiplier);
-
-	public void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
+	private void MoveTo(Vector3 destination, Vector3 groupSeparationVector, float speedMultiplier = 1)
 	{
-		targetPosition = destination;
 		Vector3 flat = destination - transform.position;
 		flat.y = 0f;
 		if (flat.sqrMagnitude < arriveDistance * arriveDistance)
@@ -186,11 +160,6 @@ public class EnemyMover : MonoBehaviour
 		{
 			transform.position += planarVelocity * Time.deltaTime;
 		}
-	}
-
-	public void StopMoving()
-	{
-		//animator.SetFloat(AnimParams.Speed, 0f);
 	}
 
 	private void Update()
