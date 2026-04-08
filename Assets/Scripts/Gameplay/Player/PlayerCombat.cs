@@ -116,24 +116,16 @@ public class PlayerCombat : MonoBehaviour
         TryRotateTowardsAimTarget(aimTarget);
 
         int attackIndex = attackManager.TryAttack();
-        Debug.Log($"Attack index: {attackIndex}");
         if (attackIndex >= 0 && (motor == null || motor.IsGrounded))
-        {
-            stamina.TrySpendAttack();
             suppressLocomotionUntilTime = Time.time + attackStartSuppressSeconds;
-        }
-            
     }
 
     private void TrySpecialAttack()
     {
-        if (IsDefending)
+        if (IsDefending || animator == null)
             return;
 
-        if (animator == null)
-            return;
-
-        if (stamina != null && !stamina.TrySpendSpecialAttack())
+        if (stamina != null && !stamina.CanSpendSpecialAttack())
             return;
 
         // Fire Special trigger for SpacialAttack transition in PlayerController.controller
