@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConcreteEnemyMover : EnemyMoverBase
+// EnemyMover
+public class EnemyMover : EnemyMoverBase
 {
 	[SerializeField] private float speed = 3.2f;
 	[SerializeField] private float arriveDistance = 1.35f;

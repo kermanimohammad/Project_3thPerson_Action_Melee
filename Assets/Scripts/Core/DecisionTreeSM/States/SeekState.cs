@@ -31,10 +31,10 @@ public class SeekState : AbstractState<EnemyAIBase>
 		if (timer <= 0 && owner.CurrentTarget == GlobalReferences.Instance.GetPlayer())
 		{
 			timer = repeat;
-			(owner.GetMover() as ConcreteEnemyMover).RecalculatePathFinding(owner.CurrentTarget.position);
+			(owner.GetMover() as EnemyMover).RecalculatePathFinding(owner.CurrentTarget.position);
 		}
 
-		(owner.GetMover() as ConcreteEnemyMover).Move();
+		(owner.GetMover() as EnemyMover).Move();
 
 		timer -= Time.deltaTime;		
 	}
