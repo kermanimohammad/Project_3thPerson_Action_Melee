@@ -105,28 +105,24 @@ public class PlayerCombat : MonoBehaviour
 
     private void TryAttack()
     {
-        if (IsDefending)
+        if (IsDefending
+        || attackManager ==  null
+        || (stamina != null && !stamina.CanAffordAttack())
+        || TryAirKickAfterMovingJump())
             return;
-
-        if (attackManager == null)
-            return;
-
-        if (stamina != null && !stamina.TrySpendAttack())
-            return;
-
-        if (TryAirKickAfterMovingJump())
-        {
-            // Air attack should not suppress airborne movement.
-            return;
-        }
 
         LayerMask enemyLayer = LayerMask.GetMask(_EnemyTag);
         Transform aimTarget = transform.GetClosestNearbyEnemy(enemyLayer);
         TryRotateTowardsAimTarget(aimTarget);
 
         int attackIndex = attackManager.TryAttack();
+        Debug.Log($"Attack index: {attackIndex}");
         if (attackIndex >= 0 && (motor == null || motor.IsGrounded))
+        {
+            stamina.TrySpendAttack();
             suppressLocomotionUntilTime = Time.time + attackStartSuppressSeconds;
+        }
+            
     }
 
     private void TrySpecialAttack()

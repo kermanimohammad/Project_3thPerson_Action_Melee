@@ -56,7 +56,6 @@ public class NodeGraph : MonoBehaviour
 	// BFS flood fill
 	void FloodFillGrid(Vector3 root, int platform)
 	{
-		Debug.Log($"FloodFillGrid called for {root}");
 		Queue<(Vector3 position, int rootIndex, int xIndex, int zIndex)> queue = new();
         HashSet<(int, int)> visited = new();
 

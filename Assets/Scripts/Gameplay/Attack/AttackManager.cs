@@ -118,6 +118,8 @@ public class AttackManager : MonoBehaviour
             }
         }
 
+        Debug.Log($"Attack State = {InAttackState()}");
+
         return true;
     }
 
