@@ -5,21 +5,20 @@ public class AttackManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private Animator animator;
     [SerializeField] private Attack[] attacks;
-    
+    [SerializeField] private PlayerStamina stamina;
+
     [Header("Buffering")]
     [SerializeField] private bool allowBuffering = true;
     [SerializeField] private float inputBufferTime = 0.2f;
     [Tooltip("If no new attack input occurs for this many seconds, clear any buffered/queued combo so the character returns to locomotion after the current attack ends.")]
     [SerializeField] private float cancelBufferedComboAfterSeconds = 1.0f;
 
-    private static readonly int AttackTagHash = AnimParams.AttackTag;
-
     // ---- Internal State ----
     private int nextAttackIndex = 0;
     private int activeAttackIndex = -1;
 
     private bool comboWindowOpen = false;
-    private bool queuedNextAttack = false;
+    public bool queuedNextAttack = false;
     private float queuedTime;
 
     private float lastAttackTime = -999f;
@@ -45,8 +44,14 @@ public class AttackManager : MonoBehaviour
         if (animator == null)
             return false;
 
-        var current = animator.GetCurrentAnimatorStateInfo(0);
-        return current.tagHash == AttackTagHash;
+        var cur = animator.GetCurrentAnimatorStateInfo(0);
+        return cur.IsTag("Attack")
+               || cur.IsName("Attack1")
+               || cur.IsName("Attack2")
+               || cur.IsName("Attack3")
+               || cur.IsName("SpacialAttack")
+               || cur.IsName("KickRun")
+               || cur.IsName("Kick Run Ort Fnt Leg");
     }
 
     public int TryAttack()
@@ -126,6 +131,7 @@ public class AttackManager : MonoBehaviour
         Attack attack = attacks[index];
 
         attack.TriggerAttackAnimation(animator);
+        stamina?.TrySpendAttack();
 
         comboWindowOpen = false;
 

@@ -105,20 +105,11 @@ public class PlayerCombat : MonoBehaviour
 
     private void TryAttack()
     {
-        if (IsDefending)
+        if (IsDefending
+        || attackManager ==  null
+        || (stamina != null && !stamina.CanAffordAttack())
+        || TryAirKickAfterMovingJump())
             return;
-
-        if (attackManager == null)
-            return;
-
-        if (stamina != null && !stamina.TrySpendAttack())
-            return;
-
-        if (TryAirKickAfterMovingJump())
-        {
-            // Air attack should not suppress airborne movement.
-            return;
-        }
 
         LayerMask enemyLayer = LayerMask.GetMask(_EnemyTag);
         Transform aimTarget = transform.GetClosestNearbyEnemy(enemyLayer);
@@ -131,13 +122,10 @@ public class PlayerCombat : MonoBehaviour
 
     private void TrySpecialAttack()
     {
-        if (IsDefending)
+        if (IsDefending || animator == null)
             return;
 
-        if (animator == null)
-            return;
-
-        if (stamina != null && !stamina.TrySpendSpecialAttack())
+        if (stamina != null && !stamina.CanSpendSpecialAttack())
             return;
 
         // Fire Special trigger for SpacialAttack transition in PlayerController.controller

@@ -56,7 +56,6 @@ public class NodeGraph : MonoBehaviour
 	// BFS flood fill
 	void FloodFillGrid(Vector3 root, int platform)
 	{
-		Debug.Log($"FloodFillGrid called for {root}");
 		Queue<(Vector3 position, int rootIndex, int xIndex, int zIndex)> queue = new();
         HashSet<(int, int)> visited = new();
 
@@ -140,6 +139,17 @@ public class NodeGraph : MonoBehaviour
 			if (heightDiff < SamePlatformThreshold)
 			{
 				groundPos = new Vector3(newPos.x, hit.point.y, newPos.z);
+
+				// Reject if a wall stands between the two positions horizontally.
+				Vector3 horizontal = newPos - pos;
+				horizontal.y = 0f;
+				float dist = horizontal.magnitude;
+				Vector3 rayStart = new Vector3(pos.x, groundPos.y + NodeRaycastHeight, pos.z);
+				if (dist > 0.001f
+				    && Physics.Raycast(rayStart, horizontal.normalized, out RaycastHit wallHit, dist, TerrainLayerMask)
+				    && wallHit.collider.CompareTag("Wall"))
+					return false;
+
 				return true;
 			}
 		}

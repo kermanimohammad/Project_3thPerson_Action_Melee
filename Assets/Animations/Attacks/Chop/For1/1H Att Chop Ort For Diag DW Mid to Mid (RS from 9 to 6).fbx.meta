@@ -74,6 +74,13 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
+      - time: 0.6028037
+        functionName: TrailOn
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.66502464
         functionName: CreateAOE
         data: 
@@ -88,15 +95,15 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.6028037
-        functionName: TrailOn
+      - time: 0.817757
+        functionName: TrailOff
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.817757
-        functionName: TrailOff
+      - time: 0.84421057
+        functionName: OpenComboWindow
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
