@@ -113,12 +113,12 @@ TextureImporter:
       name: Skip_Background
       rect:
         serializedVersion: 2
-        x: 828
-        y: 14
-        width: 852
-        height: 872
+        x: 261
+        y: 0
+        width: 250
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: Skip_Bar
       rect:
         serializedVersion: 2
-        x: 15
-        y: 115
-        width: 774
-        height: 682
+        x: 22
+        y: 31
+        width: 228
+        height: 199
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

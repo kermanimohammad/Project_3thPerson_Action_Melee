@@ -114,9 +114,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 722
-        width: 957
-        height: 940
+        y: 524
+        width: 511
+        height: 500
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -135,10 +135,10 @@ TextureImporter:
       name: Frame_2
       rect:
         serializedVersion: 2
-        x: 955
-        y: 722
-        width: 968
-        height: 940
+        x: 511
+        y: 524
+        width: 513
+        height: 500
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,12 +157,12 @@ TextureImporter:
       name: Frame_Mask1
       rect:
         serializedVersion: 2
-        x: 118
-        y: 18
-        width: 725
-        height: 674
+        x: 65
+        y: 150
+        width: 380
+        height: 358
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -179,12 +179,12 @@ TextureImporter:
       name: Frame_Mask2
       rect:
         serializedVersion: 2
-        x: 1086
-        y: 20
-        width: 707
-        height: 670
+        x: 579
+        y: 151
+        width: 376
+        height: 357
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

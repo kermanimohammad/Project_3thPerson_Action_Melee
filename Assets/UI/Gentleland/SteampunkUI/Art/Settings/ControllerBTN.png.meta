@@ -113,12 +113,12 @@ TextureImporter:
       name: ControllerBTN_Normal
       rect:
         serializedVersion: 2
-        x: 13
-        y: 301
-        width: 953
-        height: 254
+        x: 12
+        y: 271
+        width: 988
+        height: 230
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -136,11 +136,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 13
-        y: 20
-        width: 952
-        height: 256
+        y: 19
+        width: 987
+        height: 229
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

@@ -113,12 +113,12 @@ TextureImporter:
       name: Menu_Frame
       rect:
         serializedVersion: 2
-        x: 8
-        y: 304
-        width: 970
-        height: 1149
+        x: 3
+        y: 214
+        width: 509
+        height: 810
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: Menu_Normal_BTN
       rect:
         serializedVersion: 2
-        x: 125
-        y: 5
-        width: 734
-        height: 146
+        x: 65
+        y: 18
+        width: 379
+        height: 85
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -157,12 +157,12 @@ TextureImporter:
       name: Menu_Selected_BTN
       rect:
         serializedVersion: 2
-        x: 124
-        y: 153
-        width: 734
-        height: 148
+        x: 64
+        y: 111
+        width: 379
+        height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

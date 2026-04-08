@@ -114,9 +114,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 1344
-        height: 359
+        y: 126
+        width: 1024
+        height: 277
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -136,9 +136,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 403
-        width: 946
-        height: 94
+        y: 438
+        width: 718
+        height: 74
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,9 +157,9 @@ TextureImporter:
       name: GatesSlider_line
       rect:
         serializedVersion: 2
-        x: 813
-        y: 359
-        width: 524
+        x: 632
+        y: 403
+        width: 391
         height: 17
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -179,10 +179,10 @@ TextureImporter:
       name: GatesSlider_Left
       rect:
         serializedVersion: 2
-        x: 938
-        y: 378
-        width: 93
-        height: 30
+        x: 718
+        y: 421
+        width: 62
+        height: 20
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -201,10 +201,10 @@ TextureImporter:
       name: GatesSlider_Right
       rect:
         serializedVersion: 2
-        x: 1105
-        y: 379
-        width: 92
-        height: 28
+        x: 847
+        y: 420
+        width: 62
+        height: 21
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

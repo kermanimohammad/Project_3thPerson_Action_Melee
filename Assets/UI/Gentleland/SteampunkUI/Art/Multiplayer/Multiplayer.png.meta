@@ -114,11 +114,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 263
-        width: 1478
-        height: 937
+        y: 170
+        width: 1024
+        height: 598
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -136,11 +136,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 184
-        width: 328
-        height: 78
+        y: 119
+        width: 218
+        height: 46
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -158,11 +158,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 97
-        width: 328
-        height: 78
+        y: 66
+        width: 218
+        height: 45
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -179,12 +179,12 @@ TextureImporter:
       name: Multiplayer_HostNormal
       rect:
         serializedVersion: 2
-        x: 340
-        y: 138
-        width: 455
-        height: 118
+        x: 227
+        y: 87
+        width: 304
+        height: 78
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -201,12 +201,12 @@ TextureImporter:
       name: Multiplayer_HostSelected
       rect:
         serializedVersion: 2
-        x: 339
-        y: 14
-        width: 455
-        height: 118
+        x: 226
+        y: 7
+        width: 302
+        height: 79
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -223,12 +223,12 @@ TextureImporter:
       name: Multiplayer_JoinNormal
       rect:
         serializedVersion: 2
-        x: 807
-        y: 138
-        width: 459
-        height: 118
+        x: 539
+        y: 87
+        width: 304
+        height: 78
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -245,12 +245,12 @@ TextureImporter:
       name: Multiplayer_JoinSelected
       rect:
         serializedVersion: 2
-        x: 807
-        y: 14
-        width: 459
-        height: 118
+        x: 539
+        y: 8
+        width: 304
+        height: 79
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

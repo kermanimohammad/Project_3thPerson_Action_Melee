@@ -114,11 +114,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 178
-        width: 1342
-        height: 817
+        y: 136
+        width: 1024
+        height: 632
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: BTN_Normal
       rect:
         serializedVersion: 2
-        x: 16
-        y: 11
-        width: 485
-        height: 111
+        x: 13
+        y: 7
+        width: 372
+        height: 91
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -157,12 +157,12 @@ TextureImporter:
       name: BTN_Selected
       rect:
         serializedVersion: 2
-        x: 525
-        y: 11
-        width: 485
-        height: 111
+        x: 400
+        y: 7
+        width: 371
+        height: 91
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

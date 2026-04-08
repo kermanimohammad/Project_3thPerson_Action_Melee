@@ -113,10 +113,10 @@ TextureImporter:
       name: MainMenuButton_Normal
       rect:
         serializedVersion: 2
-        x: 1
-        y: 21
-        width: 992
-        height: 175
+        x: 5
+        y: 35
+        width: 1002
+        height: 156
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -135,10 +135,10 @@ TextureImporter:
       name: MainMenuButton_Hover
       rect:
         serializedVersion: 2
-        x: 0
-        y: 210
-        width: 994
-        height: 174
+        x: 5
+        y: 191
+        width: 1001
+        height: 158
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,12 +157,12 @@ TextureImporter:
       name: MainMenuButton_Selected
       rect:
         serializedVersion: 2
-        x: 0
-        y: 403
-        width: 996
-        height: 182
+        x: 3
+        y: 349
+        width: 1007
+        height: 163
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

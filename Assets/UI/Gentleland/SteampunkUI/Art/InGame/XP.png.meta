@@ -114,11 +114,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 136
-        width: 1261
-        height: 259
+        y: 300
+        width: 1024
+        height: 212
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -135,12 +135,12 @@ TextureImporter:
       name: XP_Bar
       rect:
         serializedVersion: 2
-        x: 28
-        y: 80
-        width: 806
-        height: 44
+        x: 24
+        y: 256
+        width: 654
+        height: 36
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -157,12 +157,12 @@ TextureImporter:
       name: XP_Title
       rect:
         serializedVersion: 2
-        x: 77
-        y: 16
-        width: 552
-        height: 62
+        x: 59
+        y: 203
+        width: 453
+        height: 39
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
