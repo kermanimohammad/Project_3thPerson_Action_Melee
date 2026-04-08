@@ -109,6 +109,61 @@ public class EnemySquadCoordinator : MonoBehaviour
         _members.Remove(member);
     }
 
+    /// <summary>
+    /// Returns a point around the player for this member to approach so attackers don't stack on one angle.
+    /// Slots are assigned deterministically by member instance id order: 0°, +min°, -min°, +2min°, -2min°, ...
+    /// </summary>
+    public Vector3 GetEngageApproachPoint(EnemyGroupMemberAI member, float radius, float minAngleDegrees = 45f)
+    {
+        var player = PlayerTransform;
+        if (player == null)
+            return member != null ? member.transform.position : transform.position;
+
+        if (member == null)
+            return player.position;
+
+        // Stable ordering across frames.
+        var list = new List<EnemyGroupMemberAI>(_members.Count);
+        for (int i = 0; i < _members.Count; i++)
+        {
+            var m = _members[i];
+            if (m == null || !m.isActiveAndEnabled)
+                continue;
+            list.Add(m);
+        }
+        list.Sort((a, b) => a.GetInstanceID().CompareTo(b.GetInstanceID()));
+
+        int idx = list.IndexOf(member);
+        if (idx < 0) idx = Mathf.Abs(member.GetInstanceID()) % 5;
+
+        float ang;
+        if (idx == 0) ang = 0f;
+        else
+        {
+            int k = (idx + 1) / 2; // 1,1,2,2...
+            float sign = (idx % 2 == 1) ? 1f : -1f;
+            ang = sign * k * Mathf.Max(0f, minAngleDegrees);
+        }
+
+        // Base direction: from player toward squad center (keeps squad coming from same general side).
+        Vector3 baseDir = transform.position - player.position;
+        baseDir.y = 0f;
+        if (baseDir.sqrMagnitude < 0.0001f)
+        {
+            baseDir = member.transform.position - player.position;
+            baseDir.y = 0f;
+        }
+        if (baseDir.sqrMagnitude < 0.0001f)
+            baseDir = player.forward;
+
+        baseDir.Normalize();
+        Vector3 dir = Quaternion.AngleAxis(ang, Vector3.up) * baseDir;
+        if (dir.sqrMagnitude < 0.0001f)
+            dir = baseDir;
+
+        return player.position + dir.normalized * Mathf.Max(0.1f, radius);
+    }
+
     /// <summary>True if any registered palace door is already broken.</summary>
     public bool IsPalaceBreached()
     {

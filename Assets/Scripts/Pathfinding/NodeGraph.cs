@@ -259,11 +259,28 @@ public class NodeGraph : MonoBehaviour
 			{
 				toRemove.Add(kvp.Key);
 				kvp.Value.Removed = true;
-				Destroy(kvp.Value.NodeObject);
+				SafeDestroy(kvp.Value.NodeObject);
 			}
 		}
 
 		foreach (var index in toRemove) Nodes.Remove(index);
+	}
+
+	private static void SafeDestroy(UnityEngine.Object obj)
+	{
+		if (obj == null)
+			return;
+
+		if (Application.isPlaying)
+		{
+			Destroy(obj);
+			return;
+		}
+
+#if UNITY_EDITOR
+		// In Edit Mode, Destroy is not allowed. Node objects are debug-only, so immediate destroy is safe here.
+		UnityEngine.Object.DestroyImmediate(obj);
+#endif
 	}
 
 	List<Node> FindEdgeNodes()

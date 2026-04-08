@@ -294,20 +294,25 @@ public class EnemyGroupMemberAI : MonoBehaviour
                 break;
             case SquadRole.EngagePlayer:
                 if (player != null)
-                    ExecuteCombatAt(player.position, null, moveSpeed, sep, player.gameObject);
+                {
+                    // Spread attackers around the player (avoid all stacking on one angle).
+                    float approachRadius = Mathf.Max(meleeEngageRange * 1.05f, 2.2f);
+                    Vector3 movePoint = coordinator.GetEngageApproachPoint(this, approachRadius, 45f);
+                    ExecuteCombatAt(movePoint, player.position, null, moveSpeed, sep, player.gameObject);
+                }
                 break;
             case SquadRole.AttackDoor:
                 {
                     DoorBreakable d = coordinator.GetBestDoorToAttack(transform.position);
                     if (d != null)
-                        ExecuteCombatAt(d.transform.position, d.gameObject, moveSpeed, sep);
+                        ExecuteCombatAt(d.transform.position, d.transform.position, d.gameObject, moveSpeed, sep);
                     break;
                 }
             case SquadRole.AttackStone:
                 {
                     Transform stone = coordinator.GetMagicStoneTransform();
                     if (stone != null)
-                        ExecuteCombatAt(stone.position, stone.gameObject, moveSpeed, sep);
+                        ExecuteCombatAt(stone.position, stone.position, stone.gameObject, moveSpeed, sep);
                     break;
                 }
             case SquadRole.Search:
@@ -332,19 +337,20 @@ public class EnemyGroupMemberAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Move toward goal until within <see cref="meleeEngageRange"/>; then face goal and drive <see cref="AttackManager"/> (same AOE damage as player).
+    /// Move toward a point, but aim/attack a (potentially different) target point.
+    /// This lets us spread attackers around the player while still facing/attacking the player.
     /// <paramref name="damageTickTarget"/> — door/stone tick DPS when appropriate.
     /// <paramref name="playerFallbackMelee"/> — when engaging the player without <see cref="attackManager"/>, optional tick damage.
     /// </summary>
-    private void ExecuteCombatAt(Vector3 worldTarget, GameObject damageTickTarget, float speed, Vector3 sep, GameObject playerFallbackMelee = null)
+    private void ExecuteCombatAt(Vector3 moveTarget, Vector3 aimTarget, GameObject damageTickTarget, float speed, Vector3 sep, GameObject playerFallbackMelee = null)
     {
-        float dist = HorizontalDist(transform.position, worldTarget);
+        float dist = HorizontalDist(transform.position, aimTarget);
         bool inMeleeBand = dist <= meleeEngageRange;
         bool useAttackManager = attackManager != null;
 
         if (inMeleeBand)
         {
-            FaceTowards(worldTarget);
+            FaceTowards(aimTarget);
             if (useAttackManager)
                 TryFeedMeleeCombo();
 
@@ -368,7 +374,7 @@ public class EnemyGroupMemberAI : MonoBehaviour
                 if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
                     navMeshAgent.isStopped = false;
 #endif
-                MoveToward(worldTarget, speed, sep);
+                MoveToward(moveTarget, speed, sep);
             }
 
             if (damageTickTarget != null && (!useMeleeComboForObjectives || !useAttackManager))
@@ -386,7 +392,7 @@ public class EnemyGroupMemberAI : MonoBehaviour
                 navMeshAgent.isStopped = false;
             }
 #endif
-            MoveToward(worldTarget, speed, sep);
+            MoveToward(moveTarget, speed, sep);
 
             bool tickDamage = damageTickTarget != null &&
                               (!useAttackManager || !useMeleeComboForObjectives);
