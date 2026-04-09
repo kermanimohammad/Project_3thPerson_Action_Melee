@@ -5339,6 +5339,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 0
   destroyDelayAfterDeath: 0
   deathTriggerName: Death
+  disableAnimatorRootMotionOnDeath: 1
+  freezeRigidbodyAndHitSlideOnDeath: 1
+  disableCharacterControllerOnDeath: 1
   disableOtherBehavioursOnDeathWhenNotDestroyed: 1
   freezeAnimatorAfterDeathSeconds: 2.5
   disableAnimatorComponentAfterFreeze: 1
@@ -5530,7 +5533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   startingStamina: 100
-  regenPerSecond: 5
+  regenPerSecond: 15
   regenDelaySeconds: 0.75
   regenWhileSprinting: 1
   regenWhileBlocking: 1

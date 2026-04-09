@@ -34,16 +34,23 @@ public class EnemyWaveSpawner : MonoBehaviour
     public event Action<int, int> OnPreWaveCountdownStarted;
     /// <summary>Seconds left in pre-wave countdown (5..1), then 0 when finished.</summary>
     public event Action<int> OnPreWaveCountdownTick;
+    /// <summary>Long recovery between sets of waves (upcoming 1-based wave index, total seconds).</summary>
+    public event Action<int, int> OnRecoveryBreakStarted;
+    /// <summary>Seconds left in recovery break, then 0 when finished.</summary>
+    public event Action<int> OnRecoveryBreakTick;
     public event Action OnAllWavesCompleted;
 
     private int totalEnemiesInCurrentWave;
     private int killedEnemiesInCurrentWave;
+    private int totalEnemiesKilledOverall;
+    private int wavesClearedOverall;
 
     private readonly List<EnemyGroupRuntime> activeGroups = new();
     private List<Transform> currentWaveSpawnOrder = new();
 
     private bool _waitingForContinueBetweenWaves;
     private bool _continueToNextWaveRequested;
+    private bool _stopped;
 
     private void Start()
     {
@@ -60,18 +67,36 @@ public class EnemyWaveSpawner : MonoBehaviour
         StartCoroutine(SpawnNextWaveRoutine());
     }
 
+    /// <summary>Stops all spawning and prevents future waves from starting (e.g. player died).</summary>
+    public void StopSpawning()
+    {
+        if (_stopped)
+            return;
+        _stopped = true;
+        _waitingForContinueBetweenWaves = false;
+        _continueToNextWaveRequested = false;
+        waitingForNextWave = false;
+        StopAllCoroutines();
+    }
+
     /// <summary>Call from a UI continue button after a wave clear. Ignored if the spawner is not waiting.</summary>
     public void ConfirmContinueToNextWave()
     {
+        if (_stopped)
+            return;
         if (!_waitingForContinueBetweenWaves)
             return;
         _continueToNextWaveRequested = true;
     }
 
     public bool IsWaitingForPlayerContinue => _waitingForContinueBetweenWaves;
+    public int TotalEnemiesKilledOverall => totalEnemiesKilledOverall;
+    public int WavesClearedOverall => wavesClearedOverall;
 
     private IEnumerator SpawnNextWaveRoutine()
     {
+        if (_stopped)
+            yield break;
         currentWaveIndex++;
 
         if (!autoWaveSettings.InfiniteWaves && currentWaveIndex >= autoWaveSettings.FiniteTotalWaves)
@@ -81,12 +106,18 @@ public class EnemyWaveSpawner : MonoBehaviour
             yield break;
         }
 
+        int upcomingWave = currentWaveIndex + 1;
+        if (autoWaveSettings.ShouldInsertRecoveryBreakBeforeWave(upcomingWave))
+            yield return RecoveryBreakCoroutine(upcomingWave);
+
         yield return PreWaveCountdownCoroutine();
         yield return SpawnAutoWaveRoutine(currentWaveIndex);
     }
 
     private IEnumerator PreWaveCountdownCoroutine()
     {
+        if (_stopped)
+            yield break;
         int waveDisplay = currentWaveIndex + 1;
         int total = autoWaveSettings.TotalWavesForUi;
         OnPreWaveCountdownStarted?.Invoke(waveDisplay, total);
@@ -107,8 +138,32 @@ public class EnemyWaveSpawner : MonoBehaviour
         OnPreWaveCountdownTick?.Invoke(0);
     }
 
+    private IEnumerator RecoveryBreakCoroutine(int upcomingOneBasedWave)
+    {
+        if (_stopped)
+            yield break;
+        int total = autoWaveSettings.RecoveryBreakDurationSeconds;
+        OnRecoveryBreakStarted?.Invoke(upcomingOneBasedWave, total);
+
+        if (total <= 0)
+        {
+            OnRecoveryBreakTick?.Invoke(0);
+            yield break;
+        }
+
+        for (int t = total; t > 0; t--)
+        {
+            OnRecoveryBreakTick?.Invoke(t);
+            yield return new WaitForSeconds(1f);
+        }
+
+        OnRecoveryBreakTick?.Invoke(0);
+    }
+
     private IEnumerator SpawnAutoWaveRoutine(int waveIndex)
     {
+        if (_stopped)
+            yield break;
         Debug.Log($"Starting Auto Wave {waveIndex + 1}");
 
         activeGroups.Clear();
@@ -142,7 +197,8 @@ public class EnemyWaveSpawner : MonoBehaviour
         {
             Debug.Log($"Wave {waveIndex + 1} had no valid groups. Advancing after delay.");
             yield return new WaitForSeconds(autoWaveSettings.DelayAfterWaveCleared);
-            StartCoroutine(SpawnNextWaveRoutine());
+            if (!_stopped)
+                StartCoroutine(SpawnNextWaveRoutine());
         }
     }
 
@@ -268,8 +324,11 @@ public class EnemyWaveSpawner : MonoBehaviour
 
     private IEnumerator HandleWaveClearedRoutine()
     {
+        if (_stopped)
+            yield break;
         int clearedDisplay = currentWaveIndex + 1;
         Debug.Log($"Wave {clearedDisplay} cleared.");
+        wavesClearedOverall = Mathf.Max(wavesClearedOverall, clearedDisplay);
 
         bool moreRemain = autoWaveSettings.InfiniteWaves || clearedDisplay < autoWaveSettings.FiniteTotalWaves;
         var summary = new WaveClearSummary(
@@ -293,7 +352,8 @@ public class EnemyWaveSpawner : MonoBehaviour
             _continueToNextWaveRequested = false;
         }
 
-        StartCoroutine(SpawnNextWaveRoutine());
+        if (!_stopped)
+            StartCoroutine(SpawnNextWaveRoutine());
     }
 
     private int GetAutoGroupCountForWave(int waveIndex)
@@ -386,6 +446,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         member.OnMemberDied -= HandleSpawnedMemberDied;
 
         killedEnemiesInCurrentWave++;
+        totalEnemiesKilledOverall++;
         OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
     }
 }

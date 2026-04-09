@@ -23,6 +23,12 @@ public class AutoWaveSettings
     [SerializeField] private float delayAfterWaveCleared = 3f;
     [SerializeField] private float spawnScatterRadius = 1.5f;
 
+    [Header("Recovery between wave sets (e.g. heal at trees)")]
+    [Tooltip("After every N cleared waves, insert a long countdown before the next wave (player can use trees). 0 = disabled.")]
+    [SerializeField] private int recoveryBreakEveryNWaves = 5;
+    [Tooltip("Duration in seconds of that recovery countdown (e.g. 60).")]
+    [SerializeField, Min(0)] private int recoveryBreakDurationSeconds = 60;
+
     /// <summary>True when <see cref="totalWaves"/> is 0 — there is no final wave; the loop continues until the player uses Main Menu.</summary>
     public bool InfiniteWaves => totalWaves <= 0;
 
@@ -44,4 +50,20 @@ public class AutoWaveSettings
 
     public float DelayAfterWaveCleared => Mathf.Max(0f, delayAfterWaveCleared);
     public float SpawnScatterRadius => Mathf.Max(0f, spawnScatterRadius);
+
+    public int RecoveryBreakEveryNWaves => Mathf.Max(0, recoveryBreakEveryNWaves);
+    public int RecoveryBreakDurationSeconds => Mathf.Max(0, recoveryBreakDurationSeconds);
+
+    /// <summary>
+    /// True before spawning wave 6, 11, … when every = 5 (not before waves 1–5).
+    /// </summary>
+    public bool ShouldInsertRecoveryBreakBeforeWave(int upcomingOneBasedWaveNumber)
+    {
+        int n = RecoveryBreakEveryNWaves;
+        if (n <= 0 || upcomingOneBasedWaveNumber <= 0)
+            return false;
+        if (upcomingOneBasedWaveNumber <= n)
+            return false;
+        return (upcomingOneBasedWaveNumber - 1) % n == 0;
+    }
 }
