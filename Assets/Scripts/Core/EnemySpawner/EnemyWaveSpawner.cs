@@ -178,9 +178,9 @@ public class EnemyWaveSpawner : MonoBehaviour
 
         currentWaveSpawnOrder = BuildShuffledSpawnPointList();
         // Wave spawns: one 3-person squad per spawn point (A/B/C).
-        int groupCount = currentWaveSpawnOrder != null && currentWaveSpawnOrder.Count > 0
-            ? currentWaveSpawnOrder.Count
-            : 0;
+        int desiredGroupCount = GetAutoGroupCountForWave(waveIndex);
+        int availableSpawnPoints = currentWaveSpawnOrder != null ? currentWaveSpawnOrder.Count : 0;
+        int groupCount = Mathf.Min(desiredGroupCount, availableSpawnPoints);
 
         for (int groupIndex = 0; groupIndex < groupCount; groupIndex++)
         {
@@ -239,7 +239,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         string groupName = $"Wave_{waveIndex + 1}_Squad_{groupIndex + 1}";
         EnemyGroupRuntime runtime = new EnemyGroupRuntime(groupName, groupAIInstance);
 
-        int enemyCount = Mathf.Max(1, squadSize);
+        int enemyCount = GetAutoEnemyCountForGroup(waveIndex) <= 7 ? GetAutoEnemyCountForGroup(waveIndex) : 7;
 
         for (int i = 0; i < enemyCount; i++)
         {

@@ -38739,25 +38739,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyWaveSpawner
   playOnStart: 1
   autoWaveSettings:
-    totalWaves: 0
-    baseGroupsPerWave: 2
+    totalWaves: 5
+    baseGroupsPerWave: 1
     addGroupEveryNWaves: 1
-    maxGroupsPerWave: 6
+    maxGroupsPerWave: 2
     baseEnemiesPerGroup: 2
     enemyGrowthPerWave: 1
     enemyCountVariance: 1
-    preWaveCountdownSeconds: 5
+    preWaveCountdownSeconds: 3
     delayAfterWaveCleared: 3
     spawnScatterRadius: 3
-    recoveryBreakEveryNWaves: 5
-    recoveryBreakDurationSeconds: 60
-  waitForPlayerContinueBetweenWaves: 1
+    recoveryBreakEveryNWaves: 10
+    recoveryBreakDurationSeconds: 5
+  waitForPlayerContinueBetweenWaves: 0
   autoSpawnPoints:
   - {fileID: 644719263}
+  - {fileID: 1939693129}
+  - {fileID: 1989435269}
   autoGroupAIPrefab: {fileID: 6646304430914987252, guid: 621640364580b634d84f210f006ab47c, type: 3}
   autoEnemyPool:
   - enemyPrefab: {fileID: 5079681191551491444, guid: 1e8193bc0254c2e499d3964a87206b41, type: 3}
-    weight: 1
+    weight: 5
+  - enemyPrefab: {fileID: 5139190812975933402, guid: 46ec695e29545b24d8d43a833a0cfecd, type: 3}
+    weight: 2
+  - enemyPrefab: {fileID: 1241260480478666515, guid: 1b1801724ac1ba744820ee72b49c6af9, type: 3}
+    weight: 3
   squadSize: 3
   runtimeParent: {fileID: 0}
 --- !u!4 &1751161923
@@ -46839,7 +46845,7 @@ Transform:
   m_GameObject: {fileID: 1939693128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -67.97, y: 0.54, z: 2.8}
+  m_LocalPosition: {x: -67.97, y: 0.63, z: 2.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47796,7 +47802,7 @@ Transform:
   m_GameObject: {fileID: 1989435268}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.2, y: 0.63, z: -103.4}
+  m_LocalPosition: {x: 50.5, y: 0.63, z: 2.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
