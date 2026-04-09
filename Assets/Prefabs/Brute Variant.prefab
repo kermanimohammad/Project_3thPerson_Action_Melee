@@ -104,7 +104,8 @@ PrefabInstance:
       propertyPath: rewardAmount
       value: 300
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6192793088648756779, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

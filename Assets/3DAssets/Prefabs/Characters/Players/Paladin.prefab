@@ -5253,8 +5253,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0810ecc1646d1454bbc35469be9b7a4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
-  walkSpeed: 2
-  sprintSpeed: 6
+  walkSpeed: 3.5
+  sprintSpeed: 7
   rotationSmoothTime: 0.2
   moveDeadzone: 0.1
   locomotionDisplacementMultiplier: 0.75
@@ -5339,6 +5339,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 0
   destroyDelayAfterDeath: 0
   deathTriggerName: Death
+  disableAnimatorRootMotionOnDeath: 1
+  freezeRigidbodyAndHitSlideOnDeath: 1
+  disableCharacterControllerOnDeath: 1
   disableOtherBehavioursOnDeathWhenNotDestroyed: 1
   freezeAnimatorAfterDeathSeconds: 2.5
   disableAnimatorComponentAfterFreeze: 1
@@ -5530,15 +5533,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   startingStamina: 100
-  regenPerSecond: 5
-  regenDelaySeconds: 0.75
+  regenPerSecond: 10
+  regenDelaySeconds: 0.5
   regenWhileSprinting: 1
   regenWhileBlocking: 1
   attackCost: 3
   specialAttackCost: 20
   dodgeCost: 2
   sprintDrainPerSecond: 5
-  blockDrainPerSecond: 10
+  blockDrainPerSecond: 3
   minStaminaToSprint: 1
   minStaminaToBlock: 1
 --- !u!114 &1552980760011029547
