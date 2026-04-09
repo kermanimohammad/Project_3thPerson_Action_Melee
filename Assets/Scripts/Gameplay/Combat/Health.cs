@@ -33,6 +33,13 @@ public class Health : MonoBehaviour, IDamageableWithSource
     [SerializeField, Min(0f)] private float destroyDelayAfterDeath;
     [SerializeField] private string deathTriggerName = "Death";
 
+    [Tooltip("Turn off animator root motion on death so clips cannot keep rotating or sliding the body (common cause of spin while dead).")]
+    [SerializeField] private bool disableAnimatorRootMotionOnDeath = true;
+    [Tooltip("Disable EnemyHitMove and take Rigidbody out of physics (avoids CC+RB solver pops / upward launches on death).")]
+    [SerializeField] private bool freezeRigidbodyAndHitSlideOnDeath = true;
+    [Tooltip("Disables CharacterController after death so nothing can Move() the root (full position freeze with rigidbody freeze).")]
+    [SerializeField] private bool disableCharacterControllerOnDeath = true;
+
     [Header("Player-style death lock (optional)")]
     [Tooltip("If true and Destroy On Death is OFF, disables other behaviours on this GameObject after Death triggers (prevents movement/attacks/other animations).")]
     [SerializeField] private bool disableOtherBehavioursOnDeathWhenNotDestroyed = true;
@@ -56,9 +63,6 @@ public class Health : MonoBehaviour, IDamageableWithSource
     private Coroutine _deathRoutine;
     private Coroutine _deathLockRoutine;
     private bool _dead;
-    private bool _freezeYawAfterDeath;
-    private bool _deathYawCapturePending;
-    private float _lockedYawDegrees;
 
     private void Awake()
     {
@@ -68,22 +72,6 @@ public class Health : MonoBehaviour, IDamageableWithSource
         currentHealth = maxHealth;
         normalized01 = Normalized01;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-    }
-
-    private void LateUpdate()
-    {
-        if (_deathYawCapturePending)
-        {
-            _lockedYawDegrees = transform.eulerAngles.y;
-            _deathYawCapturePending = false;
-            _freezeYawAfterDeath = true;
-        }
-
-        if (!_freezeYawAfterDeath)
-            return;
-
-        Vector3 e = transform.eulerAngles;
-        transform.rotation = Quaternion.Euler(e.x, _lockedYawDegrees, e.z);
     }
 
     public void TakeDamage(float amount)
@@ -182,8 +170,6 @@ public class Health : MonoBehaviour, IDamageableWithSource
 
         TryPlayDeathAnimation();
 
-        BeginDeathYawFreeze();
-
         if (!destroyGameObjectOnDeath)
         {
             if (_deathLockRoutine != null)
@@ -250,67 +236,46 @@ public class Health : MonoBehaviour, IDamageableWithSource
             defense.enabled = false;
         }
 
-        foreach (var hitMove in GetComponentsInChildren<EnemyHitMove>(true))
+        if (freezeRigidbodyAndHitSlideOnDeath)
         {
-            if (hitMove != null)
-                hitMove.enabled = false;
-        }
-
-        foreach (var atk in GetComponentsInChildren<AttackManager>(true))
-        {
-            if (atk != null)
-                atk.enabled = false;
-        }
-
-        // Death clips / blends can still drive transform rotation via root motion — disable for the corpse window.
-        foreach (var anim in GetComponentsInChildren<Animator>(true))
-        {
-            if (anim != null)
-                anim.applyRootMotion = false;
-        }
-
-        // Non-kinematic Rigidbody + CharacterController on enemies: after AI stops, physics can still receive
-        // collision impulses → visible pops / launch upward. Freeze the corpse for the destroy delay window.
-        FreezePhysicsForDeathCorpse();
-    }
-
-    private void FreezePhysicsForDeathCorpse()
-    {
-        bool hasDynamicRigidbody = false;
-        foreach (var rb in GetComponentsInChildren<Rigidbody>(true))
-        {
-            if (rb != null && !rb.isKinematic)
+            foreach (var hitMove in GetComponentsInChildren<EnemyHitMove>(true))
             {
-                hasDynamicRigidbody = true;
-                break;
+                if (hitMove != null)
+                    hitMove.enabled = false;
+            }
+
+            // CC + Rigidbody on the same root: kinematic + FreezeAll + no collisions stops physics drift.
+            // (Rigidbody has no .enabled — it is not a Behaviour in Unity.)
+            foreach (var rb in GetComponentsInChildren<Rigidbody>(true))
+            {
+                if (rb == null)
+                    continue;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.detectCollisions = false;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+                rb.constraints = RigidbodyConstraints.FreezeAll;
             }
         }
 
-        // Player-style setups often use only CharacterController; do not disable CC unless a dynamic RB was driving conflicts.
-        if (!hasDynamicRigidbody)
-            return;
-
-        foreach (var cc in GetComponentsInChildren<CharacterController>(true))
+        if (disableCharacterControllerOnDeath)
         {
-            if (cc != null)
-                cc.enabled = false;
+            foreach (var cc in GetComponentsInChildren<CharacterController>(true))
+            {
+                if (cc != null)
+                    cc.enabled = false;
+            }
         }
 
-        foreach (var rb in GetComponentsInChildren<Rigidbody>(true))
+        foreach (var anim in GetComponentsInChildren<Animator>(true))
         {
-            if (rb == null)
+            if (anim == null)
                 continue;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-            rb.useGravity = false;
-            rb.constraints |= RigidbodyConstraints.FreezeRotationY;
+            anim.ResetTrigger(AnimParams.Hit);
+            if (disableAnimatorRootMotionOnDeath)
+                anim.applyRootMotion = false;
         }
-    }
-
-    private void BeginDeathYawFreeze()
-    {
-        _deathYawCapturePending = true;
     }
 
     private void TryPlayDeathAnimation()

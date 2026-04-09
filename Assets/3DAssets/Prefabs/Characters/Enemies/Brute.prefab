@@ -796,6 +796,7 @@ RectTransform:
   m_Children:
   - {fileID: 4743662989768939175}
   - {fileID: 8717720299910627186}
+  - {fileID: 1400405493205586793}
   m_Father: {fileID: 2789964735152092703}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -821,7 +822,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -1029,6 +1030,143 @@ Transform:
   - {fileID: 5185271872988803258}
   m_Father: {fileID: 2238942531919269036}
   m_LocalEulerAnglesHint: {x: 11.305, y: -17.217, z: -3.303}
+--- !u!1 &1383095132186538226
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1400405493205586793}
+  - component: {fileID: 4775136588675203767}
+  - component: {fileID: 1412569891267535061}
+  m_Layer: 5
+  m_Name: Text (TMP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1400405493205586793
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383095132186538226}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9151148465038299949}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 269.9}
+  m_SizeDelta: {x: 675.6, y: 239.7}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &4775136588675203767
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383095132186538226}
+  m_CullTransparentMesh: 1
+--- !u!114 &1412569891267535061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383095132186538226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: New Text
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294115583
+  m_fontColor: {r: 1, g: 0, b: 0.9532509, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 47.65
+  m_fontSizeBase: 47.65
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1390046368623954215
 GameObject:
   m_ObjectHideFlags: 0
@@ -3816,18 +3954,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5829103847562019384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4561012089398350741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e060e4c53d1a9a84fb1b23e8daa93014, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationEventNoopReceiver
 --- !u!54 &6192793088648756779
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3907,6 +4033,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 1
   destroyDelayAfterDeath: 5
   deathTriggerName: Death
+  disableAnimatorRootMotionOnDeath: 1
+  freezeRigidbodyAndHitSlideOnDeath: 1
+  disableCharacterControllerOnDeath: 1
   disableOtherBehavioursOnDeathWhenNotDestroyed: 1
   freezeAnimatorAfterDeathSeconds: 0
   disableAnimatorComponentAfterFreeze: 0
@@ -3948,8 +4077,8 @@ MonoBehaviour:
   animator: {fileID: 7994635633643849200}
   attacks:
   - animationTrigger: Attack1
-    damageToCharacters: 10
-    damageToDoors: 0
+    damageToCharacters: 3
+    damageToDoors: 3
     timeToResetCombo: 1
     colliderType: 0
     forwardOffset: 1
@@ -3973,7 +4102,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefense
   animator: {fileID: 7994635633643849200}
-  disableRootMotionWhileDefending: 1
   <DamageReductionPercentage>k__BackingField: 0.5
 --- !u!114 &4154957048638693524
 MonoBehaviour:
@@ -3994,6 +4122,7 @@ MonoBehaviour:
   graph: {fileID: 0}
   jumpHeight: 1.15
   jumpDuration: 0.5
+  facingSlerpSharpness: 10
 --- !u!143 &1544198582936610108
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4035,6 +4164,7 @@ MonoBehaviour:
   selfHealth: {fileID: 0}
   stamina: {fileID: 0}
   enemyHitMove: {fileID: 0}
+  characterDefense: {fileID: 0}
   characterController: {fileID: 0}
   animator: {fileID: 0}
   animatorSpeedParam: Speed
@@ -4044,8 +4174,17 @@ MonoBehaviour:
   fleeSpeedMultiplier: 1.35
   lowStaminaWalkThreshold01: 0.2
   lowStaminaWalkSpeedMultiplier: 0.45
+  engageHealthyHpThreshold: 0.5
+  engageDefensiveHpThreshold: 0.2
+  engageRunSpeedMultiplier: 1
+  engageCautiousWalkSpeedMultiplier: 0.45
+  engageLowHpDefendPhaseMinSeconds: 1
+  engageLowHpDefendPhaseMaxSeconds: 2.2
+  engageLowHpAttackPhaseMinSeconds: 0.28
+  engageLowHpAttackPhaseMaxSeconds: 0.55
   separationRadius: 4
   separationWeight: 0.85
+  separationResponseSmoothTime: 0.12
   arriveDistance: 1.35
   searchMoveDistance: 22
   customMover: {fileID: 0}
@@ -4054,18 +4193,25 @@ MonoBehaviour:
   fleeHpMissingPeak: 0.55
   delegateWhenNearPlayerCount: 2
   roleSwitchCooldown: 0.35
+  fuzzyRoleSwitchMinScoreAdvantage: 0.12
+  moveDirectionSmoothTime: 0.22
   forceEngagePlayerRole: 0
   forceObjectiveRole: 0
+  objectivePlayerInterruptRadius: 0
+  objectivePlayerInterruptReleaseMargin: 1.25
   damagePerSecondToObjectives: 18
   objectiveDamageRange: 2.1
   attackManager: {fileID: 0}
   meleeEngageRange: 2.25
   faceTargetTurnSpeedDegrees: 540
+  moveFacingSlerpSharpness: 10
   attackInputRepeatInterval: 0.12
   useMeleeComboForObjectives: 1
   pauseLocomotionDuringAttackAnim: 1
   stopAtMeleeRange: 1
   fallbackTickDamageToPlayerWithoutAttackManager: 1
+  decisionDebugLabel: {fileID: 0}
+  showDecisionDebug: 1
 --- !u!114 &2850514767574889999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4117,6 +4263,18 @@ MonoBehaviour:
   moveDistance: 0.55
   moveDurationSeconds: 0.12
   moveAwayFromSource: 1
+--- !u!114 &5829103847562019384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4561012089398350741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e060e4c53d1a9a84fb1b23e8daa93014, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationEventNoopReceiver
 --- !u!1 &4808274984867226453
 GameObject:
   m_ObjectHideFlags: 0

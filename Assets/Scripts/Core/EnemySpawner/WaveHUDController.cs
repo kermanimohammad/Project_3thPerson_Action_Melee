@@ -45,9 +45,9 @@ public class WaveHUDController : MonoBehaviour
             killedEnemiesText.text = $"{killPrefix}{killed}/{total}";
     }
 
-    private void HandleWaveCleared(int clearedWave)
+    private void HandleWaveCleared(WaveClearSummary summary)
     {
         if (waveText != null)
-            waveText.text = $"Wave {clearedWave} cleared!";
+            waveText.text = $"Wave {summary.ClearedWaveNumber} cleared!";
     }
 }

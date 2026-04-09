@@ -8,6 +8,8 @@ public class EnemyWaveSpawner : MonoBehaviour
     [Header("Wave Setup")]
     [SerializeField] private bool playOnStart = true;
     [SerializeField] private AutoWaveSettings autoWaveSettings;
+    [Tooltip("If true, after a wave is cleared the next wave does not start until ConfirmContinueToNextWave() (e.g. UI button).")]
+    [SerializeField] private bool waitForPlayerContinueBetweenWaves = true;
 
     [Header("Spawn Sources")]
     [SerializeField] private Transform[] autoSpawnPoints;
@@ -25,15 +27,23 @@ public class EnemyWaveSpawner : MonoBehaviour
     private bool started;
     private bool waitingForNextWave;
 
-    public event Action<int, int> OnWaveStarted;        
-    public event Action<int, int> OnKillCountChanged;   
-    public event Action<int> OnWaveCleared;       
+    public event Action<int, int> OnWaveStarted;
+    public event Action<int, int> OnKillCountChanged;
+    public event Action<WaveClearSummary> OnWaveCleared;
+    /// <summary>About to show pre-wave countdown for this 1-based wave index.</summary>
+    public event Action<int, int> OnPreWaveCountdownStarted;
+    /// <summary>Seconds left in pre-wave countdown (5..1), then 0 when finished.</summary>
+    public event Action<int> OnPreWaveCountdownTick;
+    public event Action OnAllWavesCompleted;
 
     private int totalEnemiesInCurrentWave;
     private int killedEnemiesInCurrentWave;
 
     private readonly List<EnemyGroupRuntime> activeGroups = new();
     private List<Transform> currentWaveSpawnOrder = new();
+
+    private bool _waitingForContinueBetweenWaves;
+    private bool _continueToNextWaveRequested;
 
     private void Start()
     {
@@ -50,6 +60,16 @@ public class EnemyWaveSpawner : MonoBehaviour
         StartCoroutine(SpawnNextWaveRoutine());
     }
 
+    /// <summary>Call from a UI continue button after a wave clear. Ignored if the spawner is not waiting.</summary>
+    public void ConfirmContinueToNextWave()
+    {
+        if (!_waitingForContinueBetweenWaves)
+            return;
+        _continueToNextWaveRequested = true;
+    }
+
+    public bool IsWaitingForPlayerContinue => _waitingForContinueBetweenWaves;
+
     private IEnumerator SpawnNextWaveRoutine()
     {
         currentWaveIndex++;
@@ -57,10 +77,34 @@ public class EnemyWaveSpawner : MonoBehaviour
         if (currentWaveIndex >= autoWaveSettings.TotalWaves)
         {
             Debug.Log("All auto-generated waves completed.");
+            OnAllWavesCompleted?.Invoke();
             yield break;
         }
 
-        yield return StartCoroutine(SpawnAutoWaveRoutine(currentWaveIndex));
+        yield return PreWaveCountdownCoroutine();
+        yield return SpawnAutoWaveRoutine(currentWaveIndex);
+    }
+
+    private IEnumerator PreWaveCountdownCoroutine()
+    {
+        int waveDisplay = currentWaveIndex + 1;
+        int total = autoWaveSettings.TotalWaves;
+        OnPreWaveCountdownStarted?.Invoke(waveDisplay, total);
+
+        int sec = autoWaveSettings.PreWaveCountdownSeconds;
+        if (sec <= 0)
+        {
+            OnPreWaveCountdownTick?.Invoke(0);
+            yield break;
+        }
+
+        for (int t = sec; t > 0; t--)
+        {
+            OnPreWaveCountdownTick?.Invoke(t);
+            yield return new WaitForSeconds(1f);
+        }
+
+        OnPreWaveCountdownTick?.Invoke(0);
     }
 
     private IEnumerator SpawnAutoWaveRoutine(int waveIndex)
@@ -224,10 +268,31 @@ public class EnemyWaveSpawner : MonoBehaviour
 
     private IEnumerator HandleWaveClearedRoutine()
     {
-        Debug.Log($"Wave {currentWaveIndex + 1} cleared.");
-        OnWaveCleared?.Invoke(currentWaveIndex + 1);
+        int clearedDisplay = currentWaveIndex + 1;
+        Debug.Log($"Wave {clearedDisplay} cleared.");
 
-        yield return new WaitForSeconds(autoWaveSettings.DelayAfterWaveCleared);
+        bool moreRemain = clearedDisplay < autoWaveSettings.TotalWaves;
+        var summary = new WaveClearSummary(
+            clearedDisplay,
+            killedEnemiesInCurrentWave,
+            totalEnemiesInCurrentWave,
+            autoWaveSettings.TotalWaves,
+            moreRemain);
+
+        OnWaveCleared?.Invoke(summary);
+
+        if (autoWaveSettings.DelayAfterWaveCleared > 0f)
+            yield return new WaitForSeconds(autoWaveSettings.DelayAfterWaveCleared);
+
+        if (waitForPlayerContinueBetweenWaves)
+        {
+            _waitingForContinueBetweenWaves = true;
+            _continueToNextWaveRequested = false;
+            yield return new WaitUntil(() => _continueToNextWaveRequested);
+            _waitingForContinueBetweenWaves = false;
+            _continueToNextWaveRequested = false;
+        }
+
         StartCoroutine(SpawnNextWaveRoutine());
     }
 

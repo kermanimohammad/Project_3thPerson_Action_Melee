@@ -17,6 +17,8 @@ public class AutoWaveSettings
     [SerializeField] private int enemyCountVariance = 1;
 
     [Header("Spawn")]
+    [Tooltip("Seconds shown before each wave spawns (recovery time). 0 skips countdown.")]
+    [SerializeField, Min(0)] private int preWaveCountdownSeconds = 5;
     [SerializeField] private float delayAfterWaveCleared = 3f;
     [SerializeField] private float spawnScatterRadius = 1.5f;
 
@@ -28,6 +30,8 @@ public class AutoWaveSettings
     public int BaseEnemiesPerGroup => Mathf.Max(1, baseEnemiesPerGroup);
     public float EnemyGrowthPerWave => enemyGrowthPerWave;
     public int EnemyCountVariance => Mathf.Max(0, enemyCountVariance);
+
+    public int PreWaveCountdownSeconds => Mathf.Max(0, preWaveCountdownSeconds);
 
     public float DelayAfterWaveCleared => Mathf.Max(0f, delayAfterWaveCleared);
     public float SpawnScatterRadius => Mathf.Max(0f, spawnScatterRadius);

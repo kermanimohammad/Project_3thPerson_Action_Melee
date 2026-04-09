@@ -11,8 +11,10 @@ public class EnemyMover : MonoBehaviour
 	[SerializeField] private NodeGraph graph;
 	[SerializeField] private float jumpHeight = 1.15f;
 	[SerializeField] private float jumpDuration = 0.5f;
-	[Tooltip("Max yaw deg/s when rotating toward move velocity. Inspector on EnemyGroupMemberAI also has align-to-velocity when using that path.")]
-	[SerializeField, Min(1f)] private float alignToVelocityMaxDegreesPerSecond = 220f;
+	[Tooltip("Yaw blend speed toward move/jump facing (Slerp t = this * deltaTime). Inspector on EnemyGroupMemberAI also has moveFacingSlerpSharpness when using squad AI without this mover.")]
+	[SerializeField, Min(0.1f)] private float facingSlerpSharpness = 10f;
+	[Tooltip("Smooth planar heading toward each waypoint after mixing squad separation. Reduces spinning when avoidance and path direction fight (e.g. low speed + EngagePlayer).")]
+	[SerializeField, Min(0f)] private float waypointSteerSmoothTime = 0.2f;
 
 	private Vector3 _velocity;
 	private Vector3 _groupSeparationVector;
@@ -23,8 +25,20 @@ public class EnemyMover : MonoBehaviour
 	private Vector3 jumpStart;
 	private Vector3 jumpEnd;
 	private float jumpTimer = 0f;
+	private Vector3 _waypointSteerSmoothed;
+	private Vector3 _waypointSteerVelocity;
+	private bool _waypointSteerInitialized;
 
 	public float CurrentSpeed => speed;
+
+	/// <summary>
+	/// True when <see cref="RecalculatePathFinding"/> produced a path with remaining waypoints.
+	/// If false, callers should fall back to NavMesh/direct steering (graph may be disconnected from goal).
+	/// </summary>
+	public bool HasValidMovementPath()
+	{
+		return currentPath != null && currentIndex < currentPath.Count;
+	}
 
 	/// <summary>
 	/// Allows higher-level AI to scale movement speed (e.g., walk when low stamina).
@@ -59,6 +73,28 @@ public class EnemyMover : MonoBehaviour
 		else
 			dir = combined.normalized;
 
+		if (waypointSteerSmoothTime > 1e-5f)
+		{
+			if (!_waypointSteerInitialized)
+			{
+				_waypointSteerSmoothed = dir;
+				_waypointSteerVelocity = Vector3.zero;
+				_waypointSteerInitialized = true;
+			}
+
+			_waypointSteerSmoothed = Vector3.SmoothDamp(
+				_waypointSteerSmoothed,
+				dir,
+				ref _waypointSteerVelocity,
+				waypointSteerSmoothTime,
+				Mathf.Infinity,
+				Time.deltaTime);
+			_waypointSteerSmoothed.y = 0f;
+			dir = _waypointSteerSmoothed.sqrMagnitude > 1e-6f
+				? _waypointSteerSmoothed.normalized
+				: dir;
+		}
+
 		float effectiveSpeed = speed * Mathf.Clamp(speedMultiplier, 0f, 10f) * _externalSpeedMultiplier;
 		_velocity = dir * effectiveSpeed;
 
@@ -69,11 +105,8 @@ public class EnemyMover : MonoBehaviour
 
 	public void Move()
 	{
-		if (currentPath == null || currentIndex >= currentPath.Count)
-		{
-			Debug.LogWarning($"Null Path Detected for {gameObject.name}");
+		if (!HasValidMovementPath())
 			return;
-		}
 
 		var currentNode = currentPath[currentIndex];
 
@@ -133,11 +166,11 @@ public class EnemyMover : MonoBehaviour
 		look.y = 0f;
 		if (look.sqrMagnitude > 0.001f)
 		{
-			Quaternion targetRot = Quaternion.LookRotation(look.normalized);
-			transform.rotation = Quaternion.RotateTowards(
+			transform.rotation = Quaternion.Slerp(
 				transform.rotation,
-				targetRot,
-				alignToVelocityMaxDegreesPerSecond * Time.deltaTime);
+				Quaternion.LookRotation(look.normalized),
+				facingSlerpSharpness * Time.deltaTime
+			);
 		}
 
 		animator.SetFloat(AnimParams.Speed, speed);
@@ -172,6 +205,8 @@ public class EnemyMover : MonoBehaviour
 		currentPath = Pathfinding.FindPath(start, dest, destination);
 		isJumping = false;
 		currentIndex = 0;
+		_waypointSteerInitialized = false;
+		_waypointSteerVelocity = Vector3.zero;
 	}
 
 	private void ApplyMove(Vector3 planarVelocity, float speed)
@@ -185,11 +220,10 @@ public class EnemyMover : MonoBehaviour
 			{
 				Vector3 look = planarVelocity;
 				look.y = 0f;
-				Quaternion targetRot = Quaternion.LookRotation(look.normalized);
-				transform.rotation = Quaternion.RotateTowards(
+				transform.rotation = Quaternion.Slerp(
 					transform.rotation,
-					targetRot,
-					alignToVelocityMaxDegreesPerSecond * Time.deltaTime);
+					Quaternion.LookRotation(look.normalized),
+					facingSlerpSharpness * Time.deltaTime);
 			}
 		}
 		else

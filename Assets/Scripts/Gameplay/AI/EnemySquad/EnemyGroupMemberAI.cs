@@ -1,4 +1,6 @@
+using System.Text;
 using UnityEngine;
+using TMPro;
 #if UNITY_AI_NAVIGATION
 using UnityEngine.AI;
 #endif
@@ -77,6 +79,10 @@ public class EnemyGroupMemberAI : MonoBehaviour
     [Tooltip("How often to recompute a path while chasing a goal using the custom mover.")]
     [SerializeField, Min(0.05f)] private float customPathRecalcInterval = 0.5f;
     [SerializeField, Min(0f)] private float customPathRecalcDistance = 1.0f;
+    [Tooltip("Smooth the world position fed into graph pathfinding. Engage slots orbit the player and jitter each frame; smoothing avoids constant path resets and in-place spinning.")]
+    [SerializeField, Min(0f)] private float customPathGoalSmoothTime = 0.22f;
+    [Tooltip("If the raw move goal jumps farther than this (m), snap the smoothed path goal (role switch / teleport).")]
+    [SerializeField, Min(1f)] private float customPathGoalTeleportSnapDistance = 14f;
 
     [Header("Fuzzy / behaviour")]
     [Tooltip("If missing HP fraction is above this, flee desire is high.")]
@@ -84,6 +90,12 @@ public class EnemyGroupMemberAI : MonoBehaviour
     [SerializeField] private float delegateWhenNearPlayerCount = 2f;
     [Tooltip("Seconds before re-evaluating role (hysteresis).")]
     [SerializeField] private float roleSwitchCooldown = 0.35f;
+    [Tooltip("Fuzzy AI: new role must lead current role's score by at least this much to switch (stops tight loops between fight / door / stone / search).")]
+    [SerializeField, Range(0f, 0.45f)] private float fuzzyRoleSwitchMinScoreAdvantage = 0.12f;
+
+    [Header("Steering (decision vs separation)")]
+    [Tooltip("Smooth final planar heading after goal + separation. Reduces spinning when ally avoidance and chase direction fight each frame.")]
+    [SerializeField, Min(0f)] private float moveDirectionSmoothTime = 0.22f;
 
     [Header("Wave squad role override (optional)")]
     [Tooltip("If enabled, this member will always try to fight the player (ignores fuzzy role switching).")]
@@ -107,10 +119,10 @@ public class EnemyGroupMemberAI : MonoBehaviour
     [SerializeField] private AttackManager attackManager;
     [Tooltip("Horizontal distance to current goal (player / door / stone) at or below which we face the target and feed the AttackManager combo (TryAttack), same damage pipeline as player AOE.")]
     [SerializeField] private float meleeEngageRange = 2.25f;
-    [Tooltip("Max yaw deg/s when facing the aim target (player / door / stone) in melee.")]
+    [Tooltip("Max degrees per second when rotating to face the aim target in melee (FaceTowards).")]
     [SerializeField, Min(1f)] private float faceTargetTurnSpeedDegrees = 540f;
-    [Tooltip("Max yaw deg/s when aligning to planar velocity (NavMesh/CC move). Lower = less twitch when velocity jitters.")]
-    [SerializeField, Min(1f)] private float alignToVelocityMaxDegreesPerSecond = 220f;
+    [Tooltip("When moving with CharacterController, how fast yaw blends toward velocity direction (Slerp t = this * deltaTime). Higher = snappier; lower reduces twitching when velocity jitters.")]
+    [SerializeField, Min(0.1f)] private float moveFacingSlerpSharpness = 10f;
     [Tooltip("How often to call TryAttack while in range (buffers next combo hits like repeated player input).")]
     [SerializeField, Min(0.02f)] private float attackInputRepeatInterval = 0.12f;
     [Tooltip("If true, door/stone damage uses melee AOE only when AttackManager is set; if false, keep tick damage outside melee range or as fallback inside range.")]
@@ -119,8 +131,17 @@ public class EnemyGroupMemberAI : MonoBehaviour
     [SerializeField] private bool pauseLocomotionDuringAttackAnim = true;
     [Tooltip("If true, once within meleeEngageRange the enemy stops advancing (prevents sticking to the target).")]
     [SerializeField] private bool stopAtMeleeRange = true;
+    [Tooltip("When stopAtMeleeRange is on for EngagePlayer: keep holding position until the player is this much farther than meleeEngageRange before chasing again. Stops move/idle animation jitter at the edge.")]
+    [SerializeField, Min(0f)] private float meleeChaseResumeHysteresis = 0.42f;
+    [Tooltip("Smooth animator Speed toward the real locomotion speed (reduces twitch when speed hovers near zero). 0 = no smoothing.")]
+    [SerializeField, Min(0f)] private float animatorLocomotionSpeedSmoothTime = 0.1f;
     [Tooltip("If no AttackManager is present, still apply tick damage to the player when within meleeEngageRange (so AI is not harmless).")]
     [SerializeField] private bool fallbackTickDamageToPlayerWithoutAttackManager = true;
+
+    [Header("Debug display (optional)")]
+    [Tooltip("World-space TextMeshPro or UI TMP_Text. Shows target, role, and locomotion each frame, e.g. \"Player - EngagePlayer - Run - NavMesh\".")]
+    [SerializeField] private TMP_Text decisionDebugLabel;
+    [SerializeField] private bool showDecisionDebug = true;
 
     public SquadRole CurrentRole { get; private set; } = SquadRole.Search;
 
@@ -131,8 +152,13 @@ public class EnemyGroupMemberAI : MonoBehaviour
     private int _isGroundedParamHash;
     private float _nextCustomPathRecalcTime;
     private Vector3 _lastCustomPathGoal;
+    private Vector3 _customPathGoalSmoothed;
+    private Vector3 _customPathGoalSmoothVelocity;
+    private bool _customPathGoalSmoothActive;
     private Vector3 _smoothedSeparation;
     private Vector3 _sepSmoothVelocity;
+    private Vector3 _smoothedPlanarMoveDirXZ;
+    private Vector3 _moveDirSmoothVelocity;
 #if UNITY_AI_NAVIGATION
     private Vector3 _lastNavMeshDestination;
     private bool _hasNavMeshDestination;
@@ -147,6 +173,13 @@ public class EnemyGroupMemberAI : MonoBehaviour
 
     /// <summary>True while we temporarily switched from door/stone to fighting the player until they leave range or die.</summary>
     private bool _objectiveInterruptLatch;
+
+    /// <summary>When true, <see cref="EnemyMover.Move"/> ran this frame and drove animator Speed; otherwise squad AI may set Speed from <see cref="_velocity"/>.</summary>
+    private bool _customMoverDroveAnimThisFrame;
+
+    /// <summary>Sticky melee band for EngagePlayer + stopAtMeleeRange (Schmitt trigger vs raw dist &lt;= meleeEngageRange).</summary>
+    private bool _engageMeleeBandLatch;
+    private float _animatorSpeedSmoothVelocity;
 
     private void Awake()
     {
@@ -172,6 +205,10 @@ public class EnemyGroupMemberAI : MonoBehaviour
             attackManager = GetComponentInChildren<AttackManager>(true);
 
         _isGroundedParamHash = Animator.StringToHash(animatorIsGroundedParameter);
+
+        Vector3 f = transform.forward;
+        f.y = 0f;
+        _smoothedPlanarMoveDirXZ = f.sqrMagnitude > 1e-6f ? f.normalized : Vector3.forward;
     }
 
     private void OnEnable()
@@ -190,9 +227,16 @@ public class EnemyGroupMemberAI : MonoBehaviour
     private void Update()
     {
         if (coordinator == null || selfHealth == null)
+        {
+            RefreshDecisionDebugLabelUnavailable("NoCoordinator");
             return;
+        }
+
         if (selfHealth.IsDead)
+        {
+            RefreshDecisionDebugLabelUnavailable("Dead");
             return;
+        }
 
         if (forceEngagePlayerRole || forceObjectiveRole)
             EvaluateForcedRole();
@@ -202,6 +246,7 @@ public class EnemyGroupMemberAI : MonoBehaviour
         ExecuteCurrentRole();
         UpdateStamina();
         UpdateAnimatorGrounded();
+        RefreshDecisionDebugLabel();
     }
 
     private void UpdateStamina()
@@ -413,6 +458,22 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (TryBeginObjectivePlayerInterrupt(hasPlayer, objectiveEligible))
             _desiredRole = SquadRole.EngagePlayer;
 
+        float RoleScore(SquadRole r) => r switch
+        {
+            SquadRole.Flee => fleeScore,
+            SquadRole.EngagePlayer => fightScore,
+            SquadRole.AttackDoor => doorScore,
+            SquadRole.AttackStone => stoneScore,
+            SquadRole.Search => searchScore,
+            _ => 0f
+        };
+
+        if (_desiredRole != CurrentRole
+            && RoleScore(_desiredRole) - RoleScore(CurrentRole) < fuzzyRoleSwitchMinScoreAdvantage)
+        {
+            _desiredRole = CurrentRole;
+        }
+
         if (_desiredRole != CurrentRole)
         {
             if (IsOffensiveRole(CurrentRole) && !IsOffensiveRole(_desiredRole))
@@ -508,15 +569,9 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (ShouldSuppressLocomotionForHitReaction())
             return;
 
-        if (characterDefense != null && characterDefense.IsDefending)
-        {
-            HaltLocomotionWhileDefending();
-            if (CurrentRole == SquadRole.EngagePlayer && coordinator != null && coordinator.PlayerTransform != null)
-                FaceTowards(coordinator.PlayerTransform.position);
-            if (animator != null && !string.IsNullOrEmpty(animatorSpeedParam))
-                animator.SetFloat(animatorSpeedParam, 0f);
-            return;
-        }
+        _customMoverDroveAnimThisFrame = false;
+        if (CurrentRole != SquadRole.EngagePlayer)
+            _engageMeleeBandLatch = false;
 
         Vector3 rawSep = coordinator != null
             ? coordinator.GetSeparationHint(transform.position, separationRadius, separationWeight)
@@ -574,18 +629,33 @@ public class EnemyGroupMemberAI : MonoBehaviour
                 break;
         }
 
-        // If we are using the project's custom mover, it already drives Speed/IsGrounded.
-        if (customMover != null)
+        // Custom mover drives Speed only when it actually stepped the path this frame; otherwise NavMesh/direct path sets _velocity.
+        if (customMover != null && _customMoverDroveAnimThisFrame)
             return;
 
         if (animator != null && !string.IsNullOrEmpty(animatorSpeedParam))
         {
 #if UNITY_AI_NAVIGATION
-            float spd = navMeshAgent != null && navMeshAgent.isOnNavMesh ? navMeshAgent.velocity.magnitude : _velocity.magnitude;
+            float targetSpd = navMeshAgent != null && navMeshAgent.isOnNavMesh ? navMeshAgent.velocity.magnitude : _velocity.magnitude;
 #else
-            float spd = _velocity.magnitude;
+            float targetSpd = _velocity.magnitude;
 #endif
-            animator.SetFloat(animatorSpeedParam, spd);
+            if (animatorLocomotionSpeedSmoothTime > 1e-5f)
+            {
+                float smoothed = Mathf.SmoothDamp(
+                    animator.GetFloat(animatorSpeedParam),
+                    targetSpd,
+                    ref _animatorSpeedSmoothVelocity,
+                    animatorLocomotionSpeedSmoothTime,
+                    Mathf.Infinity,
+                    Time.deltaTime);
+                animator.SetFloat(animatorSpeedParam, smoothed);
+            }
+            else
+            {
+                _animatorSpeedSmoothVelocity = 0f;
+                animator.SetFloat(animatorSpeedParam, targetSpd);
+            }
         }
     }
 
@@ -602,7 +672,21 @@ public class EnemyGroupMemberAI : MonoBehaviour
         float holdRadius = objectiveHoldGround && damageTickTarget != null
             ? Mathf.Max(meleeEngageRange, objectiveDamageRange)
             : meleeEngageRange;
-        bool inMeleeBand = dist <= holdRadius;
+        bool inMeleeBand;
+        if (stopAtMeleeRange && !objectiveHoldGround && applyEngagePlayerHpCombat && meleeChaseResumeHysteresis > 1e-5f)
+        {
+            if (_engageMeleeBandLatch)
+            {
+                if (dist > holdRadius + meleeChaseResumeHysteresis)
+                    _engageMeleeBandLatch = false;
+            }
+            else if (dist <= holdRadius)
+                _engageMeleeBandLatch = true;
+
+            inMeleeBand = _engageMeleeBandLatch;
+        }
+        else
+            inMeleeBand = dist <= holdRadius;
         bool useAttackManager = attackManager != null;
         bool allowMeleeFeed = true;
 
@@ -617,7 +701,6 @@ public class EnemyGroupMemberAI : MonoBehaviour
             // Door/stone: stand in place, face objective, strike — no orbit from separation steering.
             bool shouldStop = objectiveHoldGround
                 || stopAtMeleeRange
-                || (characterDefense != null && characterDefense.IsDefending)
                 || (useAttackManager && pauseLocomotionDuringAttackAnim && attackManager.InAttackState());
             if (shouldStop)
             {
@@ -653,29 +736,14 @@ public class EnemyGroupMemberAI : MonoBehaviour
         }
         else
         {
-            bool defendingNow = characterDefense != null && characterDefense.IsDefending;
-            if (!defendingNow)
-            {
 #if UNITY_AI_NAVIGATION
-                if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
-                {
-                    navMeshAgent.stoppingDistance = 0f;
-                    navMeshAgent.isStopped = false;
-                }
-#endif
-                MoveToward(moveTarget, speed, sep);
-            }
-            else
+            if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
             {
-                _velocity = Vector3.zero;
-#if UNITY_AI_NAVIGATION
-                if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
-                {
-                    navMeshAgent.isStopped = true;
-                    navMeshAgent.ResetPath();
-                }
-#endif
+                navMeshAgent.stoppingDistance = 0f;
+                navMeshAgent.isStopped = false;
             }
+#endif
+            MoveToward(moveTarget, speed, sep);
 
             bool tickDamage = damageTickTarget != null &&
                               (!useAttackManager || !useMeleeComboForObjectives);
@@ -693,18 +761,6 @@ public class EnemyGroupMemberAI : MonoBehaviour
 
         Quaternion targetRot = Quaternion.LookRotation(d.normalized);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, faceTargetTurnSpeedDegrees * Time.deltaTime);
-    }
-
-    private void HaltLocomotionWhileDefending()
-    {
-        _velocity = Vector3.zero;
-#if UNITY_AI_NAVIGATION
-        if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
-        {
-            navMeshAgent.isStopped = true;
-            navMeshAgent.ResetPath();
-        }
-#endif
     }
 
     private void TryFeedMeleeCombo()
@@ -735,6 +791,46 @@ public class EnemyGroupMemberAI : MonoBehaviour
         return combined.normalized;
     }
 
+    private Vector3 SmoothSteeringDirection(Vector3 rawPlanarDirection)
+    {
+        rawPlanarDirection.y = 0f;
+        if (rawPlanarDirection.sqrMagnitude < 1e-6f)
+        {
+            Vector3 f = transform.forward;
+            f.y = 0f;
+            rawPlanarDirection = f.sqrMagnitude > 1e-6f ? f.normalized : Vector3.forward;
+        }
+        else
+            rawPlanarDirection.Normalize();
+
+        if (moveDirectionSmoothTime <= 0.0001f)
+        {
+            _smoothedPlanarMoveDirXZ = rawPlanarDirection;
+            return rawPlanarDirection;
+        }
+
+        _smoothedPlanarMoveDirXZ = Vector3.SmoothDamp(
+            _smoothedPlanarMoveDirXZ,
+            rawPlanarDirection,
+            ref _moveDirSmoothVelocity,
+            moveDirectionSmoothTime,
+            Mathf.Infinity,
+            Time.deltaTime);
+        _smoothedPlanarMoveDirXZ.y = 0f;
+        return _smoothedPlanarMoveDirXZ.sqrMagnitude > 1e-6f
+            ? _smoothedPlanarMoveDirXZ.normalized
+            : rawPlanarDirection;
+    }
+
+    private void ResetSteeringDirectionSmoothing(Vector3 planarHint)
+    {
+        _moveDirSmoothVelocity = Vector3.zero;
+        planarHint.y = 0f;
+        _smoothedPlanarMoveDirXZ = planarHint.sqrMagnitude > 1e-6f
+            ? planarHint.normalized
+            : new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+    }
+
     private void TryDamageTarget(GameObject target)
     {
         if (target == null || DamageService.Instance == null)
@@ -757,6 +853,7 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (flat.sqrMagnitude < arriveDistance * arriveDistance)
         {
             _velocity = Vector3.zero;
+            ResetSteeringDirectionSmoothing(flat);
 #if UNITY_AI_NAVIGATION
             if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
                 navMeshAgent.ResetPath();
@@ -764,7 +861,8 @@ public class EnemyGroupMemberAI : MonoBehaviour
             return;
         }
 
-        Vector3 dir = ComputePlanarMoveDirection(flat, separation);
+        Vector3 rawDir = ComputePlanarMoveDirection(flat, separation);
+        Vector3 dir = SmoothSteeringDirection(rawDir);
 
         _velocity = dir * speed;
 
@@ -805,7 +903,8 @@ public class EnemyGroupMemberAI : MonoBehaviour
         flat.y = 0f;
         if (flat.sqrMagnitude < 0.01f)
             flat = transform.forward * -1f;
-        Vector3 dir = ComputePlanarMoveDirection(flat, separation);
+        Vector3 rawDir = ComputePlanarMoveDirection(flat, separation);
+        Vector3 dir = SmoothSteeringDirection(rawDir);
         _velocity = dir * speed;
 
 #if UNITY_AI_NAVIGATION
@@ -819,7 +918,21 @@ public class EnemyGroupMemberAI : MonoBehaviour
         {
             navMeshAgent.speed = speed;
             navMeshAgent.updateRotation = true;
-            navMeshAgent.SetDestination(transform.position + dir * 8f);
+            Vector3 fleeDest = transform.position + dir * 8f;
+            float now = Time.time;
+            float planarDelta = HorizontalDist(
+                new Vector3(fleeDest.x, 0f, fleeDest.z),
+                new Vector3(_lastNavMeshDestination.x, 0f, _lastNavMeshDestination.z));
+            if (!_hasNavMeshDestination
+                || now >= _nextNavMeshGoalTime
+                || planarDelta >= navMeshGoalMinPlanarDelta)
+            {
+                navMeshAgent.SetDestination(fleeDest);
+                _lastNavMeshDestination = fleeDest;
+                _hasNavMeshDestination = true;
+                _nextNavMeshGoalTime = now + navMeshGoalRefreshInterval;
+            }
+
             return;
         }
 #endif
@@ -849,15 +962,44 @@ public class EnemyGroupMemberAI : MonoBehaviour
         if (dist <= arriveDistance)
         {
             _velocity = Vector3.zero;
+            ResetSteeringDirectionSmoothing(goal - transform.position);
             return true;
         }
 
-        if (Time.time >= _nextCustomPathRecalcTime || Vector3.Distance(_lastCustomPathGoal, goal) >= customPathRecalcDistance)
+        Vector3 pathGoal = goal;
+        if (!_customPathGoalSmoothActive || HorizontalDist(_customPathGoalSmoothed, goal) > customPathGoalTeleportSnapDistance)
+        {
+            _customPathGoalSmoothed = goal;
+            _customPathGoalSmoothVelocity = Vector3.zero;
+            _customPathGoalSmoothActive = true;
+            pathGoal = goal;
+        }
+        else if (customPathGoalSmoothTime > 1e-5f)
+        {
+            _customPathGoalSmoothed = Vector3.SmoothDamp(
+                _customPathGoalSmoothed,
+                goal,
+                ref _customPathGoalSmoothVelocity,
+                customPathGoalSmoothTime,
+                Mathf.Infinity,
+                Time.deltaTime);
+            pathGoal = _customPathGoalSmoothed;
+            pathGoal.y = goal.y;
+        }
+        else
+            pathGoal = goal;
+
+        if (Time.time >= _nextCustomPathRecalcTime
+            || HorizontalDist(_lastCustomPathGoal, pathGoal) >= customPathRecalcDistance)
         {
             _nextCustomPathRecalcTime = Time.time + customPathRecalcInterval;
-            _lastCustomPathGoal = goal;
-            customMover.RecalculatePathFinding(goal);
+            _lastCustomPathGoal = pathGoal;
+            customMover.RecalculatePathFinding(pathGoal);
         }
+
+        // Graph has no path, or all waypoints were consumed but we are still far from the real goal (e.g. door).
+        if (!customMover.HasValidMovementPath())
+            return false;
 
         // Same smoothed separation as steering / NavMesh (avoid jitter from recomputing raw hint here).
         customMover.SetGroupSeparation(_smoothedSeparation);
@@ -865,6 +1007,7 @@ public class EnemyGroupMemberAI : MonoBehaviour
         // Walk when low stamina; slower approach toward player when HP is not healthy (engage scale).
         customMover.SetExternalSpeedMultiplier(GetLowStaminaSpeedMultiplier() * _engagePathSpeedScale);
         customMover.Move();
+        _customMoverDroveAnimThisFrame = true;
         return true;
     }
 
@@ -875,16 +1018,15 @@ public class EnemyGroupMemberAI : MonoBehaviour
             Vector3 motion = planarVelocity * Time.deltaTime;
             motion.y = Physics.gravity.y * Time.deltaTime;
             characterController.Move(motion);
-            // Cap turn rate so tiny velocity flips do not spin the model (unlike unconstrained Slerp).
+            // Ignore tiny separation jitter so CharacterController does not spin in place.
             if (planarVelocity.sqrMagnitude > 0.08f)
             {
                 Vector3 look = planarVelocity;
                 look.y = 0f;
-                Quaternion targetRot = Quaternion.LookRotation(look.normalized);
-                transform.rotation = Quaternion.RotateTowards(
+                transform.rotation = Quaternion.Slerp(
                     transform.rotation,
-                    targetRot,
-                    alignToVelocityMaxDegreesPerSecond * Time.deltaTime);
+                    Quaternion.LookRotation(look.normalized),
+                    moveFacingSlerpSharpness * Time.deltaTime);
             }
         }
         else
@@ -935,6 +1077,165 @@ public class EnemyGroupMemberAI : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void RefreshDecisionDebugLabelUnavailable(string reason)
+    {
+        if (decisionDebugLabel == null)
+            return;
+        if (!showDecisionDebug)
+        {
+            decisionDebugLabel.text = string.Empty;
+            return;
+        }
+
+        decisionDebugLabel.text = reason;
+    }
+
+    private void RefreshDecisionDebugLabel()
+    {
+        if (decisionDebugLabel == null)
+            return;
+        if (!showDecisionDebug)
+        {
+            decisionDebugLabel.text = string.Empty;
+            return;
+        }
+
+        var sb = new StringBuilder(128);
+        sb.Append(BuildDecisionTargetLabel());
+        sb.Append(" - ");
+        sb.Append(CurrentRole);
+        sb.Append(" - ");
+        sb.Append(BuildDecisionLocomotionLabel());
+        sb.Append(" - ");
+        sb.Append(GetDecisionPathBackendLabel());
+        sb.Append(" - ");
+        sb.Append(BuildDecisionSquadModeLabel());
+        if (_objectiveInterruptLatch && forceObjectiveRole && CurrentRole == SquadRole.EngagePlayer)
+            sb.Append(" - ObjInterrupt");
+
+        decisionDebugLabel.text = sb.ToString();
+    }
+
+    private string BuildDecisionSquadModeLabel()
+    {
+        if (forceEngagePlayerRole && !forceObjectiveRole)
+            return "WaveEngage";
+        if (forceObjectiveRole)
+            return "WaveObjective";
+        return "Fuzzy";
+    }
+
+    private string BuildDecisionTargetLabel()
+    {
+        if (coordinator == null)
+            return "NoCoordinator";
+
+        switch (CurrentRole)
+        {
+            case SquadRole.EngagePlayer:
+            case SquadRole.Flee:
+                return coordinator.PlayerTransform != null ? "Player" : "NoPlayer";
+            case SquadRole.AttackDoor:
+            {
+                DoorBreakable d = coordinator.GetBestDoorToAttack(transform.position);
+                return d != null ? $"Door:{d.gameObject.name}" : "NoDoor";
+            }
+            case SquadRole.AttackStone:
+            {
+                Transform stone = coordinator.GetMagicStoneTransform();
+                return stone != null ? $"Stone:{stone.name}" : "NoStone";
+            }
+            case SquadRole.Search:
+                return coordinator.HasLastKnownPlayer ? "LastKnown" : "NoTrack";
+            default:
+                return "?";
+        }
+    }
+
+    private string BuildDecisionLocomotionLabel()
+    {
+        if (ShouldSuppressLocomotionForHitReaction())
+            return "HitReact";
+
+        bool staminaLow = stamina != null && stamina.Normalized < lowStaminaWalkThreshold01;
+        string TiredSuffix() => staminaLow ? "+Tired" : string.Empty;
+
+        switch (CurrentRole)
+        {
+            case SquadRole.Flee:
+                return "Flee" + TiredSuffix();
+            case SquadRole.EngagePlayer:
+            {
+                if (coordinator == null || coordinator.PlayerTransform == null)
+                    return "Idle";
+
+                if (pauseLocomotionDuringAttackAnim && attackManager != null && attackManager.InAttackState())
+                    return "MeleeAnim" + TiredSuffix();
+
+                Transform player = coordinator.PlayerTransform;
+                float dist = HorizontalDist(transform.position, player.position);
+                if (dist <= meleeEngageRange && stopAtMeleeRange)
+                    return "MeleeHold" + TiredSuffix();
+
+                float hp = GetSelfHpNormalized();
+                if (hp > engageHealthyHpThreshold)
+                    return "Run" + TiredSuffix();
+                return "CautiousWalk" + TiredSuffix();
+            }
+            case SquadRole.AttackDoor:
+            {
+                if (coordinator == null)
+                    return "Idle";
+                DoorBreakable d = coordinator.GetBestDoorToAttack(transform.position);
+                if (d == null)
+                    return "Idle";
+                float dist = HorizontalDist(transform.position, d.transform.position);
+                float hold = Mathf.Max(meleeEngageRange, objectiveDamageRange);
+                if (dist <= hold)
+                {
+                    if (pauseLocomotionDuringAttackAnim && attackManager != null && attackManager.InAttackState())
+                        return "StrikeAnim" + TiredSuffix();
+                    return "AtObjective" + TiredSuffix();
+                }
+
+                return "ToObjective" + TiredSuffix();
+            }
+            case SquadRole.AttackStone:
+            {
+                if (coordinator == null)
+                    return "Idle";
+                Transform stone = coordinator.GetMagicStoneTransform();
+                if (stone == null)
+                    return "Idle";
+                float dist = HorizontalDist(transform.position, stone.position);
+                float hold = Mathf.Max(meleeEngageRange, objectiveDamageRange);
+                if (dist <= hold)
+                {
+                    if (pauseLocomotionDuringAttackAnim && attackManager != null && attackManager.InAttackState())
+                        return "StrikeAnim" + TiredSuffix();
+                    return "AtObjective" + TiredSuffix();
+                }
+
+                return "ToObjective" + TiredSuffix();
+            }
+            case SquadRole.Search:
+                return "SearchMove" + TiredSuffix();
+            default:
+                return "Idle";
+        }
+    }
+
+    private string GetDecisionPathBackendLabel()
+    {
+        if (customMover != null)
+            return "CustomPath";
+#if UNITY_AI_NAVIGATION
+        if (navMeshAgent != null && navMeshAgent.isOnNavMesh)
+            return "NavMesh";
+#endif
+        return "Direct";
     }
 
     private static float HorizontalDist(Vector3 a, Vector3 b)
