@@ -22,6 +22,9 @@ public class LocalDamageService : MonoBehaviour, IDamageService
         if (IsEnemyFriendlyFire(source, target))
             return;
 
+        if (source != null && HierarchyHasTag(source.transform, EnemyTag))
+            amount *= BattleProgression.CappedMultiplier;
+
         if (!target.TryGetComponent<IDamageable>(out var damageable))
         {
             return;

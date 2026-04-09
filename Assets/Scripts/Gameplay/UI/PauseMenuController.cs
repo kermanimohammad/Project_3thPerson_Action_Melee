@@ -49,6 +49,10 @@ public sealed class PauseMenuController : MonoBehaviour
     [Tooltip("Button under pause Menu that opens the quit confirmation panel (default name in BattleArea).")]
     [SerializeField] private string quitToMainMenuMenuButtonName = "Quit to Main Menu BTN";
 
+    [Header("Restart (BattleArea)")]
+    [Tooltip("Button under pause Menu that restarts the current battle scene (searched under Menu).")]
+    [SerializeField] private string restartButtonName = "RestartBTN";
+
     [Tooltip("Root GameObject of the confirmation panel (scene instance or prefab root name).")]
     [SerializeField] private string quitConfirmPanelName = "Quit to Main Menu";
 
@@ -74,6 +78,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private System.Action<InputAction.CallbackContext> _onPausePerformed;
     private Button _continueButton;
     private Button _settingsButton;
+    private Button _restartButton;
     private Button _quitToMainMenuMenuButton;
 
     private GameObject _quitConfirmPanel;
@@ -577,6 +582,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
         WireContinueButtonIfAny();
         WireSettingsButtonIfAny();
+        WireRestartButtonIfAny();
         WireQuitToMainMenuMenuButtonIfAny();
 
         // Ensure pause menu starts hidden when entering BattleArea.
@@ -632,6 +638,40 @@ public sealed class PauseMenuController : MonoBehaviour
         _quitToMainMenuMenuButton = btn;
         _quitToMainMenuMenuButton.onClick.RemoveListener(OnQuitToMainMenuMenuButtonClicked);
         _quitToMainMenuMenuButton.onClick.AddListener(OnQuitToMainMenuMenuButtonClicked);
+    }
+
+    private void WireRestartButtonIfAny()
+    {
+        if (menuRoot == null)
+            return;
+
+        var go = FindByNameUnder(menuRoot.transform, restartButtonName);
+        if (go == null)
+            return;
+
+        var btn = go.GetComponent<Button>();
+        if (btn == null)
+            return;
+
+        if (_restartButton != null && _restartButton != btn)
+            _restartButton.onClick.RemoveListener(OnRestartClicked);
+
+        _restartButton = btn;
+        _restartButton.onClick.RemoveListener(OnRestartClicked);
+        _restartButton.onClick.AddListener(OnRestartClicked);
+    }
+
+    private void OnRestartClicked()
+    {
+        if (!IsBattleAreaActive())
+            return;
+
+        // Ensure we don't carry pause state into the reload.
+        SetPaused(false);
+        Time.timeScale = 1f;
+
+        var scene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(scene.name, LoadSceneMode.Single);
     }
 
     private void OnQuitToMainMenuMenuButtonClicked()
