@@ -72,6 +72,32 @@ public class PlayerMotor : MonoBehaviour
     public Vector3 PlanarVelocity => planarVelocity;
     public bool MovementLocked { get; private set; }
 
+    private bool _externalGameplayFreeze;
+    private bool _movementLockedSnapshotBeforeExternalFreeze;
+
+    /// <summary>
+    /// Hard stop for UI overlays (e.g. victory): ignores input, blocks <see cref="ForceMove"/>, keeps gravity only.
+    /// </summary>
+    public void SetExternalGameplayFreeze(bool frozen)
+    {
+        if (frozen)
+        {
+            if (_externalGameplayFreeze)
+                return;
+            _movementLockedSnapshotBeforeExternalFreeze = MovementLocked;
+            _externalGameplayFreeze = true;
+            planarVelocity = Vector3.zero;
+            SetMovementLocked(true);
+        }
+        else
+        {
+            if (!_externalGameplayFreeze)
+                return;
+            _externalGameplayFreeze = false;
+            SetMovementLocked(_movementLockedSnapshotBeforeExternalFreeze);
+        }
+    }
+
     public bool IsPlanarDisplacementSuppressed =>
         disableAllPlanarDisplacementDuringAttacks
         && controller != null
@@ -136,6 +162,22 @@ public class PlayerMotor : MonoBehaviour
 
     private void Update()
     {
+        if (_externalGameplayFreeze)
+        {
+            planarVelocity = Vector3.zero;
+            ApplyGravity();
+            Vector3 freezeDisplacement = planarVelocity + verticalVelocity;
+            if (controller != null)
+                controller.Move(freezeDisplacement * Time.deltaTime);
+            if (animator != null)
+            {
+                animator.SetFloat(AnimParams.Speed, 0f, 0.1f, Time.deltaTime);
+                animator.SetBool(AnimParams.IsGrounded, controller.isGrounded);
+            }
+
+            return;
+        }
+
         bool defending = combat != null && combat.IsDefending;
         bool suppressLocomotion = combat != null && combat.SuppressLocomotionFromInput && controller != null && controller.isGrounded;
         bool suppressAllPlanar = IsPlanarDisplacementSuppressed;
@@ -329,7 +371,7 @@ public class PlayerMotor : MonoBehaviour
 
     private void TryJump()
     {
-        if (MovementLocked || input == null)
+        if (_externalGameplayFreeze || MovementLocked || input == null)
             return;
 
         if (!controller.isGrounded)
@@ -477,6 +519,9 @@ public class PlayerMotor : MonoBehaviour
 
     public void ForceMove(Vector3 worldDisplacement)
     {
+        if (_externalGameplayFreeze)
+            return;
+
         if (combat != null && combat.IsDefending)
             worldDisplacement = new Vector3(0f, worldDisplacement.y, 0f);
 
@@ -492,6 +537,9 @@ public class PlayerMotor : MonoBehaviour
     /// </summary>
     public void ForceMoveFromAttack(AnimationEvent _ignoredEvent, Vector3 worldDisplacement)
     {
+        if (_externalGameplayFreeze)
+            return;
+
         if (combat != null && combat.IsDefending)
             worldDisplacement = new Vector3(0f, worldDisplacement.y, 0f);
 

@@ -74,9 +74,9 @@ public class EnemyWaveSpawner : MonoBehaviour
     {
         currentWaveIndex++;
 
-        if (currentWaveIndex >= autoWaveSettings.TotalWaves)
+        if (!autoWaveSettings.InfiniteWaves && currentWaveIndex >= autoWaveSettings.FiniteTotalWaves)
         {
-            Debug.Log("All auto-generated waves completed.");
+            Debug.Log("Finite wave run completed.");
             OnAllWavesCompleted?.Invoke();
             yield break;
         }
@@ -88,7 +88,7 @@ public class EnemyWaveSpawner : MonoBehaviour
     private IEnumerator PreWaveCountdownCoroutine()
     {
         int waveDisplay = currentWaveIndex + 1;
-        int total = autoWaveSettings.TotalWaves;
+        int total = autoWaveSettings.TotalWavesForUi;
         OnPreWaveCountdownStarted?.Invoke(waveDisplay, total);
 
         int sec = autoWaveSettings.PreWaveCountdownSeconds;
@@ -118,7 +118,7 @@ public class EnemyWaveSpawner : MonoBehaviour
         totalEnemiesInCurrentWave = 0;
         killedEnemiesInCurrentWave = 0;
 
-        OnWaveStarted?.Invoke(waveIndex + 1, autoWaveSettings.TotalWaves);
+        OnWaveStarted?.Invoke(waveIndex + 1, autoWaveSettings.TotalWavesForUi);
         OnKillCountChanged?.Invoke(killedEnemiesInCurrentWave, totalEnemiesInCurrentWave);
 
         currentWaveSpawnOrder = BuildShuffledSpawnPointList();
@@ -271,12 +271,12 @@ public class EnemyWaveSpawner : MonoBehaviour
         int clearedDisplay = currentWaveIndex + 1;
         Debug.Log($"Wave {clearedDisplay} cleared.");
 
-        bool moreRemain = clearedDisplay < autoWaveSettings.TotalWaves;
+        bool moreRemain = autoWaveSettings.InfiniteWaves || clearedDisplay < autoWaveSettings.FiniteTotalWaves;
         var summary = new WaveClearSummary(
             clearedDisplay,
             killedEnemiesInCurrentWave,
             totalEnemiesInCurrentWave,
-            autoWaveSettings.TotalWaves,
+            autoWaveSettings.TotalWavesForUi,
             moreRemain);
 
         OnWaveCleared?.Invoke(summary);

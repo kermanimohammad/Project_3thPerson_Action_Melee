@@ -4,7 +4,8 @@ using UnityEngine;
 public class AutoWaveSettings
 {
     [Header("Wave Count")]
-    [SerializeField] private int totalWaves = 5;
+    [Tooltip("Exact number of waves before the run ends. Use 0 for endless waves (Continue always starts the next wave after the victory screen).")]
+    [SerializeField] private int totalWaves = 0;
 
     [Header("Group Formula")]
     [SerializeField] private int baseGroupsPerWave = 2;
@@ -22,7 +23,15 @@ public class AutoWaveSettings
     [SerializeField] private float delayAfterWaveCleared = 3f;
     [SerializeField] private float spawnScatterRadius = 1.5f;
 
-    public int TotalWaves => Mathf.Max(1, totalWaves);
+    /// <summary>True when <see cref="totalWaves"/> is 0 — there is no final wave; the loop continues until the player uses Main Menu.</summary>
+    public bool InfiniteWaves => totalWaves <= 0;
+
+    /// <summary>Valid only when <see cref="InfiniteWaves"/> is false.</summary>
+    public int FiniteTotalWaves => Mathf.Max(1, totalWaves);
+
+    /// <summary>0 in UI means endless (no fixed total in HUD copy). Otherwise equals <see cref="FiniteTotalWaves"/>.</summary>
+    public int TotalWavesForUi => InfiniteWaves ? 0 : FiniteTotalWaves;
+
     public int BaseGroupsPerWave => Mathf.Max(1, baseGroupsPerWave);
     public int AddGroupEveryNWaves => Mathf.Max(1, addGroupEveryNWaves);
     public int MaxGroupsPerWave => Mathf.Max(1, maxGroupsPerWave);

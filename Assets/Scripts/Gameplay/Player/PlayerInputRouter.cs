@@ -32,6 +32,17 @@ public class PlayerInputRouter : MonoBehaviour
             InputBindingRuntimeSync.Unregister(input.asset);
     }
 
+    /// <summary>
+    /// Clears cached stick/button state so disabling this component does not leave a stale <see cref="Move"/> vector for <see cref="PlayerMotor"/>.
+    /// </summary>
+    public void ClearBufferedInput()
+    {
+        Move = Vector2.zero;
+        SprintHeld = false;
+        DefendHeld = false;
+        JumpHeld = false;
+    }
+
     private void OnEnable()
     {
         input.Player.Enable();
@@ -56,6 +67,8 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnDisable()
     {
+        ClearBufferedInput();
+
         input.Player.Move.performed -= OnMove;
         input.Player.Move.canceled -= OnMove;
 

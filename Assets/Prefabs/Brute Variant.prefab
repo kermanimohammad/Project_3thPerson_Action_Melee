@@ -100,6 +100,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8141621335869729022, guid: f4b0b35bdbc6b6e4993cfe911684ae54, type: 3}
+      propertyPath: rewardAmount
+      value: 300
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
