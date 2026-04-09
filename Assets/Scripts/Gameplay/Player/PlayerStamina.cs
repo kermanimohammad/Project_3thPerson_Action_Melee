@@ -96,10 +96,11 @@ public class PlayerStamina : MonoBehaviour
         if (!regenWhileBlocking && BlockHeld)
             allowRegen = false;
 
+        float regenMultiplier = BattleProgression.CappedMultiplier;
         if (allowRegen && regenPerSecond > 0f && CurrentStamina < maxStamina)
         {
             float before = CurrentStamina;
-            CurrentStamina = Mathf.Min(maxStamina, CurrentStamina + regenPerSecond * dt);
+            CurrentStamina = Mathf.Min(maxStamina, CurrentStamina + (regenPerSecond * regenMultiplier) * dt);
             if (!Mathf.Approximately(before, CurrentStamina))
                 RaiseChanged();
         }

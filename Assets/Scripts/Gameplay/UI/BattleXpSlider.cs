@@ -52,6 +52,7 @@ public sealed class BattleXpSlider : MonoBehaviour
         }
 
         CurrentXp = 0f;
+        BattleProgression.SetLevel(level);
         RefreshLabel();
         EnsureTreeDrainLoopAudioSource();
     }
@@ -110,6 +111,8 @@ public sealed class BattleXpSlider : MonoBehaviour
         int mx = Mathf.RoundToInt(maxXp);
         if (xpLabel != null)
             xpLabel.text = $"{cur}/{mx}";
+
+        BattleProgression.SetLevel(level);
     }
 
     public bool CanLevelUpAtTree()

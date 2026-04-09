@@ -7714,6 +7714,7 @@ GameObject:
   - component: {fileID: 1417913082536660553}
   - component: {fileID: 860285051748171205}
   - component: {fileID: 8159401649847847126}
+  - component: {fileID: 2475409744585491829}
   m_Layer: 3
   m_Name: Erika
   m_TagString: Player
@@ -7858,12 +7859,12 @@ MonoBehaviour:
   motor: {fileID: 1144093885710193110}
   attackManager: {fileID: 2023201411061368894}
   characterDefense: {fileID: 2196395031241306733}
-  stamina: {fileID: 0}
+  stamina: {fileID: 8159401649847847126}
   attackStartSuppressSeconds: 0.12
-  specialSphereRadius: 4
+  specialSphereRadius: 5
   specialSphereForwardOffset: 1
   specialSphereLifetime: 0.3
-  specialDamageAmount: 1
+  specialDamageAmount: 25
 --- !u!114 &2550406804770519241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7892,7 +7893,7 @@ MonoBehaviour:
   input: {fileID: 3601852685204732002}
   motor: {fileID: 1144093885710193110}
   combat: {fileID: 1524877283070745192}
-  stamina: {fileID: 0}
+  stamina: {fileID: 8159401649847847126}
   animator: {fileID: 2338002076007477417}
   cameraTransform: {fileID: 5769975135818325348}
 --- !u!114 &3601852685204732002
@@ -7934,7 +7935,7 @@ MonoBehaviour:
   animator: {fileID: 2338002076007477417}
   input: {fileID: 3601852685204732002}
   combat: {fileID: 1524877283070745192}
-  stamina: {fileID: 0}
+  stamina: {fileID: 8159401649847847126}
   attackMoveSpeedMultiplier: 0.35
   disableAllPlanarDisplacementDuringAttacks: 1
   jumpBranchUsesPlanarSpeed: 0
@@ -7960,28 +7961,28 @@ MonoBehaviour:
   - animationTrigger: Attack1
     damageToCharacters: 10
     damageToDoors: 0
-    timeToResetCombo: 0.3
+    timeToResetCombo: 1
     colliderType: 0
     forwardOffset: 1
     lifeTime: 0.15
-    boxSize: {x: 2, y: 3, z: 2}
+    boxSize: {x: 2, y: 1.5, z: 2}
   - animationTrigger: Attack2
     damageToCharacters: 10
     damageToDoors: 0
-    timeToResetCombo: 0.3
+    timeToResetCombo: 1
     colliderType: 0
     forwardOffset: 1
     lifeTime: 0.15
-    boxSize: {x: 2, y: 3, z: 2}
+    boxSize: {x: 2, y: 1.5, z: 2}
   - animationTrigger: Attack3
     damageToCharacters: 10
     damageToDoors: 0
-    timeToResetCombo: 0.3
+    timeToResetCombo: 1
     colliderType: 0
     forwardOffset: 1
     lifeTime: 0.15
-    boxSize: {x: 2, y: 3, z: 2}
-  stamina: {fileID: 0}
+    boxSize: {x: 2, y: 1.5, z: 2}
+  stamina: {fileID: 8159401649847847126}
   allowBuffering: 1
   inputBufferTime: 0.4
   cancelBufferedComboAfterSeconds: 0.4
@@ -8006,6 +8007,9 @@ MonoBehaviour:
   destroyGameObjectOnDeath: 0
   destroyDelayAfterDeath: 0
   deathTriggerName: Death
+  disableAnimatorRootMotionOnDeath: 1
+  freezeRigidbodyAndHitSlideOnDeath: 1
+  disableCharacterControllerOnDeath: 1
   disableOtherBehavioursOnDeathWhenNotDestroyed: 1
   freezeAnimatorAfterDeathSeconds: 2.5
   disableAnimatorComponentAfterFreeze: 1
@@ -8036,7 +8040,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackMotion
   motor: {fileID: 0}
+  stamina: {fileID: 0}
   useCharacterForward: 1
+  skipLungeIfCannotSpendStamina: 1
   dashEase:
     serializedVersion: 2
     m_Curve: []
@@ -8104,8 +8110,8 @@ MonoBehaviour:
   sAttackVfxSpawnEuler: {x: -90, y: 0, z: 0}
   sAttackVfxDestroyAfterSeconds: 2.5
   sAttackParticles: []
-  sAttackParticlesDontInterruptIfPlaying: 0
-  sAttackParticlesClearBeforePlay: 0
+  sAttackParticlesDontInterruptIfPlaying: 1
+  sAttackParticlesClearBeforePlay: 1
   sAttackMinIntervalSeconds: 1
   sAttackVfxPrefabMinIntervalSeconds: 1
 --- !u!114 &2191225258646047283
@@ -8120,7 +8126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a583b2281569c9545a7168c3e4be3314, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimatorEventReceiver_PlayerAnimationSfx
-  sfx: {fileID: 0}
+  sfx: {fileID: 3134291872207581464}
   cameraVibration: {fileID: 0}
 --- !u!114 &1417913082536660553
 MonoBehaviour:
@@ -8195,17 +8201,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   startingStamina: 100
-  regenPerSecond: 3
+  regenPerSecond: 15
   regenDelaySeconds: 0.75
   regenWhileSprinting: 1
   regenWhileBlocking: 1
   attackCost: 3
   specialAttackCost: 20
   dodgeCost: 2
-  sprintDrainPerSecond: 4
+  sprintDrainPerSecond: 5
   blockDrainPerSecond: 10
   minStaminaToSprint: 1
   minStaminaToBlock: 1
+--- !u!114 &2475409744585491829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9068487098683666537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c674024cff2cb041820028cb4f59b9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHitMove
+  motor: {fileID: 0}
+  health: {fileID: 0}
+  moveDistance: 0.75
+  moveDurationSeconds: 0.12
+  lockMovementWhileMoving: 1
+  moveAwayFromSource: 1
 --- !u!1 &9087654598535107378
 GameObject:
   m_ObjectHideFlags: 0
