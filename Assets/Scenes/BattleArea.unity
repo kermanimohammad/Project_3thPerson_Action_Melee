@@ -14818,7 +14818,7 @@ Transform:
   m_GameObject: {fileID: 644719262}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.15, y: 1.1, z: -46.49}
+  m_LocalPosition: {x: -0.3, y: 1.1, z: -96.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -38754,9 +38754,15 @@ MonoBehaviour:
   waitForPlayerContinueBetweenWaves: 1
   autoSpawnPoints:
   - {fileID: 644719263}
+  - {fileID: 1939693129}
+  - {fileID: 1989435269}
   autoGroupAIPrefab: {fileID: 6646304430914987252, guid: 621640364580b634d84f210f006ab47c, type: 3}
   autoEnemyPool:
   - enemyPrefab: {fileID: 5079681191551491444, guid: 1e8193bc0254c2e499d3964a87206b41, type: 3}
+    weight: 1
+  - enemyPrefab: {fileID: 5139190812975933402, guid: 46ec695e29545b24d8d43a833a0cfecd, type: 3}
+    weight: 1
+  - enemyPrefab: {fileID: 1241260480478666515, guid: 1b1801724ac1ba744820ee72b49c6af9, type: 3}
     weight: 1
   squadSize: 3
   runtimeParent: {fileID: 0}
@@ -46839,7 +46845,7 @@ Transform:
   m_GameObject: {fileID: 1939693128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -67.97, y: 0.54, z: 2.8}
+  m_LocalPosition: {x: -66.17, y: 0.54, z: -14.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47796,7 +47802,7 @@ Transform:
   m_GameObject: {fileID: 1989435268}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.2, y: 0.63, z: -103.4}
+  m_LocalPosition: {x: 67.1, y: 0.63, z: -14.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
